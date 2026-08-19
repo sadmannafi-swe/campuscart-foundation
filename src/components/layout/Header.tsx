@@ -29,8 +29,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur supports-backdrop-filter:bg-surface/80">
       <div className="container-page">
-        <div className="grid h-16 grid-cols-[auto_1fr_auto] items-center gap-3 lg:h-20 lg:gap-6">
-          <Logo size="sm" className="lg:h-12" />
+        <div className="grid h-14 grid-cols-[auto_1fr_auto] items-center gap-3 lg:h-16 lg:gap-6">
+          <Logo size="sm" className="lg:h-10" />
 
           <div className="hidden min-w-0 lg:block">
             <SearchBar />
@@ -146,11 +146,13 @@ export function Header() {
           </div>
         </div>
 
-        {mobileSearchOpen && (
-          <div className="pb-3 lg:hidden">
-            <SearchBar autoFocus onSubmitted={() => setMobileSearchOpen(false)} />
-          </div>
-        )}
+        <div className="pb-2.5 lg:hidden">
+          <SearchBar
+            placeholder="Search products, stores..."
+            autoFocus={mobileSearchOpen}
+            onSubmitted={() => setMobileSearchOpen(false)}
+          />
+        </div>
       </div>
 
       <div className="hidden md:block">
