@@ -12,7 +12,7 @@ export function ProductGrid({
   return (
     <div
       className={cn(
-        "grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4",
+        "grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 sm:gap-3",
         className,
       )}
     >

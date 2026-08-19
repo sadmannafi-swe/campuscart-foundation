@@ -26,10 +26,10 @@ const columns = [
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-border bg-surface">
-      <div className="container-page grid gap-10 py-12 md:grid-cols-2 lg:grid-cols-4">
+    <footer className="mt-10 border-t border-border bg-surface">
+      <div className="container-page grid gap-8 py-8 md:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-4">
-          <Logo size="lg" className="h-20" />
+          <Logo size="md" className="h-12" />
           <p className="max-w-xs text-sm text-muted-foreground">
             The official student marketplace of Daffodil International University. Buy, sell and
             discover everything campus life needs.
@@ -49,7 +49,7 @@ export function Footer() {
         {columns.map((column) => (
           <div key={column.title}>
             <h3 className="text-sm font-bold">{column.title}</h3>
-            <ul className="mt-4 space-y-2.5">
+            <ul className="mt-3 space-y-2">
               {column.links.map((link) => (
                 <li key={link.label}>
                   <Link
@@ -66,7 +66,7 @@ export function Footer() {
 
         <div>
           <h3 className="text-sm font-bold">Campus support</h3>
-          <ul className="mt-4 space-y-3 text-sm text-muted-foreground">
+          <ul className="mt-3 space-y-2.5 text-sm text-muted-foreground">
             <li className="flex gap-2">
               <MapPin className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
               Daffodil Smart City, Ashulia, Dhaka

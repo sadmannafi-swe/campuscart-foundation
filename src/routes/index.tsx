@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, Store as StoreIcon, Truck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import heroImage from "@/assets/hero-campus.jpg";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { SectionHeader } from "@/components/common/SectionHeader";
@@ -12,7 +12,6 @@ import {
   getFeaturedStores,
   getProductsByTag,
   getTopRatedStores,
-  products,
 } from "@/data/marketplace";
 
 export const Route = createFileRoute("/")({
@@ -27,122 +26,102 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "DIU CampusCart — Your Campus. Your Marketplace." },
       {
         property: "og:description",
-        content: "The multi-vendor marketplace built for Daffodil International University students.",
+        content:
+          "The multi-vendor marketplace built for Daffodil International University students.",
       },
     ],
   }),
   component: HomePage,
 });
 
-const perks = [
-  { icon: ShieldCheck, title: "Verified sellers", text: "Every store is reviewed by the campus team." },
-  { icon: Truck, title: "Same-day pickup", text: "Collect from your building or hall gate." },
-  { icon: StoreIcon, title: "Student pricing", text: "Deals negotiated for DIU students only." },
-];
-
 function HomePage() {
-  const featured = getProductsByTag("featured");
-  const trending = getProductsByTag("trending").slice(0, 4);
-  const newArrivals = getProductsByTag("new").slice(0, 4);
-  const offers = getProductsByTag("offer").slice(0, 4);
+  const featured = getProductsByTag("featured").slice(0, 12);
+  const trending = getProductsByTag("trending").slice(0, 5);
+  const newArrivals = getProductsByTag("new").slice(0, 5);
 
   return (
     <SiteLayout>
-      {/* Hero */}
-      <section className="border-b border-border bg-surface">
-        <div className="container-page grid gap-10 py-10 lg:grid-cols-2 lg:items-center lg:py-16">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-accent-soft px-3 py-1 text-xs font-bold text-accent">
-              {products.length}+ live listings · {categories.length} categories
-            </span>
-            <h1 className="mt-4 text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">
-              Everything campus life needs,{" "}
-              <span className="text-primary">from students you trust</span>
-            </h1>
-            <p className="mt-4 max-w-xl text-base text-muted-foreground">
-              DIU CampusCart brings verified student stores, department merch, textbooks and
-              services into one clean marketplace. Your Campus. Your Marketplace.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Button size="lg" asChild>
-                <Link to="/products">
-                  Start shopping <ArrowRight />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild>
-                <Link to="/stores">Explore stores</Link>
-              </Button>
-            </div>
-            <dl className="mt-9 grid grid-cols-3 gap-4 border-t border-border pt-6">
-              {[
-                { label: "Active stores", value: "120+" },
-                { label: "Student buyers", value: "8.4k" },
-                { label: "Avg. rating", value: "4.7" },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <dt className="text-xs text-muted-foreground">{stat.label}</dt>
-                  <dd className="price-lg text-xl text-primary">{stat.value}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-          <div className="relative">
+      {/* Hero banner + top rated stores */}
+      <section className="container-page pt-4">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_300px]">
+          <div className="relative overflow-hidden rounded-xl bg-primary">
             <img
               src={heroImage}
-              alt="DIU students exchanging books, a laptop and headphones on campus"
-              width={1280}
-              height={960}
-              className="aspect-4/3 w-full rounded-3xl object-cover shadow-[var(--shadow-card-hover)]"
+              alt=""
+              aria-hidden="true"
+              className="absolute inset-y-0 right-0 h-full w-1/2 object-cover opacity-25"
             />
-            <div className="card-surface absolute -bottom-5 left-4 hidden items-center gap-3 px-4 py-3 sm:flex">
-              <span className="grid size-9 place-items-center rounded-full bg-accent-soft text-accent">
-                <ShieldCheck className="size-4" aria-hidden="true" />
-              </span>
-              <div>
-                <p className="text-sm font-semibold">Moderated listings</p>
-                <p className="text-xs text-muted-foreground">Reviewed before going live</p>
-              </div>
+            <div className="relative max-w-md px-5 py-6 sm:px-7 sm:py-8">
+              <h1 className="text-xl font-extrabold leading-tight text-primary-foreground sm:text-2xl">
+                Shop Smart. Support Local.
+              </h1>
+              <p className="mt-1.5 text-xs text-primary-foreground/85 sm:text-sm">
+                Buy from verified DIU sellers and get the best campus deals.
+              </p>
+              <Button size="sm" variant="secondary" asChild className="mt-4">
+                <Link to="/products">Shop now</Link>
+              </Button>
             </div>
+          </div>
+
+          <div className="hidden rounded-xl border border-border bg-surface p-3 lg:block">
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="text-sm font-bold">Top rated stores</h2>
+              <Link to="/stores" className="text-xs font-semibold text-primary hover:underline">
+                View all
+              </Link>
+            </div>
+            <ul className="space-y-1.5">
+              {getTopRatedStores().map((store) => (
+                <li key={store.id}>
+                  <Link
+                    to="/stores/$storeSlug"
+                    params={{ storeSlug: store.slug }}
+                    className="flex items-center gap-2.5 rounded-lg px-1 py-1.5 transition-colors hover:bg-muted"
+                  >
+                    <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary-soft text-[11px] font-extrabold text-primary">
+                      {store.initials}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[13px] font-semibold">{store.name}</span>
+                      <span className="block truncate text-[11px] text-muted-foreground">
+                        {store.categoryName}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-[11px] font-semibold text-warning">
+                      ★ {store.rating.toFixed(1)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>
 
-      {/* Perks */}
-      <section className="container-page grid gap-4 py-8 sm:grid-cols-3">
-        {perks.map((perk) => (
-          <div key={perk.title} className="card-surface flex items-start gap-3 p-4">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
-              <perk.icon className="size-5" aria-hidden="true" />
-            </span>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold">{perk.title}</p>
-              <p className="text-xs text-muted-foreground">{perk.text}</p>
-            </div>
-          </div>
-        ))}
-      </section>
-
       {/* Categories */}
-      <section className="container-page py-8">
+      <section className="container-page pt-6">
         <SectionHeader
-          eyebrow="Browse"
-          title="Popular categories"
-          description="Jump straight into what students shop for most."
+          title="Categories"
+          action={
+            <Link to="/categories" className="text-xs font-semibold text-primary hover:underline">
+              View all
+            </Link>
+          }
         />
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-4 gap-2.5 sm:grid-cols-6 lg:grid-cols-8">
           {categories.map((category) => (
             <Link
               key={category.id}
               to="/products"
               search={{ category: category.slug, q: undefined, sort: undefined }}
-              className="card-surface flex items-center gap-3 p-4 transition-shadow hover:shadow-[var(--shadow-card-hover)]"
+              className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-surface px-2 py-3 text-center transition-shadow hover:shadow-[var(--shadow-card-hover)]"
             >
-              <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
-                <CategoryIcon name={category.icon} />
+              <span className="grid size-9 place-items-center rounded-lg bg-primary-soft text-primary">
+                <CategoryIcon name={category.icon} className="size-4" />
               </span>
-              <span className="min-w-0">
-                <span className="block truncate text-sm font-semibold">{category.name}</span>
-                <span className="text-xs text-muted-foreground">{category.productCount} items</span>
+              <span className="line-clamp-2 text-[11px] font-semibold leading-tight">
+                {category.name}
               </span>
             </Link>
           ))}
@@ -150,77 +129,58 @@ function HomePage() {
       </section>
 
       {/* Featured stores */}
-      <section className="container-page py-8">
+      <section className="container-page pt-6">
         <SectionHeader
-          eyebrow="Vendors"
           title="Featured stores"
-          description="Highly rated student-run shops on campus."
           action={
-            <Button variant="ghost" asChild className="hidden sm:inline-flex">
-              <Link to="/stores">
-                All stores <ArrowRight />
-              </Link>
-            </Button>
+            <Link to="/stores" className="text-xs font-semibold text-primary hover:underline">
+              View all
+            </Link>
           }
         />
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
           {getFeaturedStores().map((store) => (
-            <StoreCard key={store.id} store={store} />
+            <StoreCard key={store.id} store={store} className="w-64 shrink-0 sm:w-auto" />
           ))}
         </div>
       </section>
 
       {/* Featured products */}
-      <section className="container-page py-8">
+      <section className="container-page pt-6">
         <SectionHeader
-          eyebrow="Handpicked"
           title="Featured products"
           action={
-            <Button variant="ghost" asChild className="hidden sm:inline-flex">
+            <Button variant="ghost" size="sm" asChild>
               <Link to="/products">
                 View all <ArrowRight />
               </Link>
             </Button>
           }
         />
-        <ProductGrid products={featured.slice(0, 4)} />
+        <ProductGrid products={featured} />
       </section>
 
       {/* Trending */}
-      <section className="container-page py-8">
-        <SectionHeader eyebrow="Hot right now" title="Trending this week" />
+      <section className="container-page pt-6">
+        <SectionHeader
+          title="Trending this week"
+          action={
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/products" search={{ sort: "rating", q: undefined, category: undefined }}>
+                View all <ArrowRight />
+              </Link>
+            </Button>
+          }
+        />
         <ProductGrid products={trending} />
       </section>
 
-      {/* Promotional */}
-      <section className="container-page py-8">
-        <div className="overflow-hidden rounded-3xl border border-border bg-primary px-6 py-10 text-primary-foreground sm:px-10">
-          <div className="grid items-center gap-6 lg:grid-cols-[minmax(0,1fr)_auto]">
-            <div className="min-w-0">
-              <span className="text-xs font-bold uppercase tracking-widest text-accent">
-                Semester start offer
-              </span>
-              <h2 className="mt-2 text-2xl font-extrabold sm:text-3xl">
-                Up to 40% off textbook bundles & hostel kits
-              </h2>
-              <p className="mt-2 max-w-xl text-sm opacity-90">
-                Fresh deals from verified campus stores, live until the add/drop week ends.
-              </p>
-            </div>
-            <Button size="lg" variant="secondary" asChild>
-              <Link to="/offers">See all offers</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* New arrivals */}
-      <section className="container-page py-8">
+      <section className="container-page pb-8 pt-6">
         <SectionHeader
-          eyebrow="Just listed"
           title="New arrivals"
           action={
-            <Button variant="ghost" asChild className="hidden sm:inline-flex">
+            <Button variant="ghost" size="sm" asChild>
               <Link to="/new-arrivals">
                 View all <ArrowRight />
               </Link>
@@ -228,22 +188,6 @@ function HomePage() {
           }
         />
         <ProductGrid products={newArrivals} />
-      </section>
-
-      {/* Offers */}
-      <section className="container-page py-8">
-        <SectionHeader eyebrow="Save more" title="Best student deals" />
-        <ProductGrid products={offers} />
-      </section>
-
-      {/* Top rated stores */}
-      <section className="container-page py-8">
-        <SectionHeader eyebrow="Trusted" title="Top-rated stores" />
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-          {getTopRatedStores().map((store) => (
-            <StoreCard key={store.id} store={store} />
-          ))}
-        </div>
       </section>
     </SiteLayout>
   );
