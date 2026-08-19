@@ -78,8 +78,8 @@ export function ProductCard({ product, className }: { product: Product; classNam
         </div>
 
         <div className="mt-auto flex items-center gap-1.5 pt-0.5 text-[11px] text-muted-foreground">
-          <span className="font-semibold text-warning">★ {product.rating.toFixed(1)}</span>
-          <span className="text-border">|</span>
+          <span className="shrink-0 whitespace-nowrap font-semibold text-warning">★ {product.rating.toFixed(1)}</span>
+          <span className="shrink-0 text-border">|</span>
           <span className="truncate">{store?.name}</span>
         </div>
       </div>
