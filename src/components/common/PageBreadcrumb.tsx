@@ -17,19 +17,20 @@ export function PageBreadcrumb({ items }: { items: Crumb[] }) {
     <Breadcrumb className="mb-5">
       <BreadcrumbList>
         {items.map((item, index) => (
-          <BreadcrumbItem key={item.label}>
-            {item.to && index < items.length - 1 ? (
-              <>
+          <Fragment key={item.label}>
+            <BreadcrumbItem>
+              {item.to && index < items.length - 1 ? (
                 <Link to={item.to} className="transition-colors hover:text-primary">
                   {item.label}
                 </Link>
-                <BreadcrumbSeparator />
-              </>
-            ) : (
-              <BreadcrumbPage className="truncate">{item.label}</BreadcrumbPage>
-            )}
-          </BreadcrumbItem>
+              ) : (
+                <BreadcrumbPage className="truncate">{item.label}</BreadcrumbPage>
+              )}
+            </BreadcrumbItem>
+            {index < items.length - 1 && <BreadcrumbSeparator />}
+          </Fragment>
         ))}
+
       </BreadcrumbList>
     </Breadcrumb>
   );
