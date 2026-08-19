@@ -22,7 +22,7 @@ export function ProductCard({ product, className }: { product: Product; classNam
     >
       <div
         className={cn(
-          "grid aspect-square place-items-center bg-gradient-to-br",
+          "grid aspect-4/3 place-items-center bg-gradient-to-br",
           product.accentFrom,
           product.accentTo,
         )}

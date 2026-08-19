@@ -36,8 +36,8 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const featured = getProductsByTag("featured").slice(0, 12);
-  const trending = getProductsByTag("trending").slice(0, 6);
-  const newArrivals = getProductsByTag("new").slice(0, 6);
+  const trending = getProductsByTag("trending").slice(0, 5);
+  const newArrivals = getProductsByTag("new").slice(0, 5);
 
   return (
     <SiteLayout>
@@ -138,7 +138,7 @@ function HomePage() {
             </Link>
           }
         />
-        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
           {getFeaturedStores().map((store) => (
             <StoreCard key={store.id} store={store} />
           ))}
