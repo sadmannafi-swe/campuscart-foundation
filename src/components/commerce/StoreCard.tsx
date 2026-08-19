@@ -20,8 +20,8 @@ export function StoreCard({ store, className }: { store: Store; className?: stri
         </div>
         <div className="mt-3 flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="flex items-center gap-1.5 truncate text-base font-bold">
-              <Link to="/stores/$storeSlug" params={{ storeSlug: store.slug }}>
+            <h3 className="flex min-w-0 items-center gap-1.5 text-base font-bold">
+              <Link to="/stores/$storeSlug" params={{ storeSlug: store.slug }} className="min-w-0 truncate">
                 <span className="absolute inset-0" aria-hidden="true" />
                 {store.name}
               </Link>
