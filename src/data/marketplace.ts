@@ -15,7 +15,7 @@ const tints: Array<{ from: string; to: string }> = [
   { from: "from-muted", to: "to-accent/15" },
 ];
 
-const tint = (i: number) => tints[i % tints.length];
+const tint = (i: number) => tints[i % tints.length]!;
 
 export const categories: Category[] = [
   { id: "c1", slug: "textbooks", name: "Textbooks & Notes", icon: "BookOpen", productCount: 412 },

@@ -48,14 +48,14 @@ export interface Product {
   categorySlug: string;
   storeId: string;
   price: number;
-  originalPrice?: number;
+  originalPrice?: number | undefined;
   rating: number;
   reviewCount: number;
   inStock: boolean;
   condition: "new" | "like-new" | "used";
   description: string;
   highlights: string[];
-  variants?: ProductVariant[];
+  variants?: ProductVariant[] | undefined;
   tags: Array<"featured" | "trending" | "new" | "offer">;
   accentFrom: string;
   accentTo: string;
