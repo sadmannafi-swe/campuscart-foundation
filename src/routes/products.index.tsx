@@ -51,7 +51,7 @@ export const Route = createFileRoute("/products/")({
 
 function ProductsPage() {
   const search = Route.useSearch();
-  const navigate = useNavigate({ from: "/products" });
+  const navigate = useNavigate({ from: "/products/" });
 
   const results = useMemo(() => filterProducts(products, search), [search]);
   const activeCategory = categories.find((c) => c.slug === search.category);

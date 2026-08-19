@@ -10,12 +10,42 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as NewArrivalsRouteImport } from './routes/new-arrivals'
+import { Route as OffersRouteImport } from './routes/offers'
+import { Route as ProductsIndexRouteImport } from './routes/products.index'
+import { Route as ProductsProductSlugRouteImport } from './routes/products.$productSlug'
 import { Route as StoresIndexRouteImport } from './routes/stores.index'
 import { Route as StoresStoreSlugRouteImport } from './routes/stores.$storeSlug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoriesRoute = CategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewArrivalsRoute = NewArrivalsRouteImport.update({
+  id: '/new-arrivals',
+  path: '/new-arrivals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OffersRoute = OffersRouteImport.update({
+  id: '/offers',
+  path: '/offers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsIndexRoute = ProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsProductSlugRoute = ProductsProductSlugRouteImport.update({
+  id: '/products/$productSlug',
+  path: '/products/$productSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StoresIndexRoute = StoresIndexRouteImport.update({
@@ -31,31 +61,76 @@ const StoresStoreSlugRoute = StoresStoreSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/categories': typeof CategoriesRoute
+  '/new-arrivals': typeof NewArrivalsRoute
+  '/offers': typeof OffersRoute
+  '/products/$productSlug': typeof ProductsProductSlugRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
+  '/products/': typeof ProductsIndexRoute
   '/stores/': typeof StoresIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/categories': typeof CategoriesRoute
+  '/new-arrivals': typeof NewArrivalsRoute
+  '/offers': typeof OffersRoute
+  '/products/$productSlug': typeof ProductsProductSlugRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
+  '/products': typeof ProductsIndexRoute
   '/stores': typeof StoresIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/categories': typeof CategoriesRoute
+  '/new-arrivals': typeof NewArrivalsRoute
+  '/offers': typeof OffersRoute
+  '/products/$productSlug': typeof ProductsProductSlugRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
+  '/products/': typeof ProductsIndexRoute
   '/stores/': typeof StoresIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/stores/$storeSlug' | '/stores/'
+  fullPaths:
+    | '/'
+    | '/categories'
+    | '/new-arrivals'
+    | '/offers'
+    | '/products/$productSlug'
+    | '/stores/$storeSlug'
+    | '/products/'
+    | '/stores/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/stores/$storeSlug' | '/stores'
-  id: '__root__' | '/' | '/stores/$storeSlug' | '/stores/'
+  to:
+    | '/'
+    | '/categories'
+    | '/new-arrivals'
+    | '/offers'
+    | '/products/$productSlug'
+    | '/stores/$storeSlug'
+    | '/products'
+    | '/stores'
+  id:
+    | '__root__'
+    | '/'
+    | '/categories'
+    | '/new-arrivals'
+    | '/offers'
+    | '/products/$productSlug'
+    | '/stores/$storeSlug'
+    | '/products/'
+    | '/stores/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CategoriesRoute: typeof CategoriesRoute
+  NewArrivalsRoute: typeof NewArrivalsRoute
+  OffersRoute: typeof OffersRoute
+  ProductsProductSlugRoute: typeof ProductsProductSlugRoute
   StoresStoreSlugRoute: typeof StoresStoreSlugRoute
+  ProductsIndexRoute: typeof ProductsIndexRoute
   StoresIndexRoute: typeof StoresIndexRoute
 }
 
@@ -66,6 +141,41 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/categories': {
+      id: '/categories'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof CategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/new-arrivals': {
+      id: '/new-arrivals'
+      path: '/new-arrivals'
+      fullPath: '/new-arrivals'
+      preLoaderRoute: typeof NewArrivalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offers': {
+      id: '/offers'
+      path: '/offers'
+      fullPath: '/offers'
+      preLoaderRoute: typeof OffersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/': {
+      id: '/products/'
+      path: '/products'
+      fullPath: '/products/'
+      preLoaderRoute: typeof ProductsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/$productSlug': {
+      id: '/products/$productSlug'
+      path: '/products/$productSlug'
+      fullPath: '/products/$productSlug'
+      preLoaderRoute: typeof ProductsProductSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/stores/': {
@@ -87,7 +197,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CategoriesRoute: CategoriesRoute,
+  NewArrivalsRoute: NewArrivalsRoute,
+  OffersRoute: OffersRoute,
+  ProductsProductSlugRoute: ProductsProductSlugRoute,
   StoresStoreSlugRoute: StoresStoreSlugRoute,
+  ProductsIndexRoute: ProductsIndexRoute,
   StoresIndexRoute: StoresIndexRoute,
 }
 export const routeTree = rootRouteImport
