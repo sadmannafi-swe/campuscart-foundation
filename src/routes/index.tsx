@@ -64,7 +64,7 @@ function HomePage() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-border bg-surface p-3">
+          <div className="hidden rounded-xl border border-border bg-surface p-3 lg:block">
             <div className="mb-2 flex items-center justify-between">
               <h2 className="text-sm font-bold">Top rated stores</h2>
               <Link to="/stores" className="text-xs font-semibold text-primary hover:underline">
@@ -138,9 +138,9 @@ function HomePage() {
             </Link>
           }
         />
-        <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
           {getFeaturedStores().map((store) => (
-            <StoreCard key={store.id} store={store} />
+            <StoreCard key={store.id} store={store} className="w-64 shrink-0 sm:w-auto" />
           ))}
         </div>
       </section>
