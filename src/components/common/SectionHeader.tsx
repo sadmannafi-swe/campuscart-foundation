@@ -12,15 +12,15 @@ export function SectionHeader({
   action?: ReactNode;
 }) {
   return (
-    <div className="mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
+    <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
       <div className="min-w-0">
         {eyebrow && (
-          <span className="text-xs font-bold uppercase tracking-widest text-accent">{eyebrow}</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-accent">
+            {eyebrow}
+          </span>
         )}
-        <h2 className="mt-1 text-xl font-bold sm:text-2xl">{title}</h2>
-        {description && (
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-        )}
+        <h2 className="text-base font-bold sm:text-lg">{title}</h2>
+        {description && <p className="text-xs text-muted-foreground">{description}</p>}
       </div>
       {action}
     </div>
