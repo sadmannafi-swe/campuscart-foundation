@@ -36,13 +36,6 @@ function HomePage() {
 
   return (
     <SiteLayout>
-      {/* Search */}
-      <section className="container-page pt-4">
-        <div className="mx-auto max-w-3xl">
-          <SearchBar placeholder="Search products, stores or categories" />
-        </div>
-      </section>
-
       {/* Hero banner + top rated stores */}
       <section className="container-page pt-3">
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_300px]">
