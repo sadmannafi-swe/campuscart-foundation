@@ -1,12 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { ArrowRight, Zap } from "lucide-react";
 import heroImage from "@/assets/hero-campus.jpg";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { SectionHeader } from "@/components/common/SectionHeader";
 import { ProductRail } from "@/components/commerce/ProductRail";
+import { ProductGrid } from "@/components/commerce/ProductGrid";
 import { StoreCard } from "@/components/commerce/StoreCard";
 import { Button } from "@/components/ui/button";
-import { getFeaturedStores, getProductsByTag, getTopRatedStores } from "@/data/marketplace";
+import { cn } from "@/lib/utils";
+import { products, getFeaturedStores, getProductsByTag, getTopRatedStores } from "@/data/marketplace";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
