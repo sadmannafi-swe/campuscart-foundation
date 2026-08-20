@@ -1,18 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Zap } from "lucide-react";
 import heroImage from "@/assets/hero-campus.jpg";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { SectionHeader } from "@/components/common/SectionHeader";
-import { CategoryIcon } from "@/components/common/CategoryIcon";
-import { ProductGrid } from "@/components/commerce/ProductGrid";
+import { SearchBar } from "@/components/layout/SearchBar";
+import { ProductRail } from "@/components/commerce/ProductRail";
 import { StoreCard } from "@/components/commerce/StoreCard";
 import { Button } from "@/components/ui/button";
-import {
-  categories,
-  getFeaturedStores,
-  getProductsByTag,
-  getTopRatedStores,
-} from "@/data/marketplace";
+import { getFeaturedStores, getProductsByTag, getTopRatedStores } from "@/data/marketplace";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -35,14 +30,21 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const featured = getProductsByTag("featured").slice(0, 12);
-  const trending = getProductsByTag("trending").slice(0, 5);
-  const newArrivals = getProductsByTag("new").slice(0, 5);
+  const flashDeals = getProductsByTag("offer").slice(0, 6);
+  const trending = getProductsByTag("trending").slice(0, 6);
+  const newArrivals = getProductsByTag("new").slice(0, 6);
 
   return (
     <SiteLayout>
-      {/* Hero banner + top rated stores */}
+      {/* Search */}
       <section className="container-page pt-4">
+        <div className="mx-auto max-w-3xl">
+          <SearchBar placeholder="Search products, stores or categories" />
+        </div>
+      </section>
+
+      {/* Hero banner + top rated stores */}
+      <section className="container-page pt-3">
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div className="relative overflow-hidden rounded-xl bg-primary">
             <img
@@ -59,7 +61,9 @@ function HomePage() {
                 Buy from verified DIU sellers and get the best campus deals.
               </p>
               <Button size="sm" variant="secondary" asChild className="mt-4">
-                <Link to="/products">Shop now</Link>
+                <Link to="/products" search={{}}>
+                  Shop now
+                </Link>
               </Button>
             </div>
           </div>
@@ -99,33 +103,22 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Categories */}
+      {/* Daily flash deals */}
       <section className="container-page pt-6">
         <SectionHeader
-          title="Categories"
+          title="Daily Flash Deals"
           action={
-            <Link to="/categories" className="text-xs font-semibold text-primary hover:underline">
-              View all
-            </Link>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/offers">
+                View all <ArrowRight />
+              </Link>
+            </Button>
           }
         />
-        <div className="grid grid-cols-4 gap-2.5 sm:grid-cols-6 lg:grid-cols-8">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              to="/products"
-              search={{ category: category.slug, q: undefined, sort: undefined }}
-              className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-surface px-2 py-3 text-center transition-shadow hover:shadow-[var(--shadow-card-hover)]"
-            >
-              <span className="grid size-9 place-items-center rounded-lg bg-primary-soft text-primary">
-                <CategoryIcon name={category.icon} className="size-4" />
-              </span>
-              <span className="line-clamp-2 text-[11px] font-semibold leading-tight">
-                {category.name}
-              </span>
-            </Link>
-          ))}
+        <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-2.5 py-1 text-[11px] font-bold text-primary">
+          <Zap className="size-3.5" aria-hidden="true" /> Limited-time student prices
         </div>
+        <ProductRail products={flashDeals} />
       </section>
 
       {/* Featured stores */}
@@ -145,34 +138,19 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Featured products */}
-      <section className="container-page pt-6">
-        <SectionHeader
-          title="Featured products"
-          action={
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/products">
-                View all <ArrowRight />
-              </Link>
-            </Button>
-          }
-        />
-        <ProductGrid products={featured} />
-      </section>
-
       {/* Trending */}
       <section className="container-page pt-6">
         <SectionHeader
-          title="Trending this week"
+          title="Trending products"
           action={
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/products" search={{ sort: "rating", q: undefined, category: undefined }}>
+              <Link to="/products" search={{ sort: "rating" }}>
                 View all <ArrowRight />
               </Link>
             </Button>
           }
         />
-        <ProductGrid products={trending} />
+        <ProductRail products={trending} />
       </section>
 
       {/* New arrivals */}
@@ -187,7 +165,7 @@ function HomePage() {
             </Button>
           }
         />
-        <ProductGrid products={newArrivals} />
+        <ProductRail products={newArrivals} />
       </section>
     </SiteLayout>
   );
