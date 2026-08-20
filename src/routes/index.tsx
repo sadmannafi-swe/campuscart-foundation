@@ -32,10 +32,18 @@ export const Route = createFileRoute("/")({
   component: HomePage,
 });
 
+const tabs = [
+  { id: "recommended", label: "Recommended Products" },
+  { id: "new", label: "New Arrivals" },
+] as const;
+
 function HomePage() {
+  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]["id"]>("recommended");
   const flashDeals = getProductsByTag("offer").slice(0, 6);
-  const trending = getProductsByTag("trending").slice(0, 6);
-  const newArrivals = getProductsByTag("new").slice(0, 6);
+  const recommended = [...products].sort((a, b) => b.rating - a.rating);
+  const newArrivals = getProductsByTag("new");
+  const tabProducts = activeTab === "recommended" ? recommended : newArrivals;
+
 
   return (
     <SiteLayout>
