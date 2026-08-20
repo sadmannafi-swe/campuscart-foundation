@@ -127,50 +127,37 @@ function HomePage() {
 
       {/* Featured stores */}
       <section className="container-page pt-6">
-        <SectionHeader
-          title="Featured stores"
-          action={
-            <Link to="/stores" className="text-xs font-semibold text-primary hover:underline">
-              View all
-            </Link>
-          }
-        />
-        <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
+        <SectionHeader title="Featured stores" />
+        <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
           {getFeaturedStores().map((store) => (
-            <StoreCard key={store.id} store={store} className="w-64 shrink-0 sm:w-auto" />
+            <StoreCard key={store.id} store={store} className="w-64 shrink-0" />
           ))}
         </div>
       </section>
 
-      {/* Trending */}
-      <section className="container-page pt-6">
-        <SectionHeader
-          title="Trending products"
-          action={
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/products" search={{ sort: "rating" }}>
-                View all <ArrowRight />
-              </Link>
-            </Button>
-          }
-        />
-        <ProductRail products={trending} />
+      {/* Recommended / New arrivals tabs */}
+      <section className="container-page pb-8 pt-6">
+        <div className="mb-3 flex gap-2">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              aria-pressed={activeTab === tab.id}
+              className={cn(
+                "rounded-full border px-3 py-1.5 text-xs font-bold transition-colors",
+                activeTab === tab.id
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-surface text-muted-foreground hover:bg-muted",
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <ProductGrid products={tabProducts} />
       </section>
 
-      {/* New arrivals */}
-      <section className="container-page pb-8 pt-6">
-        <SectionHeader
-          title="New arrivals"
-          action={
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/new-arrivals">
-                View all <ArrowRight />
-              </Link>
-            </Button>
-          }
-        />
-        <ProductRail products={newArrivals} />
-      </section>
     </SiteLayout>
   );
 }
