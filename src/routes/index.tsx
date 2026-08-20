@@ -3,7 +3,6 @@ import { ArrowRight, Zap } from "lucide-react";
 import heroImage from "@/assets/hero-campus.jpg";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { SectionHeader } from "@/components/common/SectionHeader";
-import { SearchBar } from "@/components/layout/SearchBar";
 import { ProductRail } from "@/components/commerce/ProductRail";
 import { StoreCard } from "@/components/commerce/StoreCard";
 import { Button } from "@/components/ui/button";
@@ -36,15 +35,8 @@ function HomePage() {
 
   return (
     <SiteLayout>
-      {/* Search */}
-      <section className="container-page pt-4">
-        <div className="mx-auto max-w-3xl">
-          <SearchBar placeholder="Search products, stores or categories" />
-        </div>
-      </section>
-
       {/* Hero banner + top rated stores */}
-      <section className="container-page pt-3">
+      <section className="container-page pt-4">
         <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_300px]">
           <div className="relative overflow-hidden rounded-xl bg-primary">
             <img
