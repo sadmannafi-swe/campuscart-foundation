@@ -3,7 +3,6 @@ import { Link } from "@tanstack/react-router";
 import { Heart, Menu, Search, ShoppingCart, User } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { SearchBar } from "@/components/layout/SearchBar";
-import { CategoryNav } from "@/components/layout/CategoryNav";
 import { CategoryIcon } from "@/components/common/CategoryIcon";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -155,9 +154,6 @@ export function Header() {
         </div>
       </div>
 
-      <div className="hidden md:block">
-        <CategoryNav />
-      </div>
     </header>
   );
 }
