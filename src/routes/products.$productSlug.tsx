@@ -245,7 +245,7 @@ function ProductDetailsPage() {
           <TabsList>
             <TabsTrigger value="description">Description</TabsTrigger>
             <TabsTrigger value="highlights">Highlights</TabsTrigger>
-            <TabsTrigger value="seller">Seller</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
           </TabsList>
           <TabsContent value="description" className="card-surface mt-4 p-6 text-sm text-muted-foreground">
             {product.description}
