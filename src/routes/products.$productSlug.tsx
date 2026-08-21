@@ -17,6 +17,7 @@ import {
   categories,
   getProductBySlug,
   getRelatedProducts,
+  getReviewsForProduct,
   getStoreById,
 } from "@/data/marketplace";
 
@@ -25,7 +26,12 @@ export const Route = createFileRoute("/products/$productSlug")({
     const product = getProductBySlug(params.productSlug);
     if (!product) throw notFound();
     const store = getStoreById(product.storeId)!;
-    return { product, store, related: getRelatedProducts(product) };
+    return {
+      product,
+      store,
+      related: getRelatedProducts(product),
+      reviews: getReviewsForProduct(product),
+    };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -50,7 +56,7 @@ export const Route = createFileRoute("/products/$productSlug")({
 });
 
 function ProductDetailsPage() {
-  const { product, store, related } = Route.useLoaderData();
+  const { product, store, related, reviews } = Route.useLoaderData();
   const [quantity, setQuantity] = useState(1);
   const [selected, setSelected] = useState<Record<string, string>>(
     Object.fromEntries((product.variants ?? []).map((v) => [v.id, v.options[0]!])),
