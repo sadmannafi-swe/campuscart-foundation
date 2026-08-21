@@ -3,6 +3,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { BadgeCheck, Check, Heart, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
+import { BackButton } from "@/components/common/BackButton";
 import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
 import { Rating } from "@/components/common/Rating";
 import { CategoryIcon } from "@/components/common/CategoryIcon";
@@ -61,6 +62,7 @@ function ProductDetailsPage() {
   return (
     <SiteLayout>
       <div className="container-page py-8">
+        <BackButton className="mb-3" />
         <PageBreadcrumb
           items={[
             { label: "Home", to: "/" },

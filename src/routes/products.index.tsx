@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { SlidersHorizontal, X } from "lucide-react";
 import { SiteLayout } from "@/components/layout/SiteLayout";
+import { BackButton } from "@/components/common/BackButton";
 import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { ProductGrid } from "@/components/commerce/ProductGrid";
@@ -179,6 +180,7 @@ function ProductsPage() {
   return (
     <SiteLayout>
       <div className="container-page py-5">
+        <BackButton className="mb-3" />
         <PageBreadcrumb
           items={[
             { label: "Home", to: "/" },

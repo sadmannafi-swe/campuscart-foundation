@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { BadgeCheck, CalendarDays, Clock, MapPin, Package } from "lucide-react";
 import { SiteLayout } from "@/components/layout/SiteLayout";
+import { BackButton } from "@/components/common/BackButton";
 import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
 import { Rating } from "@/components/common/Rating";
 import { StatusBadge } from "@/components/common/StatusBadge";
@@ -47,6 +48,7 @@ function StoreDetailsPage() {
   return (
     <SiteLayout>
       <div className="container-page py-8">
+        <BackButton className="mb-3" />
         <PageBreadcrumb
           items={[{ label: "Home", to: "/" }, { label: "Stores", to: "/stores" }, { label: store.name }]}
         />

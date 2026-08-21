@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/layout/SiteLayout";
+import { BackButton } from "@/components/common/BackButton";
 import { EmptyState } from "@/components/common/StateBlocks";
 import { Button } from "@/components/ui/button";
 
@@ -20,6 +21,7 @@ export function AccountPlaceholder({
   return (
     <SiteLayout>
       <div className="container-page py-10">
+        <BackButton className="mb-3" />
         <h1 className="text-2xl font-extrabold sm:text-3xl">{title}</h1>
         <div className="mt-6">
           <EmptyState

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/layout/SiteLayout";
+import { BackButton } from "@/components/common/BackButton";
 import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
 import { CategoryIcon } from "@/components/common/CategoryIcon";
 import { categories } from "@/data/marketplace";
@@ -20,6 +21,7 @@ function CategoriesPage() {
   return (
     <SiteLayout>
       <div className="container-page py-8">
+        <BackButton className="mb-3" />
         <PageBreadcrumb items={[{ label: "Home", to: "/" }, { label: "Categories" }]} />
         <h1 className="text-2xl font-extrabold sm:text-3xl">All categories</h1>
         <p className="mt-2 text-sm text-muted-foreground">
