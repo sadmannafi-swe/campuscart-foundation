@@ -60,3 +60,14 @@ export interface Product {
   accentFrom: string;
   accentTo: string;
 }
+
+export interface Review {
+  id: string;
+  productId: string;
+  author: string;
+  rating: number;
+  title: string;
+  body: string;
+  date: string;
+  verifiedPurchase: boolean;
+}

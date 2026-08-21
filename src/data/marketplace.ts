@@ -1,4 +1,4 @@
-import type { Category, Product, Store } from "@/lib/types";
+import type { Category, Product, Review, Store } from "@/lib/types";
 
 /**
  * Phase 1 sample catalogue used for visual development only.
