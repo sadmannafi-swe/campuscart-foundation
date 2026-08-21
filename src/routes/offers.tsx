@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/layout/SiteLayout";
+import { BackButton } from "@/components/common/BackButton";
 import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
 import { ProductGrid } from "@/components/commerce/ProductGrid";
 import { getProductsByTag } from "@/data/marketplace";
@@ -21,6 +22,7 @@ function OffersPage() {
   return (
     <SiteLayout>
       <div className="container-page py-8">
+        <BackButton className="mb-3" />
         <PageBreadcrumb items={[{ label: "Home", to: "/" }, { label: "Offers" }]} />
         <h1 className="text-2xl font-extrabold sm:text-3xl">Student offers</h1>
         <p className="mt-2 text-sm text-muted-foreground">

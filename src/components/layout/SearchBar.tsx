@@ -38,7 +38,7 @@ export function SearchBar({
 
   useEffect(() => {
     if (!animateHints) return;
-    const word = rotatingHints[hintIndex];
+    const word = rotatingHints[hintIndex] ?? "";
     let i = 0;
     let deleting = false;
     let timer: ReturnType<typeof setTimeout>;

@@ -3,6 +3,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { BadgeCheck, Check, Heart, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
+import { BackButton } from "@/components/common/BackButton";
 import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
 import { Rating } from "@/components/common/Rating";
 import { CategoryIcon } from "@/components/common/CategoryIcon";
@@ -16,6 +17,7 @@ import {
   categories,
   getProductBySlug,
   getRelatedProducts,
+  getReviewsForProduct,
   getStoreById,
 } from "@/data/marketplace";
 
@@ -24,7 +26,12 @@ export const Route = createFileRoute("/products/$productSlug")({
     const product = getProductBySlug(params.productSlug);
     if (!product) throw notFound();
     const store = getStoreById(product.storeId)!;
-    return { product, store, related: getRelatedProducts(product) };
+    return {
+      product,
+      store,
+      related: getRelatedProducts(product),
+      reviews: getReviewsForProduct(product),
+    };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -49,7 +56,7 @@ export const Route = createFileRoute("/products/$productSlug")({
 });
 
 function ProductDetailsPage() {
-  const { product, store, related } = Route.useLoaderData();
+  const { product, store, related, reviews } = Route.useLoaderData();
   const [quantity, setQuantity] = useState(1);
   const [selected, setSelected] = useState<Record<string, string>>(
     Object.fromEntries((product.variants ?? []).map((v) => [v.id, v.options[0]!])),
@@ -61,6 +68,7 @@ function ProductDetailsPage() {
   return (
     <SiteLayout>
       <div className="container-page py-8">
+        <BackButton className="mb-3" />
         <PageBreadcrumb
           items={[
             { label: "Home", to: "/" },
@@ -243,7 +251,7 @@ function ProductDetailsPage() {
           <TabsList>
             <TabsTrigger value="description">Description</TabsTrigger>
             <TabsTrigger value="highlights">Highlights</TabsTrigger>
-            <TabsTrigger value="seller">Seller</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
           </TabsList>
           <TabsContent value="description" className="card-surface mt-4 p-6 text-sm text-muted-foreground">
             {product.description}
@@ -258,13 +266,27 @@ function ProductDetailsPage() {
               ))}
             </ul>
           </TabsContent>
-          <TabsContent value="seller" className="card-surface mt-4 p-6 text-sm text-muted-foreground">
-            <p className="font-semibold text-foreground">{store.name}</p>
-            <p className="mt-1">{store.description}</p>
-            <p className="mt-3">
-              {store.location} · {store.responseTime} · On CampusCart since {store.joinedAt}
-            </p>
+          <TabsContent value="reviews" className="card-surface mt-4 p-6">
+            <ul className="grid gap-5">
+              {reviews.map((review) => (
+                <li key={review.id} className="border-b border-border pb-5 last:border-0 last:pb-0">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                    <span className="text-sm font-semibold">{review.author}</span>
+                    <Rating value={review.rating} />
+                    {review.verifiedPurchase && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-[11px] font-semibold text-accent">
+                        <BadgeCheck className="size-3" aria-hidden="true" />
+                        Verified Purchase
+                      </span>
+                    )}
+                    <span className="ml-auto text-xs text-muted-foreground">{review.date}</span>
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">{review.body}</p>
+                </li>
+              ))}
+            </ul>
           </TabsContent>
+
         </Tabs>
 
         {related.length > 0 && (

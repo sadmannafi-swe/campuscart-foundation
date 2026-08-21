@@ -1,4 +1,4 @@
-import type { Category, Product, Store } from "@/lib/types";
+import type { Category, Product, Review, Store } from "@/lib/types";
 
 /**
  * Phase 1 sample catalogue used for visual development only.
@@ -286,3 +286,45 @@ export const getFeaturedStores = () => stores.filter((s) => s.featured);
 export const getTopRatedStores = () => [...stores].sort((a, b) => b.rating - a.rating).slice(0, 4);
 export const getRelatedProducts = (product: Product) =>
   products.filter((p) => p.categorySlug === product.categorySlug && p.id !== product.id).slice(0, 4);
+
+/* ---------- reviews (public-safe fields only) ---------- */
+
+const reviewerNames = [
+  "Nusrat J.", "Tanvir H.", "Sadia R.", "Rakib A.", "Mehedi K.",
+  "Farhana S.", "Imran C.", "Sabbir M.", "Anika T.", "Rifat B.",
+];
+
+const reviewBodies = [
+  "Exactly as described and the seller met me right at the campus gate. Would buy again.",
+  "Great value for students. Packaging was neat and delivery to the hall was quick.",
+  "Good quality overall. Minor wear but nothing that affects use — fair for the price.",
+  "Seller replied within minutes and was flexible with the pickup time. Smooth experience.",
+  "Solid purchase. Been using it daily for a few weeks now with no issues.",
+  "Decent, though it took a day longer than expected. Still happy with the item.",
+];
+
+const hash = (value: string) => {
+  let h = 0;
+  for (let i = 0; i < value.length; i += 1) h = (h * 31 + value.charCodeAt(i)) >>> 0;
+  return h;
+};
+
+export const getReviewsForProduct = (product: Product): Review[] => {
+  const base = hash(product.id);
+  const count = 3 + (base % 3);
+  return Array.from({ length: count }, (_, i) => {
+    const seed = hash(`${product.id}-${i}`);
+    const rating = Math.max(3, Math.min(5, Math.round(product.rating) - (seed % 3 === 0 ? 1 : 0)));
+    const date = new Date(Date.UTC(2026, 7, 18 - ((seed % 60) + i * 3)));
+    return {
+      id: `${product.id}-r${i + 1}`,
+      productId: product.id,
+      author: reviewerNames[(base + i * 3) % reviewerNames.length]!,
+      rating,
+      title: "",
+      body: reviewBodies[(seed + i) % reviewBodies.length]!,
+      date: date.toISOString().slice(0, 10),
+      verifiedPurchase: seed % 4 !== 0,
+    };
+  });
+};

@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { SiteLayout } from "@/components/layout/SiteLayout";
+import { BackButton } from "@/components/common/BackButton";
 import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
 import { StoreCard } from "@/components/commerce/StoreCard";
 import { EmptyState } from "@/components/common/StateBlocks";
@@ -40,6 +41,7 @@ function StoresPage() {
   return (
     <SiteLayout>
       <div className="container-page py-8">
+        <BackButton className="mb-3" />
         <PageBreadcrumb items={[{ label: "Home", to: "/" }, { label: "Stores" }]} />
 
         <h1 className="text-2xl font-extrabold sm:text-3xl">Campus stores</h1>
