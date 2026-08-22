@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Clock, Search, Store as StoreIcon, X } from "lucide-react";
+import { Search, Store as StoreIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { categories, products, stores } from "@/data/marketplace";
 
