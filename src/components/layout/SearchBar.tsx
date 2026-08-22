@@ -165,7 +165,7 @@ export function SearchBar({
       </form>
 
       {showDropdown && (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 max-h-[70vh] overflow-y-auto rounded-xl border border-border bg-surface p-2 shadow-lg">
+        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 max-h-[70vh] overflow-y-auto rounded-xl border border-border bg-white p-2 shadow-lg">
           {value.trim() ? (
             <ul className="space-y-0.5">
               {suggestions.map((s) => (
@@ -173,7 +173,7 @@ export function SearchBar({
                   <button
                     type="button"
                     onClick={() => runSearch(s.label)}
-                    className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors hover:bg-muted"
+                    className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors hover:bg-gray-50"
                   >
                     {s.kind === "store" ? (
                       <StoreIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -189,9 +189,9 @@ export function SearchBar({
               ))}
             </ul>
           ) : (
-            <>
+            <div className="space-y-1">
               {recents.length > 0 && (
-                <div className="mb-1">
+                <div>
                   <div className="flex items-center justify-between px-2.5 py-1.5">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
                       Recent searches
@@ -209,7 +209,7 @@ export function SearchBar({
                   </div>
                   <ul className="space-y-0.5">
                     {recents.map((term) => (
-                      <li key={term} className="group/row flex items-center rounded-lg hover:bg-muted">
+                      <li key={term} className="group/row flex items-center rounded-lg hover:bg-gray-50">
                         <button
                           type="button"
                           onClick={() => runSearch(term)}
@@ -222,7 +222,7 @@ export function SearchBar({
                           type="button"
                           aria-label={`Remove ${term}`}
                           onClick={() => removeRecent(term)}
-                          className="mr-1.5 grid size-6 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-border hover:text-foreground"
+                          className="mr-1.5 grid size-6 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-gray-100 hover:text-foreground"
                         >
                           <X className="size-3.5" aria-hidden="true" />
                         </button>
@@ -242,14 +242,14 @@ export function SearchBar({
                       key={term}
                       type="button"
                       onClick={() => runSearch(term)}
-                      className="rounded-full border border-border px-2.5 py-1 text-xs font-medium transition-colors hover:border-primary/50 hover:bg-primary-soft hover:text-primary"
+                      className="rounded-full border border-border bg-white px-2.5 py-1 text-xs font-medium transition-colors hover:border-primary/50 hover:bg-primary-soft hover:text-primary"
                     >
                       {term}
                     </button>
                   ))}
                 </div>
               </div>
-            </>
+            </div>
           )}
         </div>
       )}
