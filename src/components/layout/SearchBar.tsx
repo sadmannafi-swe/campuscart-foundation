@@ -70,6 +70,7 @@ export function SearchBar({
   const [focused, setFocused] = useState(false);
   const [recents, setRecents] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputId = useId();
   const navigate = useNavigate();
 
   useEffect(() => {
