@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Search, Store as StoreIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -119,8 +119,8 @@ export function SearchBar({
 
   return (
     <div ref={containerRef} className={cn("relative w-full", className)}>
-      <form role="search" onSubmit={handleSubmit} className="w-full">
-        <label htmlFor="site-search" className="sr-only">
+      <form role="search" autoComplete="off" onSubmit={handleSubmit} className="w-full">
+        <label htmlFor={inputId} className="sr-only">
           Search CampusCart
         </label>
 
