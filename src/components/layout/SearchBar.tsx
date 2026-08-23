@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Search, Store as StoreIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -70,6 +70,7 @@ export function SearchBar({
   const [focused, setFocused] = useState(false);
   const [recents, setRecents] = useState<string[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputId = useId();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -118,8 +119,8 @@ export function SearchBar({
 
   return (
     <div ref={containerRef} className={cn("relative w-full", className)}>
-      <form role="search" onSubmit={handleSubmit} className="w-full">
-        <label htmlFor="site-search" className="sr-only">
+      <form role="search" autoComplete="off" onSubmit={handleSubmit} className="w-full">
+        <label htmlFor={inputId} className="sr-only">
           Search CampusCart
         </label>
 
@@ -135,8 +136,16 @@ export function SearchBar({
           />
 
           <input
-            id="site-search"
+            id={inputId}
             type="search"
+            name="campuscart-search"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            role="combobox"
+            aria-expanded={showDropdown}
+            aria-autocomplete="list"
             value={value}
             autoFocus={autoFocus}
             onFocus={() => {
