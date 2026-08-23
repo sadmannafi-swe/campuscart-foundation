@@ -135,8 +135,16 @@ export function SearchBar({
           />
 
           <input
-            id="site-search"
+            id={inputId}
             type="search"
+            name="campuscart-search"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            role="combobox"
+            aria-expanded={showDropdown}
+            aria-autocomplete="list"
             value={value}
             autoFocus={autoFocus}
             onFocus={() => {
