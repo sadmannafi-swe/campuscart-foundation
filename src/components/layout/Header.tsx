@@ -94,11 +94,52 @@ export function Header() {
               </Link>
             </Button>
 
-            <Button variant="ghost" size="icon" asChild className="hidden lg:inline-flex">
-              <Link to="/account" aria-label="Account">
-                <User />
-              </Link>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="hidden lg:inline-flex" aria-label="Profile">
+                  <User />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                {user ? (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/account">Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/orders">Orders</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/wishlist">Wishlist</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={async () => {
+                        await signOut();
+                        void navigate({ to: "/", replace: true });
+                      }}
+                    >
+                      Sign out
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/account">Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/auth" search={{ mode: "login" }}>
+                        Log in
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/auth" search={{ mode: "signup" }}>
+                        Create account
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <Sheet>
               <SheetTrigger asChild>
