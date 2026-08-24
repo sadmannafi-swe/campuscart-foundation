@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Heart, Loader2, LogOut, Package, ShieldCheck, ShoppingCart, User } from "lucide-react";
+import { Heart, LogOut, Package, ShieldCheck, ShoppingCart, User } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
@@ -209,6 +209,3 @@ function Field({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
-// Keeps the loading spinner import referenced for future async states.
-export const _spinner = Loader2;
