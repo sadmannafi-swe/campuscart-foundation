@@ -168,6 +168,16 @@ export function Header() {
                     ),
                   )}
                 </nav>
+                {!user && (
+                  <div className="mt-4 grid gap-2 px-3">
+                    <Button asChild size="sm">
+                      <Link to="/auth" search={{ mode: "login" }}>Log in</Link>
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/auth" search={{ mode: "signup" }}>Create account</Link>
+                    </Button>
+                  </div>
+                )}
                 <p className="mt-6 px-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
                   Categories
                 </p>
