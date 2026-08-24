@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { Heart, Menu, Search, ShoppingCart, User } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { SearchBar } from "@/components/layout/SearchBar";
@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { categories } from "@/data/marketplace";
+import { useAuth } from "@/lib/auth";
 
 const primaryLinks = [
   { label: "Stores", to: "/stores" as const },
@@ -24,6 +25,8 @@ const activeProps = { className: "text-primary" };
 
 export function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur supports-backdrop-filter:bg-surface/80">
@@ -94,11 +97,52 @@ export function Header() {
               </Link>
             </Button>
 
-            <Button variant="ghost" size="icon" asChild className="hidden lg:inline-flex">
-              <Link to="/account" aria-label="Account">
-                <User />
-              </Link>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="hidden lg:inline-flex" aria-label="Profile">
+                  <User />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                {user ? (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/account">Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/orders">Orders</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/wishlist">Wishlist</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={async () => {
+                        await signOut();
+                        void navigate({ to: "/", replace: true });
+                      }}
+                    >
+                      Sign out
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/account">Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/auth" search={{ mode: "login" }}>
+                        Log in
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/auth" search={{ mode: "signup" }}>
+                        Create account
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <Sheet>
               <SheetTrigger asChild>
@@ -111,7 +155,7 @@ export function Header() {
                   <SheetTitle className="text-left">Browse CampusCart</SheetTitle>
                 </SheetHeader>
                 <nav className="mt-6 space-y-1" aria-label="Mobile">
-                  {[{ label: "Home", to: "/" as const }, ...primaryLinks, { label: "Wishlist", to: "/wishlist" as const }, { label: "Orders", to: "/orders" as const }, { label: "Account", to: "/account" as const }].map(
+                  {[{ label: "Home", to: "/" as const }, ...primaryLinks, { label: "Wishlist", to: "/wishlist" as const }, { label: "Orders", to: "/orders" as const }, { label: "Profile", to: "/account" as const }].map(
                     (link) => (
                       <Link
                         key={link.to}
@@ -124,6 +168,16 @@ export function Header() {
                     ),
                   )}
                 </nav>
+                {!user && (
+                  <div className="mt-4 grid gap-2 px-3">
+                    <Button asChild size="sm">
+                      <Link to="/auth" search={{ mode: "login" }}>Log in</Link>
+                    </Button>
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/auth" search={{ mode: "signup" }}>Create account</Link>
+                    </Button>
+                  </div>
+                )}
                 <p className="mt-6 px-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
                   Categories
                 </p>
