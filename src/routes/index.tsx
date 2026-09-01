@@ -1,19 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { GraduationCap, ArrowRight, Store } from "lucide-react";
+import { Globe, Landmark, School, Building2, GraduationCap, BookOpen } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { campuses } from "@/data/campuses";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CampusCart — Choose Your Campus Marketplace" },
+      { title: "CampusCart — Choose Your University Marketplace" },
       {
         name: "description",
         content:
           "Pick your university and buy, sell and discover products from your campus community on CampusCart.",
       },
-      { property: "og:title", content: "CampusCart — Choose Your Campus Marketplace" },
+      { property: "og:title", content: "CampusCart — Choose Your University Marketplace" },
       {
         property: "og:description",
         content: "University marketplaces for DIU, NSU, BRAC, DU, EWU and more.",
@@ -23,93 +25,118 @@ export const Route = createFileRoute("/")({
   component: CampusSelectorPage,
 });
 
+const campusIcons: Record<string, LucideIcon> = {
+  "all-in-one": Globe,
+  nsu: School,
+  brac: BookOpen,
+  du: Landmark,
+  ewu: Building2,
+  other: Landmark,
+};
+
 function CampusSelectorPage() {
+  const gridCampuses = campuses.filter((campus) => campus.slug !== "other");
+  const other = campuses.find((campus) => campus.slug === "other");
+
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      <header className="sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
-        <div className="container-page flex h-14 items-center justify-between gap-2">
-          <Logo size="sm" asLink={false} />
-          <div className="flex items-center gap-1.5">
-            <Button variant="ghost" size="sm" asChild>
+    <div className="flex min-h-screen flex-col bg-muted/40">
+      <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-6 sm:py-10">
+        <div className="flex flex-col items-center text-center">
+          <Logo size="lg" asLink={false} />
+          <h1 className="mt-5 text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
+            Choose your university marketplace
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Buy, sell and discover from your campus community.
+          </p>
+        </div>
+
+        <ul className="mt-6 grid grid-cols-2 gap-2.5">
+          {gridCampuses.map((campus) => (
+            <li key={campus.slug}>
+              <CampusCard campus={campus} />
+            </li>
+          ))}
+        </ul>
+
+        {other ? (
+          <div className="mt-2.5">
+            <CampusCard campus={other} wide />
+          </div>
+        ) : null}
+
+        <div className="mt-auto pt-8">
+          <p className="text-center text-xs text-muted-foreground">Already have an account?</p>
+          <div className="mt-3 grid grid-cols-2 gap-2.5">
+            <Button variant="outline" asChild>
               <Link to="/auth" search={{ mode: "login" }}>
                 Log in
               </Link>
             </Button>
-            <Button size="sm" asChild>
+            <Button asChild>
               <Link to="/auth" search={{ mode: "signup" }}>
                 Create account
               </Link>
             </Button>
           </div>
         </div>
-      </header>
-
-      <main className="container-page flex-1 py-6 sm:py-10">
-        <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Choose Your Campus</h1>
-          <p className="mt-1.5 text-sm text-muted-foreground">
-            Buy, sell and discover products from your university community.
-          </p>
-        </div>
-
-        <ul className="mx-auto mt-6 grid max-w-3xl grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-          {campuses.map((campus) => {
-            const inner = (
-              <>
-                <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-lg bg-primary-soft text-[11px] font-extrabold text-primary">
-                  {campus.useBrandLogo ? (
-                    <Logo size="sm" asLink={false} className="h-8" />
-                  ) : campus.slug === "all-in-one" ? (
-                    <Store className="size-5" aria-hidden="true" />
-                  ) : campus.slug === "other" ? (
-                    <GraduationCap className="size-5" aria-hidden="true" />
-                  ) : (
-                    campus.shortName
-                  )}
-                </span>
-                <span className="min-w-0 flex-1 text-left">
-                  <span className="block truncate text-sm font-bold">{campus.name}</span>
-                  <span className="block truncate text-[11px] text-muted-foreground">
-                    {campus.tagline}
-                  </span>
-                </span>
-                {campus.status === "live" ? (
-                  <ArrowRight className="size-4 shrink-0 text-primary" aria-hidden="true" />
-                ) : (
-                  <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
-                    Soon
-                  </span>
-                )}
-              </>
-            );
-
-            const className =
-              "flex items-center gap-3 rounded-xl border border-border bg-surface p-3 transition-colors hover:border-primary/40 hover:bg-muted";
-
-            return (
-              <li key={campus.slug}>
-                {campus.path ? (
-                  <Link to={campus.path} className={className}>
-                    {inner}
-                  </Link>
-                ) : (
-                  <Link
-                    to="/campus/$campusSlug"
-                    params={{ campusSlug: campus.slug }}
-                    className={className}
-                  >
-                    {inner}
-                  </Link>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </main>
-
-      <footer className="border-t border-border py-5 text-center text-[11px] text-muted-foreground">
-        © {new Date().getFullYear()} CampusCart — Your Campus. Your Marketplace.
-      </footer>
+      </div>
     </div>
+  );
+}
+
+function CampusCard({
+  campus,
+  wide = false,
+}: {
+  campus: (typeof campuses)[number];
+  wide?: boolean;
+}) {
+  const Icon = campusIcons[campus.slug] ?? GraduationCap;
+
+  const content = (
+    <>
+      <span
+        className={cn(
+          "grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl",
+          campus.useBrandLogo ? "bg-transparent" : "bg-primary-soft text-primary",
+        )}
+      >
+        {campus.useBrandLogo ? (
+          <Logo size="sm" asLink={false} className="h-9" />
+        ) : (
+          <Icon className="size-5" aria-hidden="true" />
+        )}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-extrabold leading-tight">
+          {campus.name.replace(" CampusCart", "")}
+        </span>
+        {campus.name.includes("CampusCart") ? (
+          <span className="block text-xs font-semibold leading-tight text-foreground/70">
+            CampusCart
+          </span>
+        ) : null}
+        <span className="mt-1 block truncate text-[11px] text-muted-foreground">
+          {campus.tagline}
+        </span>
+      </span>
+    </>
+  );
+
+  const className = cn(
+    "flex h-full items-start gap-2.5 rounded-2xl border bg-surface p-3 shadow-sm transition-colors hover:border-primary/50 hover:bg-primary-soft/30",
+    campus.status === "live" ? "border-primary/40" : "border-border",
+    wide && "items-center",
+  );
+
+  return campus.path ? (
+    <Link to={campus.path} className={className}>
+      {content}
+    </Link>
+  ) : (
+    <Link to="/campus/$campusSlug" params={{ campusSlug: campus.slug }} className={className}>
+      {content}
+    </Link>
   );
 }
