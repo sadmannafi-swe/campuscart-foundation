@@ -14,8 +14,8 @@ import { useAuth } from "@/lib/auth";
 type AuthMode = "login" | "signup";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { mode?: AuthMode } => ({
-    mode: search["mode"] === "signup" ? "signup" : search["mode"] === "login" ? "login" : undefined,
+  validateSearch: (search: Record<string, unknown>): { mode: AuthMode } => ({
+    mode: search["mode"] === "signup" ? "signup" : "login",
   }),
   head: () => ({
     meta: [
@@ -39,7 +39,7 @@ function AuthPage() {
   const { mode } = useSearch({ from: "/auth" });
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [tab, setTab] = useState<AuthMode>(mode ?? "login");
+  const [tab, setTab] = useState<AuthMode>(mode);
 
   useEffect(() => {
     if (!loading && user) void navigate({ to: "/account", replace: true });
