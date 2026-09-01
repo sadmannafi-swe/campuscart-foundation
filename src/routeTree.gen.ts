@@ -14,6 +14,7 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as DiuRouteImport } from './routes/diu'
 import { Route as NewArrivalsRouteImport } from './routes/new-arrivals'
 import { Route as OffersRouteImport } from './routes/offers'
 import { Route as OrdersRouteImport } from './routes/orders'
@@ -47,6 +48,11 @@ const CartRoute = CartRouteImport.update({
 const CategoriesRoute = CategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiuRoute = DiuRouteImport.update({
+  id: '/diu',
+  path: '/diu',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewArrivalsRoute = NewArrivalsRouteImport.update({
@@ -101,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/offers': typeof OffersRoute
   '/orders': typeof OrdersRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/offers': typeof OffersRoute
   '/orders': typeof OrdersRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/offers': typeof OffersRoute
   '/orders': typeof OrdersRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
+    | '/diu'
     | '/new-arrivals'
     | '/offers'
     | '/orders'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
+    | '/diu'
     | '/new-arrivals'
     | '/offers'
     | '/orders'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
+    | '/diu'
     | '/new-arrivals'
     | '/offers'
     | '/orders'
@@ -201,6 +213,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
+  DiuRoute: typeof DiuRoute
   NewArrivalsRoute: typeof NewArrivalsRoute
   OffersRoute: typeof OffersRoute
   OrdersRoute: typeof OrdersRoute
@@ -247,6 +260,13 @@ declare module '@tanstack/react-router' {
       path: '/categories'
       fullPath: '/categories'
       preLoaderRoute: typeof CategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diu': {
+      id: '/diu'
+      path: '/diu'
+      fullPath: '/diu'
+      preLoaderRoute: typeof DiuRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/new-arrivals': {
@@ -321,6 +341,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
+  DiuRoute: DiuRoute,
   NewArrivalsRoute: NewArrivalsRoute,
   OffersRoute: OffersRoute,
   OrdersRoute: OrdersRoute,
