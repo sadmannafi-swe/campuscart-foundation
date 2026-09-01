@@ -1,3 +1,10 @@
+import diuLogo from "@/assets/uni-diu.png.asset.json";
+import nsuLogo from "@/assets/uni-nsu.png.asset.json";
+import bracLogo from "@/assets/uni-brac.png.asset.json";
+import duLogo from "@/assets/uni-du.jpg.asset.json";
+import ewuLogo from "@/assets/uni-ewu.jpg.asset.json";
+import mainLogo from "@/assets/campuscart-main-logo.png.asset.json";
+
 export interface Campus {
   /** URL slug used by /campus/$campusSlug (DIU has its own live route). */
   slug: string;
@@ -8,8 +15,8 @@ export interface Campus {
   status: "live" | "coming-soon";
   /** Path for live campuses; undefined means it uses the placeholder route. */
   path?: "/diu";
-  /** Use the CampusCart logo instead of a generic initials mark. */
-  useBrandLogo?: boolean;
+  /** Logo image URL shown on the campus card. */
+  logo: string;
 }
 
 export const campuses: Campus[] = [
@@ -19,6 +26,7 @@ export const campuses: Campus[] = [
     shortName: "ALL",
     tagline: "Every campus, one marketplace",
     status: "coming-soon",
+    logo: mainLogo.url,
   },
   {
     slug: "diu",
@@ -27,7 +35,7 @@ export const campuses: Campus[] = [
     tagline: "Daffodil International University",
     status: "live",
     path: "/diu",
-    useBrandLogo: true,
+    logo: diuLogo.url,
   },
   {
     slug: "nsu",
@@ -35,6 +43,7 @@ export const campuses: Campus[] = [
     shortName: "NSU",
     tagline: "North South University",
     status: "coming-soon",
+    logo: nsuLogo.url,
   },
   {
     slug: "brac",
@@ -42,6 +51,7 @@ export const campuses: Campus[] = [
     shortName: "BRAC",
     tagline: "BRAC University",
     status: "coming-soon",
+    logo: bracLogo.url,
   },
   {
     slug: "du",
@@ -49,6 +59,7 @@ export const campuses: Campus[] = [
     shortName: "DU",
     tagline: "University of Dhaka",
     status: "coming-soon",
+    logo: duLogo.url,
   },
   {
     slug: "ewu",
@@ -56,13 +67,7 @@ export const campuses: Campus[] = [
     shortName: "EWU",
     tagline: "East West University",
     status: "coming-soon",
-  },
-  {
-    slug: "other",
-    name: "Other Universities",
-    shortName: "•••",
-    tagline: "Request your campus",
-    status: "coming-soon",
+    logo: ewuLogo.url,
   },
 ];
 
