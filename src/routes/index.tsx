@@ -1,163 +1,115 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { ArrowRight, Zap } from "lucide-react";
-import heroImage from "@/assets/hero-campus.jpg";
-import { SiteLayout } from "@/components/layout/SiteLayout";
-import { SectionHeader } from "@/components/common/SectionHeader";
-import { ProductRail } from "@/components/commerce/ProductRail";
-import { ProductGrid } from "@/components/commerce/ProductGrid";
-import { StoreCard } from "@/components/commerce/StoreCard";
+import { GraduationCap, ArrowRight, Store } from "lucide-react";
+import { Logo } from "@/components/brand/Logo";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { products, getFeaturedStores, getProductsByTag, getTopRatedStores } from "@/data/marketplace";
-
+import { campuses } from "@/data/campuses";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "DIU CampusCart — Your Campus. Your Marketplace." },
+      { title: "CampusCart — Choose Your Campus Marketplace" },
       {
         name: "description",
         content:
-          "Buy and sell textbooks, electronics, hostel essentials and student services from verified DIU campus stores.",
+          "Pick your university and buy, sell and discover products from your campus community on CampusCart.",
       },
-      { property: "og:title", content: "DIU CampusCart — Your Campus. Your Marketplace." },
+      { property: "og:title", content: "CampusCart — Choose Your Campus Marketplace" },
       {
         property: "og:description",
-        content:
-          "The multi-vendor marketplace built for Daffodil International University students.",
+        content: "University marketplaces for DIU, NSU, BRAC, DU, EWU and more.",
       },
     ],
   }),
-  component: HomePage,
+  component: CampusSelectorPage,
 });
 
-const tabs = [
-  { id: "recommended", label: "Recommended Products" },
-  { id: "new", label: "New Arrivals" },
-] as const;
-
-function HomePage() {
-  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]["id"]>("recommended");
-  const flashDeals = getProductsByTag("offer").slice(0, 6);
-  const recommended = [...products].sort((a, b) => b.rating - a.rating);
-  const newArrivals = getProductsByTag("new");
-  const tabProducts = activeTab === "recommended" ? recommended : newArrivals;
-
-
+function CampusSelectorPage() {
   return (
-    <SiteLayout>
-      {/* Hero banner + top rated stores */}
-      <section className="container-page pt-4">
-        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_300px]">
-          <div className="relative overflow-hidden rounded-xl bg-primary">
-            <img
-              src={heroImage}
-              alt=""
-              aria-hidden="true"
-              className="absolute inset-y-0 right-0 h-full w-1/2 object-cover opacity-25"
-            />
-            <div className="relative max-w-md px-5 py-6 sm:px-7 sm:py-8">
-              <h1 className="text-xl font-extrabold leading-tight text-primary-foreground sm:text-2xl">
-                Shop Smart. Support Local.
-              </h1>
-              <p className="mt-1.5 text-xs text-primary-foreground/85 sm:text-sm">
-                Buy from verified DIU sellers and get the best campus deals.
-              </p>
-              <Button size="sm" variant="secondary" asChild className="mt-4">
-                <Link to="/products" search={{}}>
-                  Shop now
-                </Link>
-              </Button>
-            </div>
-          </div>
-
-          <div className="hidden rounded-xl border border-border bg-surface p-3 lg:block">
-            <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-sm font-bold">Top rated stores</h2>
-              <Link to="/stores" className="text-xs font-semibold text-primary hover:underline">
-                View all
-              </Link>
-            </div>
-            <ul className="space-y-1.5">
-              {getTopRatedStores().map((store) => (
-                <li key={store.id}>
-                  <Link
-                    to="/stores/$storeSlug"
-                    params={{ storeSlug: store.slug }}
-                    className="flex items-center gap-2.5 rounded-lg px-1 py-1.5 transition-colors hover:bg-muted"
-                  >
-                    <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary-soft text-[11px] font-extrabold text-primary">
-                      {store.initials}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px] font-semibold">{store.name}</span>
-                      <span className="block truncate text-[11px] text-muted-foreground">
-                        {store.categoryName}
-                      </span>
-                    </span>
-                    <span className="shrink-0 text-[11px] font-semibold text-warning">
-                      ★ {store.rating.toFixed(1)}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Daily flash deals */}
-      <section className="container-page pt-6">
-        <SectionHeader
-          title="Daily Flash Deals"
-          action={
+    <div className="flex min-h-screen flex-col bg-background">
+      <header className="sticky top-0 z-30 border-b border-border bg-surface/95 backdrop-blur">
+        <div className="container-page flex h-14 items-center justify-between gap-2">
+          <Logo size="sm" asLink={false} />
+          <div className="flex items-center gap-1.5">
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/offers">
-                View all <ArrowRight />
+              <Link to="/auth" search={{ mode: "login" }}>
+                Log in
               </Link>
             </Button>
-          }
-        />
-        <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-primary-soft px-2.5 py-1 text-[11px] font-bold text-primary">
-          <Zap className="size-3.5" aria-hidden="true" /> Limited-time student prices
+            <Button size="sm" asChild>
+              <Link to="/auth" search={{ mode: "signup" }}>
+                Create account
+              </Link>
+            </Button>
+          </div>
         </div>
-        <ProductRail products={flashDeals} />
-      </section>
+      </header>
 
-      {/* Featured stores */}
-      <section className="container-page pt-6">
-        <SectionHeader title="Featured stores" />
-        <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
-          {getFeaturedStores().map((store) => (
-            <StoreCard key={store.id} store={store} className="w-64 shrink-0" />
-          ))}
+      <main className="container-page flex-1 py-6 sm:py-10">
+        <div className="mx-auto max-w-3xl text-center">
+          <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Choose Your Campus</h1>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Buy, sell and discover products from your university community.
+          </p>
         </div>
-      </section>
 
-      {/* Recommended / New arrivals tabs */}
-      <section className="container-page pb-8 pt-6">
-        <div className="mb-3 flex gap-2">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              aria-pressed={activeTab === tab.id}
-              className={cn(
-                "rounded-full border px-3 py-1.5 text-xs font-bold transition-colors",
-                activeTab === tab.id
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-surface text-muted-foreground hover:bg-muted",
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-        <ProductGrid products={tabProducts} />
-      </section>
+        <ul className="mx-auto mt-6 grid max-w-3xl grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+          {campuses.map((campus) => {
+            const inner = (
+              <>
+                <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-lg bg-primary-soft text-[11px] font-extrabold text-primary">
+                  {campus.useBrandLogo ? (
+                    <Logo size="sm" asLink={false} className="h-8" />
+                  ) : campus.slug === "all-in-one" ? (
+                    <Store className="size-5" aria-hidden="true" />
+                  ) : campus.slug === "other" ? (
+                    <GraduationCap className="size-5" aria-hidden="true" />
+                  ) : (
+                    campus.shortName
+                  )}
+                </span>
+                <span className="min-w-0 flex-1 text-left">
+                  <span className="block truncate text-sm font-bold">{campus.name}</span>
+                  <span className="block truncate text-[11px] text-muted-foreground">
+                    {campus.tagline}
+                  </span>
+                </span>
+                {campus.status === "live" ? (
+                  <ArrowRight className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                ) : (
+                  <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+                    Soon
+                  </span>
+                )}
+              </>
+            );
 
-    </SiteLayout>
+            const className =
+              "flex items-center gap-3 rounded-xl border border-border bg-surface p-3 transition-colors hover:border-primary/40 hover:bg-muted";
+
+            return (
+              <li key={campus.slug}>
+                {campus.path ? (
+                  <Link to={campus.path} className={className}>
+                    {inner}
+                  </Link>
+                ) : (
+                  <Link
+                    to="/campus/$campusSlug"
+                    params={{ campusSlug: campus.slug }}
+                    className={className}
+                  >
+                    {inner}
+                  </Link>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </main>
+
+      <footer className="border-t border-border py-5 text-center text-[11px] text-muted-foreground">
+        © {new Date().getFullYear()} CampusCart — Your Campus. Your Marketplace.
+      </footer>
+    </div>
   );
 }

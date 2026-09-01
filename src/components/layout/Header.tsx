@@ -118,7 +118,7 @@ export function Header() {
                     <DropdownMenuItem
                       onSelect={async () => {
                         await signOut();
-                        void navigate({ to: "/", replace: true });
+                        void navigate({ to: "/diu", replace: true });
                       }}
                     >
                       Sign out
@@ -155,7 +155,7 @@ export function Header() {
                   <SheetTitle className="text-left">Browse CampusCart</SheetTitle>
                 </SheetHeader>
                 <nav className="mt-6 space-y-1" aria-label="Mobile">
-                  {[{ label: "Home", to: "/" as const }, ...primaryLinks, { label: "Wishlist", to: "/wishlist" as const }, { label: "Orders", to: "/orders" as const }, { label: "Profile", to: "/account" as const }].map(
+                  {[{ label: "Home", to: "/diu" as const }, ...primaryLinks, { label: "Wishlist", to: "/wishlist" as const }, { label: "Orders", to: "/orders" as const }, { label: "Profile", to: "/account" as const }].map(
                     (link) => (
                       <Link
                         key={link.to}

@@ -25,7 +25,7 @@ export function Logo({ className, size = "md", asLink = true }: LogoProps) {
   if (!asLink) return image;
 
   return (
-    <Link to="/" className="inline-flex shrink-0 items-center" aria-label="DIU CampusCart home">
+    <Link to="/diu" className="inline-flex shrink-0 items-center" aria-label="DIU CampusCart home">
       {image}
     </Link>
   );

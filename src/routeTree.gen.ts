@@ -14,11 +14,13 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as DiuRouteImport } from './routes/diu'
 import { Route as NewArrivalsRouteImport } from './routes/new-arrivals'
 import { Route as OffersRouteImport } from './routes/offers'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as CampusCampusSlugRouteImport } from './routes/campus.$campusSlug'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsProductSlugRouteImport } from './routes/products.$productSlug'
 import { Route as StoresIndexRouteImport } from './routes/stores.index'
@@ -49,6 +51,11 @@ const CategoriesRoute = CategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiuRoute = DiuRouteImport.update({
+  id: '/diu',
+  path: '/diu',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NewArrivalsRoute = NewArrivalsRouteImport.update({
   id: '/new-arrivals',
   path: '/new-arrivals',
@@ -72,6 +79,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
   path: '/wishlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CampusCampusSlugRoute = CampusCampusSlugRouteImport.update({
+  id: '/campus/$campusSlug',
+  path: '/campus/$campusSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsIndexRoute = ProductsIndexRouteImport.update({
@@ -101,11 +113,13 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/offers': typeof OffersRoute
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
+  '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
   '/products/': typeof ProductsIndexRoute
@@ -117,11 +131,13 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/offers': typeof OffersRoute
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
+  '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
   '/products': typeof ProductsIndexRoute
@@ -134,11 +150,13 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/offers': typeof OffersRoute
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
+  '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
   '/products/': typeof ProductsIndexRoute
@@ -152,11 +170,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
+    | '/diu'
     | '/new-arrivals'
     | '/offers'
     | '/orders'
     | '/reset-password'
     | '/wishlist'
+    | '/campus/$campusSlug'
     | '/products/$productSlug'
     | '/stores/$storeSlug'
     | '/products/'
@@ -168,11 +188,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
+    | '/diu'
     | '/new-arrivals'
     | '/offers'
     | '/orders'
     | '/reset-password'
     | '/wishlist'
+    | '/campus/$campusSlug'
     | '/products/$productSlug'
     | '/stores/$storeSlug'
     | '/products'
@@ -184,11 +206,13 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
+    | '/diu'
     | '/new-arrivals'
     | '/offers'
     | '/orders'
     | '/reset-password'
     | '/wishlist'
+    | '/campus/$campusSlug'
     | '/products/$productSlug'
     | '/stores/$storeSlug'
     | '/products/'
@@ -201,11 +225,13 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
+  DiuRoute: typeof DiuRoute
   NewArrivalsRoute: typeof NewArrivalsRoute
   OffersRoute: typeof OffersRoute
   OrdersRoute: typeof OrdersRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   WishlistRoute: typeof WishlistRoute
+  CampusCampusSlugRoute: typeof CampusCampusSlugRoute
   ProductsProductSlugRoute: typeof ProductsProductSlugRoute
   StoresStoreSlugRoute: typeof StoresStoreSlugRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
@@ -249,6 +275,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/diu': {
+      id: '/diu'
+      path: '/diu'
+      fullPath: '/diu'
+      preLoaderRoute: typeof DiuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/new-arrivals': {
       id: '/new-arrivals'
       path: '/new-arrivals'
@@ -282,6 +315,13 @@ declare module '@tanstack/react-router' {
       path: '/wishlist'
       fullPath: '/wishlist'
       preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/campus/$campusSlug': {
+      id: '/campus/$campusSlug'
+      path: '/campus/$campusSlug'
+      fullPath: '/campus/$campusSlug'
+      preLoaderRoute: typeof CampusCampusSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products/': {
@@ -321,11 +361,13 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
+  DiuRoute: DiuRoute,
   NewArrivalsRoute: NewArrivalsRoute,
   OffersRoute: OffersRoute,
   OrdersRoute: OrdersRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   WishlistRoute: WishlistRoute,
+  CampusCampusSlugRoute: CampusCampusSlugRoute,
   ProductsProductSlugRoute: ProductsProductSlugRoute,
   StoresStoreSlugRoute: StoresStoreSlugRoute,
   ProductsIndexRoute: ProductsIndexRoute,
