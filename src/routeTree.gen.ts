@@ -20,6 +20,7 @@ import { Route as OffersRouteImport } from './routes/offers'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as CampusCampusSlugRouteImport } from './routes/campus.$campusSlug'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsProductSlugRouteImport } from './routes/products.$productSlug'
 import { Route as StoresIndexRouteImport } from './routes/stores.index'
@@ -80,6 +81,11 @@ const WishlistRoute = WishlistRouteImport.update({
   path: '/wishlist',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CampusCampusSlugRoute = CampusCampusSlugRouteImport.update({
+  id: '/campus/$campusSlug',
+  path: '/campus/$campusSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsIndexRoute = ProductsIndexRouteImport.update({
   id: '/products/',
   path: '/products/',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
+  '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
   '/products/': typeof ProductsIndexRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
+  '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
   '/products': typeof ProductsIndexRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
+  '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
   '/products/': typeof ProductsIndexRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/reset-password'
     | '/wishlist'
+    | '/campus/$campusSlug'
     | '/products/$productSlug'
     | '/stores/$storeSlug'
     | '/products/'
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/reset-password'
     | '/wishlist'
+    | '/campus/$campusSlug'
     | '/products/$productSlug'
     | '/stores/$storeSlug'
     | '/products'
@@ -201,6 +212,7 @@ export interface FileRouteTypes {
     | '/orders'
     | '/reset-password'
     | '/wishlist'
+    | '/campus/$campusSlug'
     | '/products/$productSlug'
     | '/stores/$storeSlug'
     | '/products/'
@@ -219,6 +231,7 @@ export interface RootRouteChildren {
   OrdersRoute: typeof OrdersRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   WishlistRoute: typeof WishlistRoute
+  CampusCampusSlugRoute: typeof CampusCampusSlugRoute
   ProductsProductSlugRoute: typeof ProductsProductSlugRoute
   StoresStoreSlugRoute: typeof StoresStoreSlugRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
@@ -304,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WishlistRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/campus/$campusSlug': {
+      id: '/campus/$campusSlug'
+      path: '/campus/$campusSlug'
+      fullPath: '/campus/$campusSlug'
+      preLoaderRoute: typeof CampusCampusSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products/': {
       id: '/products/'
       path: '/products'
@@ -347,6 +367,7 @@ const rootRouteChildren: RootRouteChildren = {
   OrdersRoute: OrdersRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   WishlistRoute: WishlistRoute,
+  CampusCampusSlugRoute: CampusCampusSlugRoute,
   ProductsProductSlugRoute: ProductsProductSlugRoute,
   StoresStoreSlugRoute: StoresStoreSlugRoute,
   ProductsIndexRoute: ProductsIndexRoute,
