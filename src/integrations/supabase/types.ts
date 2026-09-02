@@ -50,6 +50,223 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_identity: {
+        Row: {
+          created_at: string
+          seller_id: string
+          student_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          seller_id: string
+          student_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          seller_id?: string
+          student_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_identity_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: true
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_products: {
+        Row: {
+          category: string
+          condition: string
+          created_at: string
+          description: string
+          id: string
+          images: Json
+          in_stock: boolean
+          is_active: boolean
+          name: string
+          price: number
+          store_id: string
+          university_slug: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          condition?: string
+          created_at?: string
+          description?: string
+          id?: string
+          images?: Json
+          in_stock?: boolean
+          is_active?: boolean
+          name: string
+          price: number
+          store_id: string
+          university_slug: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          condition?: string
+          created_at?: string
+          description?: string
+          id?: string
+          images?: Json
+          in_stock?: boolean
+          is_active?: boolean
+          name?: string
+          price?: number
+          store_id?: string
+          university_slug?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_products_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_products_university_slug_fkey"
+            columns: ["university_slug"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      sellers: {
+        Row: {
+          avatar_path: string | null
+          batch: string
+          created_at: string
+          department: string
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          status: Database["public"]["Enums"]["store_status"]
+          university_slug: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_path?: string | null
+          batch: string
+          created_at?: string
+          department: string
+          email: string
+          full_name: string
+          id?: string
+          phone: string
+          status?: Database["public"]["Enums"]["store_status"]
+          university_slug: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_path?: string | null
+          batch?: string
+          created_at?: string
+          department?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          status?: Database["public"]["Enums"]["store_status"]
+          university_slug?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sellers_university_slug_fkey"
+            columns: ["university_slug"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      stores: {
+        Row: {
+          approved_at: string | null
+          category: string
+          contact_number: string
+          created_at: string
+          description: string
+          id: string
+          logo_path: string | null
+          name: string
+          rejection_reason: string | null
+          seller_id: string
+          status: Database["public"]["Enums"]["store_status"]
+          university_slug: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          category: string
+          contact_number: string
+          created_at?: string
+          description: string
+          id?: string
+          logo_path?: string | null
+          name: string
+          rejection_reason?: string | null
+          seller_id: string
+          status?: Database["public"]["Enums"]["store_status"]
+          university_slug: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          category?: string
+          contact_number?: string
+          created_at?: string
+          description?: string
+          id?: string
+          logo_path?: string | null
+          name?: string
+          rejection_reason?: string | null
+          seller_id?: string
+          status?: Database["public"]["Enums"]["store_status"]
+          university_slug?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stores_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: true
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stores_university_slug_fkey"
+            columns: ["university_slug"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
       student_identity: {
         Row: {
           created_at: string
@@ -68,6 +285,33 @@ export type Database = {
           student_id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      universities: {
+        Row: {
+          created_at: string
+          is_active: boolean
+          name: string
+          short_name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          is_active?: boolean
+          name: string
+          short_name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          is_active?: boolean
+          name?: string
+          short_name?: string
+          slug?: string
+          sort_order?: number
         }
         Relationships: []
       }
@@ -107,6 +351,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      store_status: "pending" | "approved" | "rejected" | "suspended"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -235,6 +480,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      store_status: ["pending", "approved", "rejected", "suspended"],
     },
   },
 } as const
