@@ -1,0 +1,4 @@
+CREATE POLICY "Seller media readable by signed-in users" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'seller-media');
+CREATE POLICY "Sellers upload own media" ON storage.objects FOR INSERT TO authenticated WITH CHECK (bucket_id = 'seller-media' AND (storage.foldername(name))[1] = auth.uid()::text);
+CREATE POLICY "Sellers update own media" ON storage.objects FOR UPDATE TO authenticated USING (bucket_id = 'seller-media' AND (storage.foldername(name))[1] = auth.uid()::text) WITH CHECK (bucket_id = 'seller-media' AND (storage.foldername(name))[1] = auth.uid()::text);
+CREATE POLICY "Sellers delete own media" ON storage.objects FOR DELETE TO authenticated USING (bucket_id = 'seller-media' AND (storage.foldername(name))[1] = auth.uid()::text);
