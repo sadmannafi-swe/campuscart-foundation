@@ -1,7 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Globe, Landmark, School, Building2, GraduationCap, BookOpen } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
-import { Logo } from "@/components/brand/Logo";
+import mainLogo from "@/assets/campuscart-main-logo.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { campuses } from "@/data/campuses";
@@ -18,32 +16,26 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "CampusCart — Choose Your University Marketplace" },
       {
         property: "og:description",
-        content: "University marketplaces for DIU, NSU, BRAC, DU, EWU and more.",
+        content: "University marketplaces for DIU, NSU, BRAC, DU and EWU.",
       },
     ],
   }),
   component: CampusSelectorPage,
 });
 
-const campusIcons: Record<string, LucideIcon> = {
-  "all-in-one": Globe,
-  nsu: School,
-  brac: BookOpen,
-  du: Landmark,
-  ewu: Building2,
-  other: Landmark,
-};
-
 function CampusSelectorPage() {
-  const gridCampuses = campuses.filter((campus) => campus.slug !== "other");
-  const other = campuses.find((campus) => campus.slug === "other");
-
   return (
     <div className="flex min-h-screen flex-col bg-muted/40">
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-6 sm:py-10">
         <div className="flex flex-col items-center text-center">
-          <Logo size="lg" asLink={false} />
-          <h1 className="mt-5 text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
+          <img
+            src={mainLogo.url}
+            alt="CampusCart — Buy, Sell, Connect. Your Campus Marketplace."
+            className="h-28 w-auto object-contain sm:h-32"
+            width={512}
+            height={512}
+          />
+          <h1 className="mt-4 text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
             Choose your university marketplace
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -52,18 +44,12 @@ function CampusSelectorPage() {
         </div>
 
         <ul className="mt-6 grid grid-cols-2 gap-2.5">
-          {gridCampuses.map((campus) => (
+          {campuses.map((campus) => (
             <li key={campus.slug}>
               <CampusCard campus={campus} />
             </li>
           ))}
         </ul>
-
-        {other ? (
-          <div className="mt-2.5">
-            <CampusCard campus={other} wide />
-          </div>
-        ) : null}
 
         <div className="mt-auto pt-8">
           <p className="text-center text-xs text-muted-foreground">Already have an account?</p>
@@ -85,28 +71,17 @@ function CampusSelectorPage() {
   );
 }
 
-function CampusCard({
-  campus,
-  wide = false,
-}: {
-  campus: (typeof campuses)[number];
-  wide?: boolean;
-}) {
-  const Icon = campusIcons[campus.slug] ?? GraduationCap;
-
+function CampusCard({ campus }: { campus: (typeof campuses)[number] }) {
   const content = (
     <>
-      <span
-        className={cn(
-          "grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl",
-          campus.useBrandLogo ? "bg-transparent" : "bg-primary-soft text-primary",
-        )}
-      >
-        {campus.useBrandLogo ? (
-          <Logo size="sm" asLink={false} className="h-9" />
-        ) : (
-          <Icon className="size-5" aria-hidden="true" />
-        )}
+      <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-white">
+        <img
+          src={campus.logo}
+          alt={`${campus.name} logo`}
+          className="size-full object-contain p-0.5"
+          width={64}
+          height={64}
+        />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-extrabold leading-tight">
@@ -127,7 +102,6 @@ function CampusCard({
   const className = cn(
     "flex h-full items-start gap-2.5 rounded-2xl border bg-surface p-3 shadow-sm transition-colors hover:border-primary/50 hover:bg-primary-soft/30",
     campus.status === "live" ? "border-primary/40" : "border-border",
-    wide && "items-center",
   );
 
   return campus.path ? (
