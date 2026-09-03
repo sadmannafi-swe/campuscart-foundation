@@ -24,6 +24,7 @@ import { Route as CampusCampusSlugRouteImport } from './routes/campus.$campusSlu
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsProductSlugRouteImport } from './routes/products.$productSlug'
 import { Route as SellIndexRouteImport } from './routes/sell.index'
+import { Route as SellLoginRouteImport } from './routes/sell.login'
 import { Route as StoresIndexRouteImport } from './routes/stores.index'
 import { Route as StoresStoreSlugRouteImport } from './routes/stores.$storeSlug'
 
@@ -102,6 +103,11 @@ const SellIndexRoute = SellIndexRouteImport.update({
   path: '/sell/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellLoginRoute = SellLoginRouteImport.update({
+  id: '/sell/login',
+  path: '/sell/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StoresIndexRoute = StoresIndexRouteImport.update({
   id: '/stores/',
   path: '/stores/',
@@ -127,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
+  '/sell/login': typeof SellLoginRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByTo {
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
+  '/sell/login': typeof SellLoginRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
   '/products': typeof ProductsIndexRoute
   '/sell': typeof SellIndexRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
+  '/sell/login': typeof SellLoginRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/campus/$campusSlug'
     | '/products/$productSlug'
+    | '/sell/login'
     | '/stores/$storeSlug'
     | '/products/'
     | '/sell/'
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/campus/$campusSlug'
     | '/products/$productSlug'
+    | '/sell/login'
     | '/stores/$storeSlug'
     | '/products'
     | '/sell'
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/campus/$campusSlug'
     | '/products/$productSlug'
+    | '/sell/login'
     | '/stores/$storeSlug'
     | '/products/'
     | '/sell/'
@@ -245,6 +257,7 @@ export interface RootRouteChildren {
   WishlistRoute: typeof WishlistRoute
   CampusCampusSlugRoute: typeof CampusCampusSlugRoute
   ProductsProductSlugRoute: typeof ProductsProductSlugRoute
+  SellLoginRoute: typeof SellLoginRoute
   StoresStoreSlugRoute: typeof StoresStoreSlugRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
   SellIndexRoute: typeof SellIndexRoute
@@ -358,6 +371,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sell/login': {
+      id: '/sell/login'
+      path: '/sell/login'
+      fullPath: '/sell/login'
+      preLoaderRoute: typeof SellLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/stores/': {
       id: '/stores/'
       path: '/stores'
@@ -389,6 +409,7 @@ const rootRouteChildren: RootRouteChildren = {
   WishlistRoute: WishlistRoute,
   CampusCampusSlugRoute: CampusCampusSlugRoute,
   ProductsProductSlugRoute: ProductsProductSlugRoute,
+  SellLoginRoute: SellLoginRoute,
   StoresStoreSlugRoute: StoresStoreSlugRoute,
   ProductsIndexRoute: ProductsIndexRoute,
   SellIndexRoute: SellIndexRoute,
