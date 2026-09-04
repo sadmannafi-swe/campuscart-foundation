@@ -30,6 +30,7 @@ import { Route as SellRegisterRouteImport } from './routes/sell.register'
 import { Route as SellStatusRouteImport } from './routes/sell.status'
 import { Route as StoresIndexRouteImport } from './routes/stores.index'
 import { Route as StoresStoreSlugRouteImport } from './routes/stores.$storeSlug'
+import { Route as SellDashboardIndexRouteImport } from './routes/sell.dashboard.index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -136,6 +137,11 @@ const StoresStoreSlugRoute = StoresStoreSlugRouteImport.update({
   path: '/stores/$storeSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellDashboardIndexRoute = SellDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SellDashboardRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -151,7 +157,7 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
-  '/sell/dashboard': typeof SellDashboardRoute
+  '/sell/dashboard': typeof SellDashboardRouteWithChildren
   '/sell/login': typeof SellLoginRoute
   '/sell/register': typeof SellRegisterRoute
   '/sell/status': typeof SellStatusRoute
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
+  '/sell/dashboard/': typeof SellDashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -174,7 +181,6 @@ export interface FileRoutesByTo {
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
-  '/sell/dashboard': typeof SellDashboardRoute
   '/sell/login': typeof SellLoginRoute
   '/sell/register': typeof SellRegisterRoute
   '/sell/status': typeof SellStatusRoute
@@ -182,6 +188,7 @@ export interface FileRoutesByTo {
   '/products': typeof ProductsIndexRoute
   '/sell': typeof SellIndexRoute
   '/stores': typeof StoresIndexRoute
+  '/sell/dashboard': typeof SellDashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -198,7 +205,7 @@ export interface FileRoutesById {
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
-  '/sell/dashboard': typeof SellDashboardRoute
+  '/sell/dashboard': typeof SellDashboardRouteWithChildren
   '/sell/login': typeof SellLoginRoute
   '/sell/register': typeof SellRegisterRoute
   '/sell/status': typeof SellStatusRoute
@@ -206,6 +213,7 @@ export interface FileRoutesById {
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
+  '/sell/dashboard/': typeof SellDashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -231,6 +239,7 @@ export interface FileRouteTypes {
     | '/products/'
     | '/sell/'
     | '/stores/'
+    | '/sell/dashboard/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -246,7 +255,6 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/campus/$campusSlug'
     | '/products/$productSlug'
-    | '/sell/dashboard'
     | '/sell/login'
     | '/sell/register'
     | '/sell/status'
@@ -254,6 +262,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/sell'
     | '/stores'
+    | '/sell/dashboard'
   id:
     | '__root__'
     | '/'
@@ -277,6 +286,7 @@ export interface FileRouteTypes {
     | '/products/'
     | '/sell/'
     | '/stores/'
+    | '/sell/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -293,7 +303,7 @@ export interface RootRouteChildren {
   WishlistRoute: typeof WishlistRoute
   CampusCampusSlugRoute: typeof CampusCampusSlugRoute
   ProductsProductSlugRoute: typeof ProductsProductSlugRoute
-  SellDashboardRoute: typeof SellDashboardRoute
+  SellDashboardRoute: typeof SellDashboardRouteWithChildren
   SellLoginRoute: typeof SellLoginRoute
   SellRegisterRoute: typeof SellRegisterRoute
   SellStatusRoute: typeof SellStatusRoute
@@ -452,8 +462,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoresStoreSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sell/dashboard/': {
+      id: '/sell/dashboard/'
+      path: '/'
+      fullPath: '/sell/dashboard/'
+      preLoaderRoute: typeof SellDashboardIndexRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
   }
 }
+
+interface SellDashboardRouteChildren {
+  SellDashboardIndexRoute: typeof SellDashboardIndexRoute
+}
+
+const SellDashboardRouteChildren: SellDashboardRouteChildren = {
+  SellDashboardIndexRoute: SellDashboardIndexRoute,
+}
+
+const SellDashboardRouteWithChildren = SellDashboardRoute._addFileChildren(
+  SellDashboardRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -469,7 +498,7 @@ const rootRouteChildren: RootRouteChildren = {
   WishlistRoute: WishlistRoute,
   CampusCampusSlugRoute: CampusCampusSlugRoute,
   ProductsProductSlugRoute: ProductsProductSlugRoute,
-  SellDashboardRoute: SellDashboardRoute,
+  SellDashboardRoute: SellDashboardRouteWithChildren,
   SellLoginRoute: SellLoginRoute,
   SellRegisterRoute: SellRegisterRoute,
   SellStatusRoute: SellStatusRoute,
