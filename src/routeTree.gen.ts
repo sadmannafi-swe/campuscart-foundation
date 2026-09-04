@@ -24,6 +24,7 @@ import { Route as CampusCampusSlugRouteImport } from './routes/campus.$campusSlu
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsProductSlugRouteImport } from './routes/products.$productSlug'
 import { Route as SellIndexRouteImport } from './routes/sell.index'
+import { Route as SellDashboardRouteImport } from './routes/sell.dashboard'
 import { Route as SellLoginRouteImport } from './routes/sell.login'
 import { Route as SellRegisterRouteImport } from './routes/sell.register'
 import { Route as SellStatusRouteImport } from './routes/sell.status'
@@ -105,6 +106,11 @@ const SellIndexRoute = SellIndexRouteImport.update({
   path: '/sell/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellDashboardRoute = SellDashboardRouteImport.update({
+  id: '/sell/dashboard',
+  path: '/sell/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellLoginRoute = SellLoginRouteImport.update({
   id: '/sell/login',
   path: '/sell/login',
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
+  '/sell/dashboard': typeof SellDashboardRoute
   '/sell/login': typeof SellLoginRoute
   '/sell/register': typeof SellRegisterRoute
   '/sell/status': typeof SellStatusRoute
@@ -167,6 +174,7 @@ export interface FileRoutesByTo {
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
+  '/sell/dashboard': typeof SellDashboardRoute
   '/sell/login': typeof SellLoginRoute
   '/sell/register': typeof SellRegisterRoute
   '/sell/status': typeof SellStatusRoute
@@ -190,6 +198,7 @@ export interface FileRoutesById {
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
+  '/sell/dashboard': typeof SellDashboardRoute
   '/sell/login': typeof SellLoginRoute
   '/sell/register': typeof SellRegisterRoute
   '/sell/status': typeof SellStatusRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/campus/$campusSlug'
     | '/products/$productSlug'
+    | '/sell/dashboard'
     | '/sell/login'
     | '/sell/register'
     | '/sell/status'
@@ -236,6 +246,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/campus/$campusSlug'
     | '/products/$productSlug'
+    | '/sell/dashboard'
     | '/sell/login'
     | '/sell/register'
     | '/sell/status'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/campus/$campusSlug'
     | '/products/$productSlug'
+    | '/sell/dashboard'
     | '/sell/login'
     | '/sell/register'
     | '/sell/status'
@@ -281,6 +293,7 @@ export interface RootRouteChildren {
   WishlistRoute: typeof WishlistRoute
   CampusCampusSlugRoute: typeof CampusCampusSlugRoute
   ProductsProductSlugRoute: typeof ProductsProductSlugRoute
+  SellDashboardRoute: typeof SellDashboardRoute
   SellLoginRoute: typeof SellLoginRoute
   SellRegisterRoute: typeof SellRegisterRoute
   SellStatusRoute: typeof SellStatusRoute
@@ -397,6 +410,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sell/dashboard': {
+      id: '/sell/dashboard'
+      path: '/sell/dashboard'
+      fullPath: '/sell/dashboard'
+      preLoaderRoute: typeof SellDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sell/login': {
       id: '/sell/login'
       path: '/sell/login'
@@ -449,6 +469,7 @@ const rootRouteChildren: RootRouteChildren = {
   WishlistRoute: WishlistRoute,
   CampusCampusSlugRoute: CampusCampusSlugRoute,
   ProductsProductSlugRoute: ProductsProductSlugRoute,
+  SellDashboardRoute: SellDashboardRoute,
   SellLoginRoute: SellLoginRoute,
   SellRegisterRoute: SellRegisterRoute,
   SellStatusRoute: SellStatusRoute,
