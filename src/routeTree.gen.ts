@@ -24,11 +24,22 @@ import { Route as CampusCampusSlugRouteImport } from './routes/campus.$campusSlu
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsProductSlugRouteImport } from './routes/products.$productSlug'
 import { Route as SellIndexRouteImport } from './routes/sell.index'
+import { Route as SellDashboardRouteImport } from './routes/sell.dashboard'
 import { Route as SellLoginRouteImport } from './routes/sell.login'
 import { Route as SellRegisterRouteImport } from './routes/sell.register'
 import { Route as SellStatusRouteImport } from './routes/sell.status'
 import { Route as StoresIndexRouteImport } from './routes/stores.index'
 import { Route as StoresStoreSlugRouteImport } from './routes/stores.$storeSlug'
+import { Route as SellDashboardIndexRouteImport } from './routes/sell.dashboard.index'
+import { Route as SellDashboardEarningsRouteImport } from './routes/sell.dashboard.earnings'
+import { Route as SellDashboardNotificationsRouteImport } from './routes/sell.dashboard.notifications'
+import { Route as SellDashboardOrdersRouteImport } from './routes/sell.dashboard.orders'
+import { Route as SellDashboardReviewsRouteImport } from './routes/sell.dashboard.reviews'
+import { Route as SellDashboardSettingsRouteImport } from './routes/sell.dashboard.settings'
+import { Route as SellDashboardStoreRouteImport } from './routes/sell.dashboard.store'
+import { Route as SellDashboardProductsIndexRouteImport } from './routes/sell.dashboard.products.index'
+import { Route as SellDashboardProductsProductIdRouteImport } from './routes/sell.dashboard.products.$productId'
+import { Route as SellDashboardProductsNewRouteImport } from './routes/sell.dashboard.products.new'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -105,6 +116,11 @@ const SellIndexRoute = SellIndexRouteImport.update({
   path: '/sell/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellDashboardRoute = SellDashboardRouteImport.update({
+  id: '/sell/dashboard',
+  path: '/sell/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellLoginRoute = SellLoginRouteImport.update({
   id: '/sell/login',
   path: '/sell/login',
@@ -130,6 +146,60 @@ const StoresStoreSlugRoute = StoresStoreSlugRouteImport.update({
   path: '/stores/$storeSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SellDashboardIndexRoute = SellDashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SellDashboardRoute,
+} as any)
+const SellDashboardEarningsRoute = SellDashboardEarningsRouteImport.update({
+  id: '/earnings',
+  path: '/earnings',
+  getParentRoute: () => SellDashboardRoute,
+} as any)
+const SellDashboardNotificationsRoute =
+  SellDashboardNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => SellDashboardRoute,
+  } as any)
+const SellDashboardOrdersRoute = SellDashboardOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => SellDashboardRoute,
+} as any)
+const SellDashboardReviewsRoute = SellDashboardReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => SellDashboardRoute,
+} as any)
+const SellDashboardSettingsRoute = SellDashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => SellDashboardRoute,
+} as any)
+const SellDashboardStoreRoute = SellDashboardStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => SellDashboardRoute,
+} as any)
+const SellDashboardProductsIndexRoute =
+  SellDashboardProductsIndexRouteImport.update({
+    id: '/products/',
+    path: '/products/',
+    getParentRoute: () => SellDashboardRoute,
+  } as any)
+const SellDashboardProductsProductIdRoute =
+  SellDashboardProductsProductIdRouteImport.update({
+    id: '/products/$productId',
+    path: '/products/$productId',
+    getParentRoute: () => SellDashboardRoute,
+  } as any)
+const SellDashboardProductsNewRoute =
+  SellDashboardProductsNewRouteImport.update({
+    id: '/products/new',
+    path: '/products/new',
+    getParentRoute: () => SellDashboardRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -145,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
+  '/sell/dashboard': typeof SellDashboardRouteWithChildren
   '/sell/login': typeof SellLoginRoute
   '/sell/register': typeof SellRegisterRoute
   '/sell/status': typeof SellStatusRoute
@@ -152,6 +223,16 @@ export interface FileRoutesByFullPath {
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
+  '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
+  '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
+  '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
+  '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
+  '/sell/dashboard/settings': typeof SellDashboardSettingsRoute
+  '/sell/dashboard/store': typeof SellDashboardStoreRoute
+  '/sell/dashboard/': typeof SellDashboardIndexRoute
+  '/sell/dashboard/products/$productId': typeof SellDashboardProductsProductIdRoute
+  '/sell/dashboard/products/new': typeof SellDashboardProductsNewRoute
+  '/sell/dashboard/products/': typeof SellDashboardProductsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -174,6 +255,16 @@ export interface FileRoutesByTo {
   '/products': typeof ProductsIndexRoute
   '/sell': typeof SellIndexRoute
   '/stores': typeof StoresIndexRoute
+  '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
+  '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
+  '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
+  '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
+  '/sell/dashboard/settings': typeof SellDashboardSettingsRoute
+  '/sell/dashboard/store': typeof SellDashboardStoreRoute
+  '/sell/dashboard': typeof SellDashboardIndexRoute
+  '/sell/dashboard/products/$productId': typeof SellDashboardProductsProductIdRoute
+  '/sell/dashboard/products/new': typeof SellDashboardProductsNewRoute
+  '/sell/dashboard/products': typeof SellDashboardProductsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -190,6 +281,7 @@ export interface FileRoutesById {
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
+  '/sell/dashboard': typeof SellDashboardRouteWithChildren
   '/sell/login': typeof SellLoginRoute
   '/sell/register': typeof SellRegisterRoute
   '/sell/status': typeof SellStatusRoute
@@ -197,6 +289,16 @@ export interface FileRoutesById {
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
+  '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
+  '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
+  '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
+  '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
+  '/sell/dashboard/settings': typeof SellDashboardSettingsRoute
+  '/sell/dashboard/store': typeof SellDashboardStoreRoute
+  '/sell/dashboard/': typeof SellDashboardIndexRoute
+  '/sell/dashboard/products/$productId': typeof SellDashboardProductsProductIdRoute
+  '/sell/dashboard/products/new': typeof SellDashboardProductsNewRoute
+  '/sell/dashboard/products/': typeof SellDashboardProductsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -214,6 +316,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/campus/$campusSlug'
     | '/products/$productSlug'
+    | '/sell/dashboard'
     | '/sell/login'
     | '/sell/register'
     | '/sell/status'
@@ -221,6 +324,16 @@ export interface FileRouteTypes {
     | '/products/'
     | '/sell/'
     | '/stores/'
+    | '/sell/dashboard/earnings'
+    | '/sell/dashboard/notifications'
+    | '/sell/dashboard/orders'
+    | '/sell/dashboard/reviews'
+    | '/sell/dashboard/settings'
+    | '/sell/dashboard/store'
+    | '/sell/dashboard/'
+    | '/sell/dashboard/products/$productId'
+    | '/sell/dashboard/products/new'
+    | '/sell/dashboard/products/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -243,6 +356,16 @@ export interface FileRouteTypes {
     | '/products'
     | '/sell'
     | '/stores'
+    | '/sell/dashboard/earnings'
+    | '/sell/dashboard/notifications'
+    | '/sell/dashboard/orders'
+    | '/sell/dashboard/reviews'
+    | '/sell/dashboard/settings'
+    | '/sell/dashboard/store'
+    | '/sell/dashboard'
+    | '/sell/dashboard/products/$productId'
+    | '/sell/dashboard/products/new'
+    | '/sell/dashboard/products'
   id:
     | '__root__'
     | '/'
@@ -258,6 +381,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/campus/$campusSlug'
     | '/products/$productSlug'
+    | '/sell/dashboard'
     | '/sell/login'
     | '/sell/register'
     | '/sell/status'
@@ -265,6 +389,16 @@ export interface FileRouteTypes {
     | '/products/'
     | '/sell/'
     | '/stores/'
+    | '/sell/dashboard/earnings'
+    | '/sell/dashboard/notifications'
+    | '/sell/dashboard/orders'
+    | '/sell/dashboard/reviews'
+    | '/sell/dashboard/settings'
+    | '/sell/dashboard/store'
+    | '/sell/dashboard/'
+    | '/sell/dashboard/products/$productId'
+    | '/sell/dashboard/products/new'
+    | '/sell/dashboard/products/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -281,6 +415,7 @@ export interface RootRouteChildren {
   WishlistRoute: typeof WishlistRoute
   CampusCampusSlugRoute: typeof CampusCampusSlugRoute
   ProductsProductSlugRoute: typeof ProductsProductSlugRoute
+  SellDashboardRoute: typeof SellDashboardRouteWithChildren
   SellLoginRoute: typeof SellLoginRoute
   SellRegisterRoute: typeof SellRegisterRoute
   SellStatusRoute: typeof SellStatusRoute
@@ -397,6 +532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sell/dashboard': {
+      id: '/sell/dashboard'
+      path: '/sell/dashboard'
+      fullPath: '/sell/dashboard'
+      preLoaderRoute: typeof SellDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sell/login': {
       id: '/sell/login'
       path: '/sell/login'
@@ -432,8 +574,108 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoresStoreSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sell/dashboard/': {
+      id: '/sell/dashboard/'
+      path: '/'
+      fullPath: '/sell/dashboard/'
+      preLoaderRoute: typeof SellDashboardIndexRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
+    '/sell/dashboard/earnings': {
+      id: '/sell/dashboard/earnings'
+      path: '/earnings'
+      fullPath: '/sell/dashboard/earnings'
+      preLoaderRoute: typeof SellDashboardEarningsRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
+    '/sell/dashboard/notifications': {
+      id: '/sell/dashboard/notifications'
+      path: '/notifications'
+      fullPath: '/sell/dashboard/notifications'
+      preLoaderRoute: typeof SellDashboardNotificationsRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
+    '/sell/dashboard/orders': {
+      id: '/sell/dashboard/orders'
+      path: '/orders'
+      fullPath: '/sell/dashboard/orders'
+      preLoaderRoute: typeof SellDashboardOrdersRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
+    '/sell/dashboard/reviews': {
+      id: '/sell/dashboard/reviews'
+      path: '/reviews'
+      fullPath: '/sell/dashboard/reviews'
+      preLoaderRoute: typeof SellDashboardReviewsRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
+    '/sell/dashboard/settings': {
+      id: '/sell/dashboard/settings'
+      path: '/settings'
+      fullPath: '/sell/dashboard/settings'
+      preLoaderRoute: typeof SellDashboardSettingsRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
+    '/sell/dashboard/store': {
+      id: '/sell/dashboard/store'
+      path: '/store'
+      fullPath: '/sell/dashboard/store'
+      preLoaderRoute: typeof SellDashboardStoreRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
+    '/sell/dashboard/products/': {
+      id: '/sell/dashboard/products/'
+      path: '/products'
+      fullPath: '/sell/dashboard/products/'
+      preLoaderRoute: typeof SellDashboardProductsIndexRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
+    '/sell/dashboard/products/$productId': {
+      id: '/sell/dashboard/products/$productId'
+      path: '/products/$productId'
+      fullPath: '/sell/dashboard/products/$productId'
+      preLoaderRoute: typeof SellDashboardProductsProductIdRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
+    '/sell/dashboard/products/new': {
+      id: '/sell/dashboard/products/new'
+      path: '/products/new'
+      fullPath: '/sell/dashboard/products/new'
+      preLoaderRoute: typeof SellDashboardProductsNewRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
   }
 }
+
+interface SellDashboardRouteChildren {
+  SellDashboardEarningsRoute: typeof SellDashboardEarningsRoute
+  SellDashboardNotificationsRoute: typeof SellDashboardNotificationsRoute
+  SellDashboardOrdersRoute: typeof SellDashboardOrdersRoute
+  SellDashboardReviewsRoute: typeof SellDashboardReviewsRoute
+  SellDashboardSettingsRoute: typeof SellDashboardSettingsRoute
+  SellDashboardStoreRoute: typeof SellDashboardStoreRoute
+  SellDashboardIndexRoute: typeof SellDashboardIndexRoute
+  SellDashboardProductsProductIdRoute: typeof SellDashboardProductsProductIdRoute
+  SellDashboardProductsNewRoute: typeof SellDashboardProductsNewRoute
+  SellDashboardProductsIndexRoute: typeof SellDashboardProductsIndexRoute
+}
+
+const SellDashboardRouteChildren: SellDashboardRouteChildren = {
+  SellDashboardEarningsRoute: SellDashboardEarningsRoute,
+  SellDashboardNotificationsRoute: SellDashboardNotificationsRoute,
+  SellDashboardOrdersRoute: SellDashboardOrdersRoute,
+  SellDashboardReviewsRoute: SellDashboardReviewsRoute,
+  SellDashboardSettingsRoute: SellDashboardSettingsRoute,
+  SellDashboardStoreRoute: SellDashboardStoreRoute,
+  SellDashboardIndexRoute: SellDashboardIndexRoute,
+  SellDashboardProductsProductIdRoute: SellDashboardProductsProductIdRoute,
+  SellDashboardProductsNewRoute: SellDashboardProductsNewRoute,
+  SellDashboardProductsIndexRoute: SellDashboardProductsIndexRoute,
+}
+
+const SellDashboardRouteWithChildren = SellDashboardRoute._addFileChildren(
+  SellDashboardRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -449,6 +691,7 @@ const rootRouteChildren: RootRouteChildren = {
   WishlistRoute: WishlistRoute,
   CampusCampusSlugRoute: CampusCampusSlugRoute,
   ProductsProductSlugRoute: ProductsProductSlugRoute,
+  SellDashboardRoute: SellDashboardRouteWithChildren,
   SellLoginRoute: SellLoginRoute,
   SellRegisterRoute: SellRegisterRoute,
   SellStatusRoute: SellStatusRoute,
