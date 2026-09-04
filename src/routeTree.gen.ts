@@ -32,6 +32,7 @@ import { Route as StoresIndexRouteImport } from './routes/stores.index'
 import { Route as StoresStoreSlugRouteImport } from './routes/stores.$storeSlug'
 import { Route as SellDashboardIndexRouteImport } from './routes/sell.dashboard.index'
 import { Route as SellDashboardProductsIndexRouteImport } from './routes/sell.dashboard.products.index'
+import { Route as SellDashboardProductsProductIdRouteImport } from './routes/sell.dashboard.products.$productId'
 import { Route as SellDashboardProductsNewRouteImport } from './routes/sell.dashboard.products.new'
 
 const IndexRoute = IndexRouteImport.update({
@@ -150,6 +151,12 @@ const SellDashboardProductsIndexRoute =
     path: '/products/',
     getParentRoute: () => SellDashboardRoute,
   } as any)
+const SellDashboardProductsProductIdRoute =
+  SellDashboardProductsProductIdRouteImport.update({
+    id: '/products/$productId',
+    path: '/products/$productId',
+    getParentRoute: () => SellDashboardRoute,
+  } as any)
 const SellDashboardProductsNewRoute =
   SellDashboardProductsNewRouteImport.update({
     id: '/products/new',
@@ -180,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
   '/sell/dashboard/': typeof SellDashboardIndexRoute
+  '/sell/dashboard/products/$productId': typeof SellDashboardProductsProductIdRoute
   '/sell/dashboard/products/new': typeof SellDashboardProductsNewRoute
   '/sell/dashboard/products/': typeof SellDashboardProductsIndexRoute
 }
@@ -205,6 +213,7 @@ export interface FileRoutesByTo {
   '/sell': typeof SellIndexRoute
   '/stores': typeof StoresIndexRoute
   '/sell/dashboard': typeof SellDashboardIndexRoute
+  '/sell/dashboard/products/$productId': typeof SellDashboardProductsProductIdRoute
   '/sell/dashboard/products/new': typeof SellDashboardProductsNewRoute
   '/sell/dashboard/products': typeof SellDashboardProductsIndexRoute
 }
@@ -232,6 +241,7 @@ export interface FileRoutesById {
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
   '/sell/dashboard/': typeof SellDashboardIndexRoute
+  '/sell/dashboard/products/$productId': typeof SellDashboardProductsProductIdRoute
   '/sell/dashboard/products/new': typeof SellDashboardProductsNewRoute
   '/sell/dashboard/products/': typeof SellDashboardProductsIndexRoute
 }
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
     | '/sell/'
     | '/stores/'
     | '/sell/dashboard/'
+    | '/sell/dashboard/products/$productId'
     | '/sell/dashboard/products/new'
     | '/sell/dashboard/products/'
   fileRoutesByTo: FileRoutesByTo
@@ -285,6 +296,7 @@ export interface FileRouteTypes {
     | '/sell'
     | '/stores'
     | '/sell/dashboard'
+    | '/sell/dashboard/products/$productId'
     | '/sell/dashboard/products/new'
     | '/sell/dashboard/products'
   id:
@@ -311,6 +323,7 @@ export interface FileRouteTypes {
     | '/sell/'
     | '/stores/'
     | '/sell/dashboard/'
+    | '/sell/dashboard/products/$productId'
     | '/sell/dashboard/products/new'
     | '/sell/dashboard/products/'
   fileRoutesById: FileRoutesById
@@ -502,6 +515,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellDashboardProductsIndexRouteImport
       parentRoute: typeof SellDashboardRoute
     }
+    '/sell/dashboard/products/$productId': {
+      id: '/sell/dashboard/products/$productId'
+      path: '/products/$productId'
+      fullPath: '/sell/dashboard/products/$productId'
+      preLoaderRoute: typeof SellDashboardProductsProductIdRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
     '/sell/dashboard/products/new': {
       id: '/sell/dashboard/products/new'
       path: '/products/new'
@@ -514,12 +534,14 @@ declare module '@tanstack/react-router' {
 
 interface SellDashboardRouteChildren {
   SellDashboardIndexRoute: typeof SellDashboardIndexRoute
+  SellDashboardProductsProductIdRoute: typeof SellDashboardProductsProductIdRoute
   SellDashboardProductsNewRoute: typeof SellDashboardProductsNewRoute
   SellDashboardProductsIndexRoute: typeof SellDashboardProductsIndexRoute
 }
 
 const SellDashboardRouteChildren: SellDashboardRouteChildren = {
   SellDashboardIndexRoute: SellDashboardIndexRoute,
+  SellDashboardProductsProductIdRoute: SellDashboardProductsProductIdRoute,
   SellDashboardProductsNewRoute: SellDashboardProductsNewRoute,
   SellDashboardProductsIndexRoute: SellDashboardProductsIndexRoute,
 }
