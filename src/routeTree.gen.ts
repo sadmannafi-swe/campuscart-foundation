@@ -31,6 +31,7 @@ import { Route as SellStatusRouteImport } from './routes/sell.status'
 import { Route as StoresIndexRouteImport } from './routes/stores.index'
 import { Route as StoresStoreSlugRouteImport } from './routes/stores.$storeSlug'
 import { Route as SellDashboardIndexRouteImport } from './routes/sell.dashboard.index'
+import { Route as SellDashboardEarningsRouteImport } from './routes/sell.dashboard.earnings'
 import { Route as SellDashboardOrdersRouteImport } from './routes/sell.dashboard.orders'
 import { Route as SellDashboardStoreRouteImport } from './routes/sell.dashboard.store'
 import { Route as SellDashboardProductsIndexRouteImport } from './routes/sell.dashboard.products.index'
@@ -147,6 +148,11 @@ const SellDashboardIndexRoute = SellDashboardIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SellDashboardRoute,
 } as any)
+const SellDashboardEarningsRoute = SellDashboardEarningsRouteImport.update({
+  id: '/earnings',
+  path: '/earnings',
+  getParentRoute: () => SellDashboardRoute,
+} as any)
 const SellDashboardOrdersRoute = SellDashboardOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
@@ -198,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
+  '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
   '/sell/dashboard/store': typeof SellDashboardStoreRoute
   '/sell/dashboard/': typeof SellDashboardIndexRoute
@@ -226,6 +233,7 @@ export interface FileRoutesByTo {
   '/products': typeof ProductsIndexRoute
   '/sell': typeof SellIndexRoute
   '/stores': typeof StoresIndexRoute
+  '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
   '/sell/dashboard/store': typeof SellDashboardStoreRoute
   '/sell/dashboard': typeof SellDashboardIndexRoute
@@ -256,6 +264,7 @@ export interface FileRoutesById {
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
+  '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
   '/sell/dashboard/store': typeof SellDashboardStoreRoute
   '/sell/dashboard/': typeof SellDashboardIndexRoute
@@ -287,6 +296,7 @@ export interface FileRouteTypes {
     | '/products/'
     | '/sell/'
     | '/stores/'
+    | '/sell/dashboard/earnings'
     | '/sell/dashboard/orders'
     | '/sell/dashboard/store'
     | '/sell/dashboard/'
@@ -315,6 +325,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/sell'
     | '/stores'
+    | '/sell/dashboard/earnings'
     | '/sell/dashboard/orders'
     | '/sell/dashboard/store'
     | '/sell/dashboard'
@@ -344,6 +355,7 @@ export interface FileRouteTypes {
     | '/products/'
     | '/sell/'
     | '/stores/'
+    | '/sell/dashboard/earnings'
     | '/sell/dashboard/orders'
     | '/sell/dashboard/store'
     | '/sell/dashboard/'
@@ -532,6 +544,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellDashboardIndexRouteImport
       parentRoute: typeof SellDashboardRoute
     }
+    '/sell/dashboard/earnings': {
+      id: '/sell/dashboard/earnings'
+      path: '/earnings'
+      fullPath: '/sell/dashboard/earnings'
+      preLoaderRoute: typeof SellDashboardEarningsRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
     '/sell/dashboard/orders': {
       id: '/sell/dashboard/orders'
       path: '/orders'
@@ -571,6 +590,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface SellDashboardRouteChildren {
+  SellDashboardEarningsRoute: typeof SellDashboardEarningsRoute
   SellDashboardOrdersRoute: typeof SellDashboardOrdersRoute
   SellDashboardStoreRoute: typeof SellDashboardStoreRoute
   SellDashboardIndexRoute: typeof SellDashboardIndexRoute
@@ -580,6 +600,7 @@ interface SellDashboardRouteChildren {
 }
 
 const SellDashboardRouteChildren: SellDashboardRouteChildren = {
+  SellDashboardEarningsRoute: SellDashboardEarningsRoute,
   SellDashboardOrdersRoute: SellDashboardOrdersRoute,
   SellDashboardStoreRoute: SellDashboardStoreRoute,
   SellDashboardIndexRoute: SellDashboardIndexRoute,
