@@ -104,6 +104,9 @@ export function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem asChild>
+                  <Link to="/sell">Sell on CampusCart</Link>
+                </DropdownMenuItem>
                 {user ? (
                   <>
                     <DropdownMenuItem asChild>
