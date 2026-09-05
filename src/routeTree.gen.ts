@@ -32,6 +32,7 @@ import { Route as StoresIndexRouteImport } from './routes/stores.index'
 import { Route as StoresStoreSlugRouteImport } from './routes/stores.$storeSlug'
 import { Route as SellDashboardIndexRouteImport } from './routes/sell.dashboard.index'
 import { Route as SellDashboardEarningsRouteImport } from './routes/sell.dashboard.earnings'
+import { Route as SellDashboardHelpRouteImport } from './routes/sell.dashboard.help'
 import { Route as SellDashboardNotificationsRouteImport } from './routes/sell.dashboard.notifications'
 import { Route as SellDashboardOrdersRouteImport } from './routes/sell.dashboard.orders'
 import { Route as SellDashboardReviewsRouteImport } from './routes/sell.dashboard.reviews'
@@ -156,6 +157,11 @@ const SellDashboardEarningsRoute = SellDashboardEarningsRouteImport.update({
   path: '/earnings',
   getParentRoute: () => SellDashboardRoute,
 } as any)
+const SellDashboardHelpRoute = SellDashboardHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => SellDashboardRoute,
+} as any)
 const SellDashboardNotificationsRoute =
   SellDashboardNotificationsRouteImport.update({
     id: '/notifications',
@@ -224,6 +230,7 @@ export interface FileRoutesByFullPath {
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
+  '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
   '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
@@ -256,6 +263,7 @@ export interface FileRoutesByTo {
   '/sell': typeof SellIndexRoute
   '/stores': typeof StoresIndexRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
+  '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
   '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
@@ -290,6 +298,7 @@ export interface FileRoutesById {
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
+  '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
   '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
@@ -325,6 +334,7 @@ export interface FileRouteTypes {
     | '/sell/'
     | '/stores/'
     | '/sell/dashboard/earnings'
+    | '/sell/dashboard/help'
     | '/sell/dashboard/notifications'
     | '/sell/dashboard/orders'
     | '/sell/dashboard/reviews'
@@ -357,6 +367,7 @@ export interface FileRouteTypes {
     | '/sell'
     | '/stores'
     | '/sell/dashboard/earnings'
+    | '/sell/dashboard/help'
     | '/sell/dashboard/notifications'
     | '/sell/dashboard/orders'
     | '/sell/dashboard/reviews'
@@ -390,6 +401,7 @@ export interface FileRouteTypes {
     | '/sell/'
     | '/stores/'
     | '/sell/dashboard/earnings'
+    | '/sell/dashboard/help'
     | '/sell/dashboard/notifications'
     | '/sell/dashboard/orders'
     | '/sell/dashboard/reviews'
@@ -588,6 +600,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellDashboardEarningsRouteImport
       parentRoute: typeof SellDashboardRoute
     }
+    '/sell/dashboard/help': {
+      id: '/sell/dashboard/help'
+      path: '/help'
+      fullPath: '/sell/dashboard/help'
+      preLoaderRoute: typeof SellDashboardHelpRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
     '/sell/dashboard/notifications': {
       id: '/sell/dashboard/notifications'
       path: '/notifications'
@@ -649,6 +668,7 @@ declare module '@tanstack/react-router' {
 
 interface SellDashboardRouteChildren {
   SellDashboardEarningsRoute: typeof SellDashboardEarningsRoute
+  SellDashboardHelpRoute: typeof SellDashboardHelpRoute
   SellDashboardNotificationsRoute: typeof SellDashboardNotificationsRoute
   SellDashboardOrdersRoute: typeof SellDashboardOrdersRoute
   SellDashboardReviewsRoute: typeof SellDashboardReviewsRoute
@@ -662,6 +682,7 @@ interface SellDashboardRouteChildren {
 
 const SellDashboardRouteChildren: SellDashboardRouteChildren = {
   SellDashboardEarningsRoute: SellDashboardEarningsRoute,
+  SellDashboardHelpRoute: SellDashboardHelpRoute,
   SellDashboardNotificationsRoute: SellDashboardNotificationsRoute,
   SellDashboardOrdersRoute: SellDashboardOrdersRoute,
   SellDashboardReviewsRoute: SellDashboardReviewsRoute,
