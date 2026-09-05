@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { ChevronRight, Store } from "lucide-react";
 import mainLogo from "@/assets/campuscart-main-logo.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -50,6 +51,24 @@ function CampusSelectorPage() {
             </li>
           ))}
         </ul>
+
+        <Link
+          to="/sell"
+          className="mt-3 flex items-center gap-2.5 rounded-2xl border border-accent/40 bg-accent-soft/40 p-3 transition-colors hover:bg-accent-soft"
+        >
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-white text-accent">
+            <Store className="size-5" aria-hidden="true" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-sm font-extrabold leading-tight">
+              Sell on CampusCart
+            </span>
+            <span className="mt-0.5 block text-[11px] text-muted-foreground">
+              Create a seller account or log in to your store
+            </span>
+          </span>
+          <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+        </Link>
 
         <div className="mt-auto pt-8">
           <p className="text-center text-xs text-muted-foreground">Already have an account?</p>
