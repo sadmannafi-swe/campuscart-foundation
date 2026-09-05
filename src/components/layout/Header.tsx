@@ -171,6 +171,14 @@ export function Header() {
                     ),
                   )}
                 </nav>
+                <div className="mt-2 px-3">
+                  <Link
+                    to="/sell"
+                    className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary-soft"
+                  >
+                    Sell on CampusCart
+                  </Link>
+                </div>
                 {!user && (
                   <div className="mt-4 grid gap-2 px-3">
                     <Button asChild size="sm">
