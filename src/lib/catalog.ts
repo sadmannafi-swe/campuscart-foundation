@@ -59,7 +59,8 @@ export function filterProducts(source: Product[], query: CatalogQuery): Product[
       product.description.toLowerCase().includes(term) ||
       product.categorySlug.includes(term) ||
       (category?.name.toLowerCase().includes(term) ?? false) ||
-      (store?.name.toLowerCase().includes(term) ?? false)
+      (store?.name.toLowerCase().includes(term) ?? false) ||
+      (product.storeName?.toLowerCase().includes(term) ?? false)
     );
   });
 

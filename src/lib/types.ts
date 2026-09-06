@@ -47,6 +47,10 @@ export interface Product {
   name: string;
   categorySlug: string;
   storeId: string;
+  /** live listings carry their own store name (seeded catalogue looks it up) */
+  storeName?: string | undefined;
+  /** live listings carry a photo URL; seeded catalogue uses gradient art */
+  image?: string | undefined;
   price: number;
   originalPrice?: number | undefined;
   rating: number;
