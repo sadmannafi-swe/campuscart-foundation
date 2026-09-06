@@ -15,6 +15,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as CcadmingoRouteImport } from './routes/ccadmingo'
 import { Route as DiuRouteImport } from './routes/diu'
 import { Route as NewArrivalsRouteImport } from './routes/new-arrivals'
 import { Route as OffersRouteImport } from './routes/offers'
@@ -71,6 +72,11 @@ const CartRoute = CartRouteImport.update({
 const CategoriesRoute = CategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CcadmingoRoute = CcadmingoRouteImport.update({
+  id: '/ccadmingo',
+  path: '/ccadmingo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiuRoute = DiuRouteImport.update({
@@ -220,6 +226,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/ccadmingo': typeof CcadmingoRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/offers': typeof OffersRoute
@@ -255,6 +262,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/ccadmingo': typeof CcadmingoRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/offers': typeof OffersRoute
@@ -290,6 +298,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/ccadmingo': typeof CcadmingoRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/offers': typeof OffersRoute
@@ -327,6 +336,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
+    | '/ccadmingo'
     | '/diu'
     | '/new-arrivals'
     | '/offers'
@@ -362,6 +372,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
+    | '/ccadmingo'
     | '/diu'
     | '/new-arrivals'
     | '/offers'
@@ -396,6 +407,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
+    | '/ccadmingo'
     | '/diu'
     | '/new-arrivals'
     | '/offers'
@@ -432,6 +444,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
+  CcadmingoRoute: typeof CcadmingoRoute
   DiuRoute: typeof DiuRoute
   NewArrivalsRoute: typeof NewArrivalsRoute
   OffersRoute: typeof OffersRoute
@@ -492,6 +505,13 @@ declare module '@tanstack/react-router' {
       path: '/categories'
       fullPath: '/categories'
       preLoaderRoute: typeof CategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ccadmingo': {
+      id: '/ccadmingo'
+      path: '/ccadmingo'
+      fullPath: '/ccadmingo'
+      preLoaderRoute: typeof CcadmingoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/diu': {
@@ -725,6 +745,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
+  CcadmingoRoute: CcadmingoRoute,
   DiuRoute: DiuRoute,
   NewArrivalsRoute: NewArrivalsRoute,
   OffersRoute: OffersRoute,
