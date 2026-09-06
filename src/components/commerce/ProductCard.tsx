@@ -22,15 +22,24 @@ export function ProductCard({ product, className }: { product: Product; classNam
     >
       <div
         className={cn(
-          "grid aspect-4/3 place-items-center bg-gradient-to-br",
+          "grid aspect-4/3 place-items-center overflow-hidden bg-gradient-to-br",
           product.accentFrom,
           product.accentTo,
         )}
       >
-        <CategoryIcon
-          name={category?.icon ?? "Tag"}
-          className="size-8 text-primary/70 transition-transform duration-300 group-hover:scale-105"
-        />
+        {product.image ? (
+          <img
+            src={product.image}
+            alt={product.name}
+            loading="lazy"
+            className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : (
+          <CategoryIcon
+            name={category?.icon ?? "Tag"}
+            className="size-8 text-primary/70 transition-transform duration-300 group-hover:scale-105"
+          />
+        )}
       </div>
 
       <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
@@ -78,9 +87,11 @@ export function ProductCard({ product, className }: { product: Product; classNam
         </div>
 
         <div className="mt-auto flex items-center gap-1.5 pt-0.5 text-[11px] text-muted-foreground">
-          <span className="shrink-0 whitespace-nowrap font-semibold text-warning">★ {product.rating.toFixed(1)}</span>
+          <span className="shrink-0 whitespace-nowrap font-semibold text-warning">
+            {product.reviewCount > 0 ? `★ ${product.rating.toFixed(1)}` : "New listing"}
+          </span>
           <span className="shrink-0 text-border">|</span>
-          <span className="truncate">{store?.name}</span>
+          <span className="truncate">{product.storeName ?? store?.name}</span>
         </div>
       </div>
     </article>
