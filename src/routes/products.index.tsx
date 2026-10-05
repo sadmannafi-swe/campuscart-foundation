@@ -23,7 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { categories, products, stores } from "@/data/marketplace";
+import { categories, stores } from "@/data/marketplace";
+import { useCatalogProducts } from "@/lib/liveCatalog";
 import {
   filterProducts,
   sortOptions,
@@ -98,7 +99,8 @@ function ProductsPage() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/products/" });
 
-  const results = useMemo(() => filterProducts(products, search), [search]);
+  const { products } = useCatalogProducts();
+  const results = useMemo(() => filterProducts(products, search), [products, search]);
   const activeCategory = categories.find((c) => c.slug === search.category);
   const activeCount = countActiveFilters(search);
 

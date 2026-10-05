@@ -4,6 +4,7 @@ import { BackButton } from "@/components/common/BackButton";
 import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
 import { ProductGrid } from "@/components/commerce/ProductGrid";
 import { getProductsByTag } from "@/data/marketplace";
+import { useLiveProducts } from "@/lib/liveCatalog";
 
 export const Route = createFileRoute("/new-arrivals")({
   head: () => ({
@@ -18,7 +19,8 @@ export const Route = createFileRoute("/new-arrivals")({
 });
 
 function NewArrivalsPage() {
-  const items = getProductsByTag("new");
+  const { data: live = [] } = useLiveProducts();
+  const items = [...live, ...getProductsByTag("new")];
   return (
     <SiteLayout>
       <div className="container-page py-8">

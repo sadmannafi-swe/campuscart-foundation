@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { BadgeCheck, Check, Heart, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { discountPercent, formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useLiveProducts } from "@/lib/liveCatalog";
+import type { Product, Review, Store } from "@/lib/types";
 import {
   categories,
   getProductBySlug,
@@ -24,9 +26,11 @@ import {
 export const Route = createFileRoute("/products/$productSlug")({
   loader: ({ params }) => {
     const product = getProductBySlug(params.productSlug);
-    if (!product) throw notFound();
+    // Seller listings live in the database; render them client-side.
+    if (!product) return { live: true as const, slug: params.productSlug };
     const store = getStoreById(product.storeId)!;
     return {
+      live: false as const,
       product,
       store,
       related: getRelatedProducts(product),
@@ -34,7 +38,7 @@ export const Route = createFileRoute("/products/$productSlug")({
     };
   },
   head: ({ loaderData }) => {
-    if (!loaderData) {
+    if (!loaderData || loaderData.live) {
       return {
         meta: [
           { title: "Product unavailable — DIU CampusCart" },
@@ -56,7 +60,70 @@ export const Route = createFileRoute("/products/$productSlug")({
 });
 
 function ProductDetailsPage() {
-  const { product, store, related, reviews } = Route.useLoaderData();
+  const data = Route.useLoaderData();
+  if (data.live) return <LiveProductDetails slug={data.slug} />;
+  return <StaticProductDetails {...data} />;
+}
+
+function LiveProductDetails({ slug }: { slug: string }) {
+  const { data: live, isLoading } = useLiveProducts();
+  const product = live?.find((p) => p.slug === slug);
+  const category = categories.find((c) => c.slug === product?.categorySlug);
+  return (
+    <SiteLayout>
+      <div className="container-page py-8">
+        <BackButton className="mb-3" />
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">Loading…</p>
+        ) : !product ? (
+          <div className="py-16 text-center">
+            <h1 className="text-xl font-bold">Product unavailable</h1>
+            <p className="mt-2 text-sm text-muted-foreground">This listing may have been removed.</p>
+            <Button asChild className="mt-4"><Link to="/products" search={{}}>Browse products</Link></Button>
+          </div>
+        ) : (
+          <div className="grid gap-8 lg:grid-cols-2">
+            <div className={cn("grid aspect-square w-full place-items-center overflow-hidden rounded-3xl border border-border bg-gradient-to-br", product.accentFrom, product.accentTo)}>
+              {product.image ? (
+                <img src={product.image} alt={product.name} className="size-full object-cover" />
+              ) : (
+                <CategoryIcon name={category?.icon ?? "Tag"} className="size-24 text-primary/70" />
+              )}
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                {category && <Badge variant="secondary">{category.name}</Badge>}
+                <Badge variant="secondary" className="capitalize">{product.condition.replace("-", " ")}</Badge>
+                {product.inStock ? (
+                  <span className="text-xs font-semibold text-accent">In stock</span>
+                ) : (
+                  <span className="text-xs font-semibold text-destructive">Out of stock</span>
+                )}
+              </div>
+              <h1 className="mt-3 text-2xl font-extrabold sm:text-3xl">{product.name}</h1>
+              <p className="price-lg mt-3 text-2xl">{formatPrice(product.price)}</p>
+              <p className="mt-2 text-sm text-muted-foreground">Sold by <span className="font-semibold text-foreground">{product.storeName}</span></p>
+              {product.description && <p className="mt-4 whitespace-pre-line text-sm leading-relaxed">{product.description}</p>}
+              <Button className="mt-6" disabled={!product.inStock} onClick={() => toast.success("Added to cart")}>Add to cart</Button>
+            </div>
+          </div>
+        )}
+      </div>
+    </SiteLayout>
+  );
+}
+
+function StaticProductDetails({
+  product,
+  store,
+  related,
+  reviews,
+}: {
+  product: Product;
+  store: Store;
+  related: Product[];
+  reviews: Review[];
+}) {
   const [quantity, setQuantity] = useState(1);
   const [selected, setSelected] = useState<Record<string, string>>(
     Object.fromEntries((product.variants ?? []).map((v) => [v.id, v.options[0]!])),
