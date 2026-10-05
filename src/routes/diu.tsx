@@ -9,6 +9,7 @@ import { ProductGrid } from "@/components/commerce/ProductGrid";
 import { StoreCard } from "@/components/commerce/StoreCard";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useLiveProducts } from "@/lib/liveCatalog";
 import { products, getFeaturedStores, getProductsByTag, getTopRatedStores } from "@/data/marketplace";
 
 
@@ -40,8 +41,9 @@ const tabs = [
 function HomePage() {
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]["id"]>("recommended");
   const flashDeals = getProductsByTag("offer").slice(0, 6);
-  const recommended = [...products].sort((a, b) => b.rating - a.rating);
-  const newArrivals = getProductsByTag("new");
+  const { data: live = [] } = useLiveProducts();
+  const recommended = [...live, ...[...products].sort((a, b) => b.rating - a.rating)];
+  const newArrivals = [...live, ...getProductsByTag("new")];
   const tabProducts = activeTab === "recommended" ? recommended : newArrivals;
 
 
