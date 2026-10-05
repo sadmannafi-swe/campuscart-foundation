@@ -6,6 +6,9 @@ export interface AdminApplication {
   store: Tables<"stores">;
   seller: Tables<"sellers"> | null;
   studentId: string | null;
+  studentIdImageUrl: string | null;
+  logoUrl: string | null;
+  universityName: string | null;
 }
 
 /** Unauthenticated review console data (secret-path admin area). */
@@ -25,14 +28,31 @@ export const listApplications = createServerFn({ method: "GET" }).handler(
     const { data: sellers } = await supabaseAdmin.from("sellers").select("*").in("id", sellerIds);
     const { data: ids } = await supabaseAdmin
       .from("seller_identity")
-      .select("seller_id, student_id")
+      .select("seller_id, student_id, student_id_image_path")
       .in("seller_id", sellerIds);
+    const { data: unis } = await supabaseAdmin.from("universities").select("slug, name");
 
-    return list.map((store) => ({
-      store,
-      seller: sellers?.find((s) => s.id === store.seller_id) ?? null,
-      studentId: ids?.find((i) => i.seller_id === store.seller_id)?.student_id ?? null,
-    }));
+    const sign = async (path: string | null | undefined) => {
+      if (!path) return null;
+      const { data } = await supabaseAdmin.storage
+        .from("seller-media")
+        .createSignedUrl(path, 60 * 60);
+      return data?.signedUrl ?? null;
+    };
+
+    return Promise.all(
+      list.map(async (store) => {
+        const identity = ids?.find((i) => i.seller_id === store.seller_id);
+        return {
+          store,
+          seller: sellers?.find((s) => s.id === store.seller_id) ?? null,
+          studentId: identity?.student_id ?? null,
+          studentIdImageUrl: await sign(identity?.student_id_image_path),
+          logoUrl: await sign(store.logo_path),
+          universityName: unis?.find((u) => u.slug === store.university_slug)?.name ?? null,
+        };
+      }),
+    );
   },
 );
 

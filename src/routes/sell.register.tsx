@@ -238,6 +238,7 @@ function AccountStep({
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [photo, setPhoto] = useState<File | null>(null);
+  const [idPhoto, setIdPhoto] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function onSubmit(e: FormEvent) {
@@ -300,10 +301,20 @@ function AccountStep({
         .single();
       if (sellerError) throw sellerError;
 
+      let idImagePath: string | null = null;
+      if (idPhoto) {
+        try {
+          idImagePath = await uploadSellerFile(userId, idPhoto, "student-id");
+        } catch {
+          idImagePath = null;
+        }
+      }
+
       const { error: idError } = await supabase.from("seller_identity").insert({
         seller_id: seller.id,
         user_id: userId,
         student_id: studentId.trim(),
+        student_id_image_path: idImagePath,
       });
       if (idError) throw idError;
 
@@ -372,6 +383,19 @@ function AccountStep({
             Private — visible only to you and CampusCart admin.
           </p>
         </Field>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="s-idphoto">Student ID Photo (optional)</Label>
+          <Input
+            id="s-idphoto"
+            type="file"
+            accept="image/*"
+            onChange={(e) => setIdPhoto(e.target.files?.[0] ?? null)}
+          />
+          <p className="text-[11px] text-muted-foreground">
+            Helps CampusCart admin verify you faster. Only the admin can see it.
+          </p>
+        </div>
 
         <div className="space-y-1.5">
           <Label>Department</Label>
