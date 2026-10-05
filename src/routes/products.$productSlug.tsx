@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { discountPercent, formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useLiveProducts } from "@/lib/liveCatalog";
+import type { Product, Review, Store } from "@/lib/types";
 import {
   categories,
   getProductBySlug,
@@ -117,7 +118,12 @@ function StaticProductDetails({
   store,
   related,
   reviews,
-}: Extract<ReturnType<typeof Route.useLoaderData>, { live: false }>) {
+}: {
+  product: Product;
+  store: Store;
+  related: Product[];
+  reviews: Review[];
+}) {
   const [quantity, setQuantity] = useState(1);
   const [selected, setSelected] = useState<Record<string, string>>(
     Object.fromEntries((product.variants ?? []).map((v) => [v.id, v.options[0]!])),
