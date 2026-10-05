@@ -115,17 +115,26 @@ function SecretAdminConsole() {
         )}
 
         <ul className="mt-5 space-y-3">
-          {visible.map(({ store, seller, studentId }) => {
+          {visible.map(({ store, seller, studentId, studentIdImageUrl, logoUrl, universityName }) => {
             const uni = universities.find((u) => u.slug === store.university_slug);
             const meta = storeStatusMeta[store.status];
             return (
               <li key={store.id} className="card-surface p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold">{store.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {uni?.name ?? store.university_slug} · {store.category}
-                    </p>
+                  <div className="flex min-w-0 items-center gap-3">
+                    {logoUrl ? (
+                      <img src={logoUrl} alt={`${store.name} logo`} className="size-12 shrink-0 rounded-xl border border-border object-cover" />
+                    ) : (
+                      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary-soft text-sm font-bold text-primary">
+                        {store.name.slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold">{store.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {universityName ?? uni?.name ?? store.university_slug} · {store.category}
+                      </p>
+                    </div>
                   </div>
                   <span
                     className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", meta.className)}
@@ -139,11 +148,32 @@ function SecretAdminConsole() {
                 <dl className="mt-3 grid gap-2 rounded-xl bg-muted/60 p-3 text-xs sm:grid-cols-2">
                   <Detail label="Seller" value={seller?.full_name ?? "—"} />
                   <Detail label="Email" value={seller?.email ?? "—"} />
-                  <Detail label="Phone" value={store.contact_number} />
+                  <Detail label="Phone" value={seller?.phone ?? "—"} />
+                  <Detail label="Store contact" value={store.contact_number} />
+                  <Detail label="University" value={universityName ?? uni?.name ?? store.university_slug} />
+                  <Detail
+                    label="Applied on"
+                    value={new Date(store.created_at).toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  />
                   <Detail label="Student ID (admin only)" value={studentId ?? "—"} />
                   <Detail label="Department" value={seller?.department ?? "—"} />
                   <Detail label="Batch" value={seller?.batch ?? "—"} />
                 </dl>
+
+                {store.status === "rejected" && store.rejection_reason && (
+                  <p className="mt-2 text-xs text-destructive">Rejection reason: {store.rejection_reason}</p>
+                )}
+
+                <div className="mt-3">
+                  <p className="text-xs text-muted-foreground">Student ID photo (admin only)</p>
+                  {studentIdImageUrl ? (
+                    <a href={studentIdImageUrl} target="_blank" rel="noreferrer noopener">
+                      <img src={studentIdImageUrl} alt="Student ID" className="mt-1 max-h-48 rounded-xl border border-border object-contain" />
+                    </a>
+                  ) : (
+                    <p className="text-xs font-semibold">Not submitted</p>
+                  )}
+                </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">
                   {store.status !== "approved" && (
@@ -196,7 +226,7 @@ function SecretAdminConsole() {
                       }
                     >
                       <EyeOff className="mr-1.5 size-4" aria-hidden="true" />
-                      Unpublish
+                      Unpublish / Suspend
                     </Button>
                   )}
                 </div>

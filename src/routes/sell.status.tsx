@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { CheckCircle2, ClipboardCheck, Loader2, MessageCircle, Phone, Store, IdCard } from "lucide-react";
+import { CheckCircle2, ClipboardCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { adminWhatsAppLink } from "@/config/platform";
 import { storeStatusMeta, useSellerAccount, useUniversities } from "@/lib/seller";
 import { cn } from "@/lib/utils";
 
@@ -58,12 +57,12 @@ export default function SellerStatus() {
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
               {store.status === "pending" &&
-                "We're verifying your information and store details. You will be notified once your store is approved."}
+                "Your seller account and store are currently under review by CampusCart Admin. You will be able to access your seller dashboard after approval."}
               {store.status === "rejected" &&
-                (store.rejection_reason ??
-                  "Your application did not pass verification. Contact CampusCart admin for details.")}
+                (store.rejection_reason ? `Reason: ${store.rejection_reason}` :
+                  "Your application did not pass verification.")}
               {store.status === "suspended" &&
-                "Your store is currently hidden from the marketplace. Contact CampusCart admin to restore it."}
+                "Your store is currently hidden from the marketplace by CampusCart Admin."}
             </p>
           </div>
         )}
@@ -90,35 +89,6 @@ export default function SellerStatus() {
             })}
           />
         </div>
-
-        {store.status !== "approved" && (
-          <section className="card-surface mt-6 p-4">
-            <h2 className="text-center text-base font-bold">Complete Student Verification</h2>
-            <p className="mt-1 text-center text-xs text-muted-foreground">
-              To complete your verification, send the following details to the admin on WhatsApp.
-            </p>
-            <ul className="mt-4 space-y-3">
-              <VerifyItem icon={Store} label="Store Name" />
-              <VerifyItem icon={Phone} label="Phone Number" />
-              <VerifyItem icon={IdCard} label="Photo of your Student ID" />
-            </ul>
-            <Button asChild className="mt-4 w-full bg-accent text-accent-foreground hover:bg-accent/90">
-              <a
-                href={adminWhatsAppLink(
-                  `CampusCart seller verification\nStore: ${store.name}\nUniversity: ${uni?.short_name ?? store.university_slug}\nPhone: ${store.contact_number}\n(Attaching my Student ID photo)`,
-                )}
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                <MessageCircle className="mr-2 size-4" aria-hidden="true" />
-                Contact Admin on WhatsApp
-              </a>
-            </Button>
-            <p className="mt-3 rounded-xl bg-muted/70 p-3 text-center text-[11px] text-muted-foreground">
-              We will verify and approve your store. You will get a notification.
-            </p>
-          </section>
-        )}
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
           <Link to="/sell" className="hover:text-primary">
@@ -163,14 +133,5 @@ function Row({ label, value }: { label: string; value: React.ReactNode }) {
       <span className="text-muted-foreground">{label}</span>
       <span className="text-right font-semibold">{value}</span>
     </div>
-  );
-}
-
-function VerifyItem({ icon: Icon, label }: { icon: typeof Store; label: string }) {
-  return (
-    <li className="flex items-center gap-3 rounded-xl bg-muted/60 px-3 py-2.5 text-sm font-medium">
-      <Icon className="size-4 text-primary" aria-hidden="true" />
-      {label}
-    </li>
   );
 }
