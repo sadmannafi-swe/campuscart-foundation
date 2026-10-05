@@ -55,6 +55,7 @@ export type Database = {
           created_at: string
           seller_id: string
           student_id: string
+          student_id_image_path: string | null
           updated_at: string
           user_id: string
         }
@@ -62,6 +63,7 @@ export type Database = {
           created_at?: string
           seller_id: string
           student_id: string
+          student_id_image_path?: string | null
           updated_at?: string
           user_id: string
         }
@@ -69,6 +71,7 @@ export type Database = {
           created_at?: string
           seller_id?: string
           student_id?: string
+          student_id_image_path?: string | null
           updated_at?: string
           user_id?: string
         }
