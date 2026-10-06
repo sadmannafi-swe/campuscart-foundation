@@ -51,6 +51,13 @@ export interface Product {
   storeName?: string | undefined;
   /** live listings carry a photo URL; seeded catalogue uses gradient art */
   image?: string | undefined;
+  /** storage path of the live listing photo (for re-signing) */
+  imagePath?: string | undefined;
+  /** live listings: owning seller + university marketplace */
+  sellerId?: string | undefined;
+  universitySlug?: string | undefined;
+  /** true for real seller listings that can be ordered */
+  live?: boolean | undefined;
   price: number;
   originalPrice?: number | undefined;
   rating: number;

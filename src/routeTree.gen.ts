@@ -16,9 +16,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as CcadmingoRouteImport } from './routes/ccadmingo'
+import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DiuRouteImport } from './routes/diu'
 import { Route as NewArrivalsRouteImport } from './routes/new-arrivals'
 import { Route as OffersRouteImport } from './routes/offers'
+import { Route as OrderConfirmationRouteImport } from './routes/order-confirmation'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as WishlistRouteImport } from './routes/wishlist'
@@ -79,6 +81,11 @@ const CcadmingoRoute = CcadmingoRouteImport.update({
   path: '/ccadmingo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DiuRoute = DiuRouteImport.update({
   id: '/diu',
   path: '/diu',
@@ -92,6 +99,11 @@ const NewArrivalsRoute = NewArrivalsRouteImport.update({
 const OffersRoute = OffersRouteImport.update({
   id: '/offers',
   path: '/offers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrderConfirmationRoute = OrderConfirmationRouteImport.update({
+  id: '/order-confirmation',
+  path: '/order-confirmation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrdersRoute = OrdersRouteImport.update({
@@ -227,9 +239,11 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/ccadmingo': typeof CcadmingoRoute
+  '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/offers': typeof OffersRoute
+  '/order-confirmation': typeof OrderConfirmationRoute
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
@@ -263,9 +277,11 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/ccadmingo': typeof CcadmingoRoute
+  '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/offers': typeof OffersRoute
+  '/order-confirmation': typeof OrderConfirmationRoute
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
@@ -299,9 +315,11 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/ccadmingo': typeof CcadmingoRoute
+  '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
   '/offers': typeof OffersRoute
+  '/order-confirmation': typeof OrderConfirmationRoute
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
@@ -337,9 +355,11 @@ export interface FileRouteTypes {
     | '/cart'
     | '/categories'
     | '/ccadmingo'
+    | '/checkout'
     | '/diu'
     | '/new-arrivals'
     | '/offers'
+    | '/order-confirmation'
     | '/orders'
     | '/reset-password'
     | '/wishlist'
@@ -373,9 +393,11 @@ export interface FileRouteTypes {
     | '/cart'
     | '/categories'
     | '/ccadmingo'
+    | '/checkout'
     | '/diu'
     | '/new-arrivals'
     | '/offers'
+    | '/order-confirmation'
     | '/orders'
     | '/reset-password'
     | '/wishlist'
@@ -408,9 +430,11 @@ export interface FileRouteTypes {
     | '/cart'
     | '/categories'
     | '/ccadmingo'
+    | '/checkout'
     | '/diu'
     | '/new-arrivals'
     | '/offers'
+    | '/order-confirmation'
     | '/orders'
     | '/reset-password'
     | '/wishlist'
@@ -445,9 +469,11 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
   CcadmingoRoute: typeof CcadmingoRoute
+  CheckoutRoute: typeof CheckoutRoute
   DiuRoute: typeof DiuRoute
   NewArrivalsRoute: typeof NewArrivalsRoute
   OffersRoute: typeof OffersRoute
+  OrderConfirmationRoute: typeof OrderConfirmationRoute
   OrdersRoute: typeof OrdersRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   WishlistRoute: typeof WishlistRoute
@@ -514,6 +540,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CcadmingoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/diu': {
       id: '/diu'
       path: '/diu'
@@ -533,6 +566,13 @@ declare module '@tanstack/react-router' {
       path: '/offers'
       fullPath: '/offers'
       preLoaderRoute: typeof OffersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/order-confirmation': {
+      id: '/order-confirmation'
+      path: '/order-confirmation'
+      fullPath: '/order-confirmation'
+      preLoaderRoute: typeof OrderConfirmationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/orders': {
@@ -746,9 +786,11 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
   CcadmingoRoute: CcadmingoRoute,
+  CheckoutRoute: CheckoutRoute,
   DiuRoute: DiuRoute,
   NewArrivalsRoute: NewArrivalsRoute,
   OffersRoute: OffersRoute,
+  OrderConfirmationRoute: OrderConfirmationRoute,
   OrdersRoute: OrdersRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   WishlistRoute: WishlistRoute,

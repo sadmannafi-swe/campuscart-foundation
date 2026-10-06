@@ -26,14 +26,15 @@ interface Row {
   in_stock: boolean;
   store_id: string;
   created_at: string;
-  stores: { id: string; name: string; status: string } | null;
+  university_slug: string;
+  stores: { id: string; name: string; status: string; seller_id: string } | null;
 }
 
 /** Live listings published by approved campus stores, mapped to the buyer Product shape. */
 async function fetchLiveProducts(): Promise<Product[]> {
   const { data, error } = await supabase
     .from("seller_products")
-    .select("id,name,category,price,condition,description,images,in_stock,store_id,created_at,stores!inner(id,name,status)")
+    .select("id,name,category,price,condition,description,images,in_stock,store_id,created_at,university_slug,stores!inner(id,name,status,seller_id)")
     .eq("is_active", true)
     .eq("stores.status", "approved")
     .order("created_at", { ascending: false });
@@ -66,6 +67,10 @@ async function fetchLiveProducts(): Promise<Product[]> {
       storeId: row.store_id,
       storeName: row.stores?.name ?? "Campus seller",
       image: path ? urlByPath.get(path) : undefined,
+      imagePath: path,
+      sellerId: row.stores?.seller_id,
+      universitySlug: row.university_slug,
+      live: true,
       price: Number(row.price),
       originalPrice: undefined,
       rating: 0,
