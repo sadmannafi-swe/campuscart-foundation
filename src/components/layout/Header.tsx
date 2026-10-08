@@ -91,9 +91,11 @@ export function Header() {
             <Button variant="ghost" size="icon" asChild className="relative">
               <Link to="/cart" aria-label="Cart">
                 <ShoppingCart />
-                <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
-                  3
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                    {cartCount > 9 ? "9+" : cartCount}
+                  </span>
+                )}
               </Link>
             </Button>
 
