@@ -1,3 +1,4 @@
+import { useCart } from "@/lib/cart";
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Heart, Menu, Search, ShoppingCart, User } from "lucide-react";
@@ -26,6 +27,7 @@ const activeProps = { className: "text-primary" };
 export function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { count: cartCount } = useCart();
   const navigate = useNavigate();
 
   return (
