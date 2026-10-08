@@ -14,6 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { discountPercent, formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useLiveProducts } from "@/lib/liveCatalog";
+import { cart } from "@/lib/cart";
+import { useNavigate } from "@tanstack/react-router";
 import type { Product, Review, Store } from "@/lib/types";
 import {
   categories,
@@ -66,6 +68,7 @@ function ProductDetailsPage() {
 }
 
 function LiveProductDetails({ slug }: { slug: string }) {
+  const navigate = useNavigate();
   const { data: live, isLoading } = useLiveProducts();
   const product = live?.find((p) => p.slug === slug);
   const category = categories.find((c) => c.slug === product?.categorySlug);
@@ -104,7 +107,10 @@ function LiveProductDetails({ slug }: { slug: string }) {
               <p className="price-lg mt-3 text-2xl">{formatPrice(product.price)}</p>
               <p className="mt-2 text-sm text-muted-foreground">Sold by <span className="font-semibold text-foreground">{product.storeName}</span></p>
               {product.description && <p className="mt-4 whitespace-pre-line text-sm leading-relaxed">{product.description}</p>}
-              <Button className="mt-6" disabled={!product.inStock} onClick={() => toast.success("Added to cart")}>Add to cart</Button>
+              <div className="mt-6 flex gap-3">
+                <Button className="flex-1 sm:flex-none" disabled={!product.inStock} onClick={() => { cart.add(product, 1); toast.success("Added to cart"); }}>Add to Cart</Button>
+                <Button variant="secondary" className="flex-1 sm:flex-none" disabled={!product.inStock} onClick={() => void navigate({ to: "/checkout", search: { buy: product.slug, qty: 1 } })}>Buy Now</Button>
+              </div>
             </div>
           </div>
         )}
@@ -125,6 +131,7 @@ function StaticProductDetails({
   reviews: Review[];
 }) {
   const [quantity, setQuantity] = useState(1);
+  const navigate = useNavigate();
   const [selected, setSelected] = useState<Record<string, string>>(
     Object.fromEntries((product.variants ?? []).map((v) => [v.id, v.options[0]!])),
   );
@@ -277,7 +284,10 @@ function StaticProductDetails({
                 size="lg"
                 className="flex-1 sm:flex-none"
                 disabled={!product.inStock}
-                onClick={() => toast.success("Added to cart")}
+                onClick={() => {
+                  cart.add(product, quantity);
+                  toast.success("Added to cart");
+                }}
               >
                 Add to Cart
               </Button>
@@ -286,7 +296,9 @@ function StaticProductDetails({
                 variant="secondary"
                 className="flex-1 sm:flex-none"
                 disabled={!product.inStock}
-                onClick={() => toast("Checkout arrives in a later phase")}
+                onClick={() =>
+                  void navigate({ to: "/checkout", search: { buy: product.slug, qty: quantity } })
+                }
               >
                 Buy Now
               </Button>
