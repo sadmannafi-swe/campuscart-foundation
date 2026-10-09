@@ -86,3 +86,44 @@ export const updateApplicationStatus = createServerFn({ method: "POST" })
 
     return { ok: true as const };
   });
+
+export interface StoreOrderSummary {
+  total: number;
+  pending: number;
+  confirmed: number;
+  processing: number;
+  shipped: number;
+  delivered: number;
+  cancelled: number;
+  /** Product subtotal of delivered orders only — shipping excluded. */
+  deliveredSales: number;
+}
+
+export interface AdminOrder {
+  order: Tables<"orders">;
+  items: Tables<"order_items">[];
+}
+
+/** All orders (buyer, seller, store, product, university, amounts) plus per-store summary. */
+export const listOrderData = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
+    .from("orders")
+    .select("*, order_items(*)")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  const orders: AdminOrder[] = (data ?? []).map(({ order_items, ...order }) => ({
+    order,
+    items: order_items ?? [],
+  }));
+  const summaries: Record<string, StoreOrderSummary> = {};
+  for (const { order } of orders) {
+    const s = (summaries[order.store_id] ??= {
+      total: 0, pending: 0, confirmed: 0, processing: 0, shipped: 0, delivered: 0, cancelled: 0, deliveredSales: 0,
+    });
+    s.total += 1;
+    s[order.status] += 1;
+    if (order.status === "delivered") s.deliveredSales += Number(order.subtotal);
+  }
+  return { orders, summaries };
+});

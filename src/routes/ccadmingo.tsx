@@ -7,11 +7,15 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   listApplications,
+  listOrderData,
   updateApplicationStatus,
   type AdminApplication,
 } from "@/lib/adminReview.functions";
 import { storeStatusMeta, useUniversities, type StoreStatus } from "@/lib/seller";
 import { cn } from "@/lib/utils";
+import { formatPrice } from "@/lib/format";
+import { orderStatusMeta, shortOrderId } from "@/lib/orders";
+import type { AdminOrder, StoreOrderSummary } from "@/lib/adminReview.functions";
 
 export const Route = createFileRoute("/ccadmingo")({
   ssr: false,
@@ -46,6 +50,12 @@ function SecretAdminConsole() {
   const setStatus = useServerFn(updateApplicationStatus);
   const queryClient = useQueryClient();
   const { data: universities = [] } = useUniversities();
+  const fetchOrders = useServerFn(listOrderData);
+  const { data: orderData } = useQuery({
+    queryKey: ["cc-admin-orders"],
+    queryFn: () => fetchOrders(),
+    refetchInterval: 30000,
+  });
 
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ["cc-admin-applications"],
@@ -160,6 +170,11 @@ function SecretAdminConsole() {
                   <Detail label="Batch" value={seller?.batch ?? "—"} />
                 </dl>
 
+                <StoreOrders
+                  summary={orderData?.summaries[store.id]}
+                  orders={orderData?.orders.filter((o) => o.order.store_id === store.id) ?? []}
+                />
+
                 {store.status === "rejected" && store.rejection_reason && (
                   <p className="mt-2 text-xs text-destructive">Rejection reason: {store.rejection_reason}</p>
                 )}
@@ -251,5 +266,38 @@ function Detail({ label, value }: { label: string; value: string }) {
       <dt className="text-muted-foreground">{label}</dt>
       <dd className="font-semibold text-foreground">{value}</dd>
     </div>
+  );
+}
+
+function StoreOrders({ summary, orders }: { summary?: StoreOrderSummary; orders: AdminOrder[] }) {
+  const s = summary ?? { total: 0, pending: 0, confirmed: 0, processing: 0, shipped: 0, delivered: 0, cancelled: 0, deliveredSales: 0 };
+  const cells: Array<[string, string | number]> = [
+    ["Total Orders", s.total], ["Pending", s.pending], ["Confirmed", s.confirmed], ["Processing", s.processing],
+    ["Shipped", s.shipped], ["Delivered", s.delivered], ["Cancelled", s.cancelled], ["Delivered Sales", formatPrice(s.deliveredSales)],
+  ];
+  return (
+    <details className="mt-3 rounded-xl border border-border p-3 text-xs">
+      <summary className="cursor-pointer font-semibold">Orders ({s.total}) · Delivered sales {formatPrice(s.deliveredSales)}</summary>
+      <dl className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {cells.map(([k, v]) => <Detail key={k} label={k} value={String(v)} />)}
+      </dl>
+      <p className="mt-1 text-[11px] text-muted-foreground">Delivered sales count product amounts only, excluding shipping.</p>
+      {orders.length > 0 && (
+        <ul className="mt-2 divide-y divide-border">
+          {orders.map(({ order, items }) => (
+            <li key={order.id} className="py-2">
+              <div className="flex justify-between gap-2">
+                <span className="font-semibold">{shortOrderId(order.id)} · {order.customer_name} · {order.customer_phone}</span>
+                <span className={cn("rounded-full px-2 py-0.5 font-semibold", orderStatusMeta[order.status].className)}>{orderStatusMeta[order.status].label}</span>
+              </div>
+              <p className="text-muted-foreground">{items.map((i) => `${i.product_name} ×${i.quantity}`).join(", ")}</p>
+              <p className="text-muted-foreground">
+                {new Date(order.created_at).toLocaleDateString("en-GB")} · {order.university_slug.toUpperCase()} · Product {formatPrice(Number(order.subtotal))} + Shipping {formatPrice(Number(order.shipping_fee))} = {formatPrice(Number(order.total))}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </details>
   );
 }
