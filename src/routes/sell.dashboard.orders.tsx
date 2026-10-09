@@ -27,7 +27,7 @@ import { useUniversities } from "@/lib/seller";
 
 export const Route = createFileRoute("/sell/dashboard/orders")({
   validateSearch: (s: Record<string, unknown>): { order?: string } =>
-    typeof s.order === "string" ? { order: s.order } : {},
+    typeof s["order"] === "string" ? { order: s["order"] } : {},
   component: SellerOrders,
 });
 

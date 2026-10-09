@@ -269,7 +269,7 @@ function Detail({ label, value }: { label: string; value: string }) {
   );
 }
 
-function StoreOrders({ summary, orders }: { summary?: StoreOrderSummary; orders: AdminOrder[] }) {
+function StoreOrders({ summary, orders }: { summary?: StoreOrderSummary | undefined; orders: AdminOrder[] }) {
   const s = summary ?? { total: 0, pending: 0, confirmed: 0, processing: 0, shipped: 0, delivered: 0, cancelled: 0, deliveredSales: 0 };
   const cells: Array<[string, string | number]> = [
     ["Total Orders", s.total], ["Pending", s.pending], ["Confirmed", s.confirmed], ["Processing", s.processing],
