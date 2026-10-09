@@ -19,6 +19,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useSellerAccount, useSignedUrl } from "@/lib/seller";
+import { useAuth } from "@/lib/auth";
+import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 
 const menu = [
@@ -64,6 +66,9 @@ export function StoreAvatar({
 export function SellerShell({ children, title }: { children: ReactNode; title: string }) {
   const { store } = useSellerAccount();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { user } = useAuth();
+  const { data: notes = [] } = useNotifications(user?.id);
+  const unread = notes.filter((n) => !n.read_at).length;
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -144,10 +149,15 @@ export function SellerShell({ children, title }: { children: ReactNode; title: s
           <h1 className="flex-1 truncate text-base font-bold">{title}</h1>
           <Link
             to="/sell/dashboard/notifications"
-            className="grid size-9 place-items-center rounded-lg text-muted-foreground hover:text-foreground"
-            aria-label="Notifications"
+            className="relative grid size-9 place-items-center rounded-lg text-muted-foreground hover:text-foreground"
+            aria-label={`Notifications${unread ? ` (${unread} unread)` : ""}`}
           >
             <Bell className="size-5" />
+            {unread > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 grid min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+                {unread > 9 ? "9+" : unread}
+              </span>
+            )}
           </Link>
         </header>
 
