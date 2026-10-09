@@ -130,4 +130,3 @@ export function useCart() {
 }
 
 /** Flat delivery charge per store order. Kept separate from product revenue. */
-export const SHIPPING_FEE_PER_STORE = 60;

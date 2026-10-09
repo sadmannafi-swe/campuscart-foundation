@@ -281,7 +281,7 @@ function StoreOrders({ summary, orders }: { summary?: StoreOrderSummary | undefi
       <dl className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
         {cells.map(([k, v]) => <Detail key={k} label={k} value={String(v)} />)}
       </dl>
-      <p className="mt-1 text-[11px] text-muted-foreground">Delivered sales count product amounts only, excluding shipping.</p>
+      <p className="mt-1 text-[11px] text-muted-foreground">Delivered sales count product amounts only.</p>
       {orders.length > 0 && (
         <ul className="mt-2 divide-y divide-border">
           {orders.map(({ order, items }) => (
@@ -292,7 +292,7 @@ function StoreOrders({ summary, orders }: { summary?: StoreOrderSummary | undefi
               </div>
               <p className="text-muted-foreground">{items.map((i) => `${i.product_name} ×${i.quantity}`).join(", ")}</p>
               <p className="text-muted-foreground">
-                {new Date(order.created_at).toLocaleDateString("en-GB")} · {order.university_slug.toUpperCase()} · Product {formatPrice(Number(order.subtotal))} + Shipping {formatPrice(Number(order.shipping_fee))} = {formatPrice(Number(order.total))}
+                {new Date(order.created_at).toLocaleDateString("en-GB")} · {order.university_slug.toUpperCase()} · Total {formatPrice(Number(order.subtotal))}
               </p>
             </li>
           ))}

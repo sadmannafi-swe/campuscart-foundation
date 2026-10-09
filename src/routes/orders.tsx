@@ -81,8 +81,7 @@ function OrdersPage() {
                   </ul>
                   <div className="mt-3 space-y-1 border-t border-border pt-3 text-xs">
                     <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatPrice(Number(order.subtotal))}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{formatPrice(Number(order.shipping_fee))}</span></div>
-                    <div className="flex justify-between text-sm font-bold"><span>Total</span><span>{formatPrice(Number(order.total))}</span></div>
+                    <div className="flex justify-between text-sm font-bold"><span>Total</span><span>{formatPrice(Number(order.subtotal))}</span></div>
                   </div>
                 </li>
               );

@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
-import { ArrowRight, Zap } from "lucide-react";
+import { ArrowRight, Store as StoreIcon, Zap } from "lucide-react";
 import heroImage from "@/assets/hero-campus.jpg";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { SectionHeader } from "@/components/common/SectionHeader";
@@ -9,7 +9,7 @@ import { ProductGrid } from "@/components/commerce/ProductGrid";
 import { StoreCard } from "@/components/commerce/StoreCard";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useLiveProducts } from "@/lib/liveCatalog";
+import { useFeaturedLiveStores, useLiveProducts } from "@/lib/liveCatalog";
 import { products, getFeaturedStores, getProductsByTag, getTopRatedStores } from "@/data/marketplace";
 
 
@@ -42,7 +42,9 @@ function HomePage() {
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]["id"]>("recommended");
   const flashDeals = getProductsByTag("offer").slice(0, 6);
   const { data: live = [] } = useLiveProducts();
-  const recommended = [...live, ...[...products].sort((a, b) => b.rating - a.rating)];
+  const { data: featuredStores = [] } = useFeaturedLiveStores("diu");
+  const featuredLive = live.filter((p) => p.featuredIn === "diu");
+  const recommended = [...featuredLive, ...live.filter((p) => p.featuredIn !== "diu"), ...[...products].sort((a, b) => b.rating - a.rating)];
   const newArrivals = [...live, ...getProductsByTag("new")];
   const tabProducts = activeTab === "recommended" ? recommended : newArrivals;
 
@@ -131,6 +133,22 @@ function HomePage() {
       <section className="container-page pt-6">
         <SectionHeader title="Featured stores" />
         <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+          {featuredStores.map((s) => (
+            <Link
+              key={s.id}
+              to="/products"
+              search={{ q: s.name }}
+              className="flex w-64 shrink-0 items-center gap-3 rounded-xl border border-primary/40 bg-surface p-3 transition-shadow hover:shadow-[var(--shadow-card-hover)]"
+            >
+              <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary">
+                <StoreIcon className="size-5" aria-hidden="true" />
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-bold">{s.name}</span>
+                <span className="block truncate text-xs text-muted-foreground">{s.category}</span>
+              </span>
+            </Link>
+          ))}
           {getFeaturedStores().map((store) => (
             <StoreCard key={store.id} store={store} className="w-64 shrink-0" />
           ))}

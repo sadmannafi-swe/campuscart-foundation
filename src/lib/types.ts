@@ -56,6 +56,8 @@ export interface Product {
   /** live listings: owning seller + university marketplace */
   sellerId?: string | undefined;
   universitySlug?: string | undefined;
+  /** university marketplace this live listing is featured in (admin-set) */
+  featuredIn?: string | undefined;
   /** true for real seller listings that can be ordered */
   live?: boolean | undefined;
   price: number;
