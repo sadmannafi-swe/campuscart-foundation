@@ -27,6 +27,7 @@ interface Row {
   store_id: string;
   created_at: string;
   university_slug: string;
+  featured_university_slug: string | null;
   stores: { id: string; name: string; status: string; seller_id: string } | null;
 }
 
@@ -34,7 +35,7 @@ interface Row {
 async function fetchLiveProducts(): Promise<Product[]> {
   const { data, error } = await supabase
     .from("seller_products")
-    .select("id,name,category,price,condition,description,images,in_stock,store_id,created_at,university_slug,stores!inner(id,name,status,seller_id)")
+    .select("id,name,category,price,condition,description,images,in_stock,store_id,created_at,university_slug,featured_university_slug,stores!inner(id,name,status,seller_id)")
     .eq("is_active", true)
     .eq("stores.status", "approved")
     .order("created_at", { ascending: false });
@@ -70,6 +71,7 @@ async function fetchLiveProducts(): Promise<Product[]> {
       imagePath: path,
       sellerId: row.stores?.seller_id,
       universitySlug: row.university_slug,
+      featuredIn: row.featured_university_slug ?? undefined,
       live: true,
       price: Number(row.price),
       originalPrice: undefined,
@@ -99,4 +101,29 @@ export function useLiveProducts() {
 export function useCatalogProducts() {
   const { data, isLoading } = useLiveProducts();
   return { products: [...(data ?? []), ...staticProducts], isLoading };
+}
+
+export interface FeaturedLiveStore {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+}
+
+/** Approved stores the admin featured for one university marketplace. */
+export function useFeaturedLiveStores(universitySlug: string) {
+  return useQuery({
+    queryKey: ["featured-live-stores", universitySlug],
+    staleTime: 30 * 1000,
+    queryFn: async (): Promise<FeaturedLiveStore[]> => {
+      const { data, error } = await supabase
+        .from("stores")
+        .select("id,name,category,description")
+        .eq("status", "approved")
+        .eq("featured_university_slug", universitySlug)
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
 }

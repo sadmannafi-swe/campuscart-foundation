@@ -8,6 +8,13 @@
       "when": 1791439951613,
       "tag": "0000_order_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791524032011,
+      "tag": "0001_featured_and_no_shipping",
+      "breakpoints": true
     }
   ]
 }

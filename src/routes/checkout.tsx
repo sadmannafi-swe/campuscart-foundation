@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
-import { cart, productToCartItem, SHIPPING_FEE_PER_STORE, useCart, type CartItem } from "@/lib/cart";
+import { cart, productToCartItem, useCart, type CartItem } from "@/lib/cart";
 import { useCatalogProducts } from "@/lib/liveCatalog";
 import { formatPrice } from "@/lib/format";
 
@@ -70,10 +70,8 @@ function CheckoutPage() {
 
   const orderable = items.filter((i) => i.live);
   const demo = items.filter((i) => !i.live);
-  const storeCount = new Set(orderable.map((i) => i.storeId)).size;
   const subtotal = orderable.reduce((n, i) => n + i.price * i.quantity, 0);
-  const shipping = storeCount * SHIPPING_FEE_PER_STORE;
-  const total = subtotal + shipping;
+  const total = subtotal;
 
   const setQty = (item: CartItem, q: number) =>
     buy ? setBuyQty(Math.max(1, Math.min(10, q))) : cart.setQuantity(item.productId, q);
@@ -198,14 +196,8 @@ function CheckoutPage() {
                 <span className="text-muted-foreground">Product subtotal</span>
                 <span className="font-semibold">{formatPrice(subtotal)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">
-                  Shipping charge{storeCount > 1 ? ` (${storeCount} stores)` : ""}
-                </span>
-                <span className="font-semibold">{formatPrice(shipping)}</span>
-              </div>
               <div className="flex justify-between border-t border-border pt-2 text-base">
-                <span className="font-bold">Total</span>
+                <span className="font-bold">Final Total</span>
                 <span className="font-extrabold">{formatPrice(total)}</span>
               </div>
               {demo.length > 0 && orderable.length > 0 && (

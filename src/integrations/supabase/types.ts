@@ -262,6 +262,7 @@ export type Database = {
           condition: string
           created_at: string
           description: string
+          featured_university_slug: string | null
           id: string
           images: Json
           in_stock: boolean
@@ -278,6 +279,7 @@ export type Database = {
           condition?: string
           created_at?: string
           description?: string
+          featured_university_slug?: string | null
           id?: string
           images?: Json
           in_stock?: boolean
@@ -294,6 +296,7 @@ export type Database = {
           condition?: string
           created_at?: string
           description?: string
+          featured_university_slug?: string | null
           id?: string
           images?: Json
           in_stock?: boolean
@@ -306,6 +309,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "seller_products_featured_university_slug_fkey"
+            columns: ["featured_university_slug"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["slug"]
+          },
           {
             foreignKeyName: "seller_products_store_id_fkey"
             columns: ["store_id"]
@@ -382,6 +392,7 @@ export type Database = {
           contact_number: string
           created_at: string
           description: string
+          featured_university_slug: string | null
           id: string
           logo_path: string | null
           name: string
@@ -398,6 +409,7 @@ export type Database = {
           contact_number: string
           created_at?: string
           description: string
+          featured_university_slug?: string | null
           id?: string
           logo_path?: string | null
           name: string
@@ -414,6 +426,7 @@ export type Database = {
           contact_number?: string
           created_at?: string
           description?: string
+          featured_university_slug?: string | null
           id?: string
           logo_path?: string | null
           name?: string
@@ -425,6 +438,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "stores_featured_university_slug_fkey"
+            columns: ["featured_university_slug"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["slug"]
+          },
           {
             foreignKeyName: "stores_seller_id_fkey"
             columns: ["seller_id"]

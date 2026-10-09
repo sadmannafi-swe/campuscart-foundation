@@ -137,8 +137,7 @@ function SellerOrders() {
 
                 <div className="mt-3 space-y-1 text-xs">
                   <div className="flex justify-between"><span className="text-muted-foreground">Product total</span><span className="font-semibold">{formatPrice(Number(order.subtotal))}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{formatPrice(Number(order.shipping_fee))}</span></div>
-                  <div className="flex justify-between text-sm font-bold"><span>Order total</span><span>{formatPrice(Number(order.total))}</span></div>
+                  <div className="flex justify-between text-sm font-bold"><span>Order total</span><span>{formatPrice(Number(order.subtotal))}</span></div>
                 </div>
               </li>
             ))}
