@@ -29,6 +29,8 @@ export function useBuyerOrders(userId: string | undefined) {
   return useQuery({
     queryKey: ["buyer-orders", userId],
     enabled: !!userId,
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<Order[]> => {
       const { data, error } = await supabase
         .from("orders")
@@ -45,6 +47,8 @@ export function useSellerOrders(userId: string | undefined) {
   return useQuery({
     queryKey: ["seller-orders", userId],
     enabled: !!userId,
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true,
     queryFn: async (): Promise<Order[]> => {
       const { data, error } = await supabase
         .from("orders")

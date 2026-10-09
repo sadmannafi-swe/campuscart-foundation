@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
@@ -23,8 +23,11 @@ import {
 } from "@/lib/orders";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { useUniversities } from "@/lib/seller";
 
 export const Route = createFileRoute("/sell/dashboard/orders")({
+  validateSearch: (s: Record<string, unknown>): { order?: string } =>
+    typeof s["order"] === "string" ? { order: s["order"] } : {},
   component: SellerOrders,
 });
 
@@ -33,6 +36,13 @@ function SellerOrders() {
   const { data: orders = [], isLoading } = useSellerOrders(user?.id);
   const [filter, setFilter] = useState<OrderStatus | "all">("all");
   const queryClient = useQueryClient();
+  const { order: focusId } = Route.useSearch();
+  const { data: universities = [] } = useUniversities();
+
+  useEffect(() => {
+    if (!focusId || orders.length === 0) return;
+    document.getElementById(`order-${focusId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [focusId, orders.length]);
 
   const update = useMutation({
     mutationFn: async (v: { id: string; status: OrderStatus }) => {
@@ -42,6 +52,7 @@ function SellerOrders() {
     onSuccess: () => {
       toast.success("Order status updated");
       void queryClient.invalidateQueries({ queryKey: ["seller-orders"] });
+      void queryClient.invalidateQueries({ queryKey: ["buyer-orders"] });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update order."),
   });
@@ -79,7 +90,7 @@ function SellerOrders() {
           </div>
           <ul className="space-y-3">
             {visible.map((order) => (
-              <li key={order.id} className="card-surface p-4">
+              <li key={order.id} id={`order-${order.id}`} className={cn("card-surface p-4", focusId === order.id && "ring-2 ring-primary")}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <p className="text-sm font-bold">{shortOrderId(order.id)}</p>
@@ -119,6 +130,7 @@ function SellerOrders() {
                 <dl className="mt-3 grid gap-2 rounded-xl bg-muted/60 p-3 text-xs sm:grid-cols-2">
                   <div><dt className="text-muted-foreground">Customer</dt><dd className="font-semibold">{order.customer_name}</dd></div>
                   <div><dt className="text-muted-foreground">Phone</dt><dd className="font-semibold">{order.customer_phone}</dd></div>
+                  <div><dt className="text-muted-foreground">University</dt><dd className="font-semibold">{universities.find((u) => u.slug === order.university_slug)?.name ?? order.university_slug}</dd></div>
                   <div className="sm:col-span-2"><dt className="text-muted-foreground">Delivery</dt><dd className="font-semibold">{order.delivery_address}</dd></div>
                   {order.note && <div className="sm:col-span-2"><dt className="text-muted-foreground">Note</dt><dd className="font-semibold">{order.note}</dd></div>}
                 </dl>
