@@ -127,3 +127,40 @@ export const listOrderData = createServerFn({ method: "GET" }).handler(async () 
   }
   return { orders, summaries };
 });
+
+/** Active products of approved stores, for admin featuring. */
+export const listFeaturableProducts = createServerFn({ method: "GET" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin
+    .from("seller_products")
+    .select("id, name, price, store_id, university_slug, featured_university_slug, stores!inner(status)")
+    .eq("is_active", true)
+    .eq("stores.status", "approved")
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(({ stores: _s, ...p }) => p);
+});
+
+const featureSchema = z.object({
+  kind: z.enum(["store", "product"]),
+  id: z.string().uuid(),
+  universitySlug: z.string().trim().min(1).max(50).nullable(),
+});
+
+/** Feature (in one university marketplace) or unfeature an approved store/product. */
+export const setFeatured = createServerFn({ method: "POST" })
+  .inputValidator((data: unknown) => featureSchema.parse(data))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (data.universitySlug) {
+      const ok =
+        data.kind === "store"
+          ? (await supabaseAdmin.from("stores").select("id").eq("id", data.id).eq("status", "approved").maybeSingle()).data
+          : (await supabaseAdmin.from("seller_products").select("id, stores!inner(status)").eq("id", data.id).eq("is_active", true).eq("stores.status", "approved").maybeSingle()).data;
+      if (!ok) throw new Error("Only approved stores and products can be featured.");
+    }
+    const table = data.kind === "store" ? "stores" : "seller_products";
+    const { error } = await supabaseAdmin.from(table).update({ featured_university_slug: data.universitySlug }).eq("id", data.id);
+    if (error) throw error;
+    return { ok: true as const };
+  });

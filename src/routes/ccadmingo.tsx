@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import {
   listApplications,
   listOrderData,
+  listFeaturableProducts,
+  setFeatured,
   updateApplicationStatus,
   type AdminApplication,
 } from "@/lib/adminReview.functions";
@@ -51,6 +53,22 @@ function SecretAdminConsole() {
   const queryClient = useQueryClient();
   const { data: universities = [] } = useUniversities();
   const fetchOrders = useServerFn(listOrderData);
+  const fetchProducts = useServerFn(listFeaturableProducts);
+  const featureFn = useServerFn(setFeatured);
+  const { data: featProducts = [] } = useQuery({
+    queryKey: ["cc-admin-feat-products"],
+    queryFn: () => fetchProducts(),
+  });
+  const feature = useMutation({
+    mutationFn: (data: { kind: "store" | "product"; id: string; universitySlug: string | null }) =>
+      featureFn({ data }),
+    onSuccess: () => {
+      toast.success("Featured content updated.");
+      void queryClient.invalidateQueries({ queryKey: ["cc-admin-applications"] });
+      void queryClient.invalidateQueries({ queryKey: ["cc-admin-feat-products"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update."),
+  });
   const { data: orderData } = useQuery({
     queryKey: ["cc-admin-orders"],
     queryFn: () => fetchOrders(),
@@ -169,6 +187,16 @@ function SecretAdminConsole() {
                   <Detail label="Department" value={seller?.department ?? "—"} />
                   <Detail label="Batch" value={seller?.batch ?? "—"} />
                 </dl>
+
+                {store.status === "approved" && (
+                  <FeatureBlock
+                    universities={universities}
+                    disabled={feature.isPending}
+                    onChange={(kind, id, universitySlug) => feature.mutate({ kind, id, universitySlug })}
+                    store={{ id: store.id, name: store.name, home: store.university_slug, featured: store.featured_university_slug }}
+                    products={featProducts.filter((p) => p.store_id === store.id)}
+                  />
+                )}
 
                 <StoreOrders
                   summary={orderData?.summaries[store.id]}
@@ -297,6 +325,55 @@ function StoreOrders({ summary, orders }: { summary?: StoreOrderSummary | undefi
             </li>
           ))}
         </ul>
+      )}
+    </details>
+  );
+}
+
+type FeatUni = { slug: string; short_name: string };
+type FeatItem = { id: string; name: string; home: string; featured: string | null };
+
+function FeatureRow({ kind, item, universities, disabled, onChange }: {
+  kind: "store" | "product"; item: FeatItem; universities: FeatUni[]; disabled: boolean;
+  onChange: (kind: "store" | "product", id: string, slug: string | null) => void;
+}) {
+  const [target, setTarget] = useState(item.featured ?? item.home);
+  return (
+    <div className="flex flex-wrap items-center gap-2 py-1.5">
+      <span className="min-w-0 flex-1 truncate font-semibold">
+        {kind === "store" ? "Store: " : ""}{item.name}
+        {item.featured && <span className="ml-1.5 rounded-full bg-accent-soft px-2 py-0.5 text-accent">Featured · {item.featured.toUpperCase()}</span>}
+      </span>
+      <select value={target} onChange={(e) => setTarget(e.target.value)} className="h-8 rounded-lg border border-border bg-background px-2" aria-label="Target marketplace">
+        {universities.map((u) => <option key={u.slug} value={u.slug}>{u.short_name}</option>)}
+      </select>
+      <Button size="sm" variant="outline" disabled={disabled} onClick={() => onChange(kind, item.id, target)}>
+        {item.featured ? "Update" : "Feature"}
+      </Button>
+      {item.featured && (
+        <Button size="sm" variant="ghost" disabled={disabled} onClick={() => onChange(kind, item.id, null)}>Unfeature</Button>
+      )}
+    </div>
+  );
+}
+
+function FeatureBlock({ store, products, universities, disabled, onChange }: {
+  store: FeatItem;
+  products: Array<{ id: string; name: string; university_slug: string; featured_university_slug: string | null }>;
+  universities: FeatUni[]; disabled: boolean;
+  onChange: (kind: "store" | "product", id: string, slug: string | null) => void;
+}) {
+  return (
+    <details className="mt-3 rounded-xl border border-border p-3 text-xs">
+      <summary className="cursor-pointer font-semibold">Featured content</summary>
+      <FeatureRow kind="store" item={store} universities={universities} disabled={disabled} onChange={onChange} />
+      {products.length === 0 ? (
+        <p className="py-1 text-muted-foreground">No active products.</p>
+      ) : (
+        products.map((p) => (
+          <FeatureRow key={p.id} kind="product" universities={universities} disabled={disabled} onChange={onChange}
+            item={{ id: p.id, name: p.name, home: p.university_slug, featured: p.featured_university_slug }} />
+        ))
       )}
     </details>
   );
