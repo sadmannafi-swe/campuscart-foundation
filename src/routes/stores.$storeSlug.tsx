@@ -10,16 +10,26 @@ import { EmptyState } from "@/components/common/StateBlocks";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useLiveProducts } from "@/lib/liveCatalog";
+import type { Product, Store } from "@/lib/types";
 import { getProductsByStore, getStoreBySlug } from "@/data/marketplace";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const Route = createFileRoute("/stores/$storeSlug")({
   loader: ({ params }) => {
     const store = getStoreBySlug(params.storeSlug);
-    if (!store) throw notFound();
-    return { store, products: getProductsByStore(store.id) };
+    if (store) return { store, products: getProductsByStore(store.id), liveId: null };
+    // seller-created stores are addressed by their id
+    if (UUID_RE.test(params.storeSlug)) return { store: null, products: [], liveId: params.storeSlug };
+    throw notFound();
   },
   head: ({ loaderData }) => {
-    if (!loaderData) {
+    if (!loaderData || !loaderData.store) {
+      if (loaderData?.liveId) return { meta: [{ title: "Campus store — CampusCart" }, { name: "description", content: "A verified student store on CampusCart." }, { property: "og:title", content: "Campus store — CampusCart" }, { property: "og:description", content: "A verified student store on CampusCart." }] };
       return { meta: [{ title: "Store unavailable — DIU CampusCart" }, { name: "robots", content: "noindex" }] };
     }
     const { store } = loaderData;
@@ -36,7 +46,45 @@ export const Route = createFileRoute("/stores/$storeSlug")({
 });
 
 function StoreDetailsPage() {
-  const { store, products } = Route.useLoaderData();
+  const { store, products, liveId } = Route.useLoaderData();
+  if (store) return <StoreView store={store} products={products} />;
+  return <LiveStorePage id={liveId!} />;
+}
+
+function LiveStorePage({ id }: { id: string }) {
+  const { data: live = [] } = useLiveProducts();
+  const { data: row, isLoading } = useQuery({
+    queryKey: ["live-store", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("stores")
+        .select("id,name,category,description,created_at")
+        .eq("id", id)
+        .eq("status", "approved")
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+  if (isLoading) {
+    return <SiteLayout><div className="grid place-items-center py-20"><Loader2 className="size-6 animate-spin text-primary" /></div></SiteLayout>;
+  }
+  if (!row) {
+    return <SiteLayout><div className="container-page py-8"><BackButton className="mb-3" /><EmptyState title="Store unavailable" description="This store isn't open on CampusCart right now." /></div></SiteLayout>;
+  }
+  const products = live.filter((p) => p.storeId === id);
+  const store: Store = {
+    id: row.id, slug: row.id, name: row.name, categorySlug: row.category, categoryName: row.category,
+    description: row.description, rating: 0, reviewCount: 0, productCount: products.length, status: "open",
+    location: "On campus", responseTime: "Usually within a day",
+    joinedAt: new Date(row.created_at).toLocaleDateString("en-GB", { month: "short", year: "numeric" }),
+    verified: true, featured: false, accentFrom: "from-primary-soft", accentTo: "to-accent-soft",
+    initials: row.name.slice(0, 2).toUpperCase(),
+  };
+  return <StoreView store={store} products={products} />;
+}
+
+function StoreView({ store, products }: { store: Store; products: Product[] }) {
 
   const info = [
     { icon: MapPin, label: "Location", value: store.location },
