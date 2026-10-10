@@ -41,7 +41,9 @@ const tabs = [
 function HomePage() {
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]["id"]>("recommended");
   const flashDeals = getProductsByTag("offer").slice(0, 6);
-  const { data: live = [] } = useLiveProducts();
+  const { data: allLive = [] } = useLiveProducts();
+  // only this marketplace's seller listings
+  const live = allLive.filter((p) => p.universitySlug === "diu");
   const { data: featuredStores = [] } = useFeaturedLiveStores("diu");
   const featuredLive = live.filter((p) => p.featuredIn === "diu");
   const recommended = [...featuredLive, ...live.filter((p) => p.featuredIn !== "diu"), ...[...products].sort((a, b) => b.rating - a.rating)];
@@ -136,8 +138,8 @@ function HomePage() {
           {featuredStores.map((s) => (
             <Link
               key={s.id}
-              to="/products"
-              search={{ q: s.name }}
+              to="/stores/$storeSlug"
+              params={{ storeSlug: s.id }}
               className="flex w-64 shrink-0 items-center gap-3 rounded-xl border border-primary/40 bg-surface p-3 transition-shadow hover:shadow-[var(--shadow-card-hover)]"
             >
               <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary">
