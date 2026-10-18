@@ -5,6 +5,7 @@ import { BackButton } from "@/components/common/BackButton";
 import { ItemThumb } from "@/components/commerce/ItemThumb";
 import { WriteReview } from "@/components/commerce/WriteReview";
 import { useBuyerReviews } from "@/lib/reviews";
+import { canWriteReview } from "@/lib/reviewRules";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { orderStatusMeta, shortOrderId, useBuyerOrders } from "@/lib/orders";
@@ -82,7 +83,7 @@ function OrdersPage() {
                           {order.status === "delivered" && item.product_id && reviews && (
                             reviews.some((review) => review.order_id === order.id && review.product_id === item.product_id)
                               ? <p className="mt-2 text-xs font-semibold text-accent">Reviewed</p>
-                              : <WriteReview orderId={order.id} productId={item.product_id} productName={item.product_name} />
+                              : canWriteReview({ status: order.status, buyerId: order.buyer_id, userId: user?.id, productId: item.product_id, reviewed: false }) && <WriteReview orderId={order.id} productId={item.product_id} productName={item.product_name} />
                           )}
                           {order.status === "delivered" && reviewsFailed && <p className="mt-2 text-xs text-destructive">Unable to load review eligibility. Please refresh.</p>}
                         </div>

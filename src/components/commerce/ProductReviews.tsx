@@ -1,10 +1,11 @@
 import { BadgeCheck, Loader2 } from "lucide-react";
 import { Rating } from "@/components/common/Rating";
 import { useProductReviews } from "@/lib/reviews";
+import { averageReviewRating } from "@/lib/reviewRules";
 
 export function ProductReviews({ productId }: { productId: string }) {
   const { data: reviews = [], isLoading, isError } = useProductReviews(productId);
-  const average = reviews.length ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : 0;
+  const average = averageReviewRating(reviews);
 
   return (
     <section className="mt-8 border-t border-border pt-5" aria-label="Product reviews">

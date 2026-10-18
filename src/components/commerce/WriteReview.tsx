@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { validReviewRating } from "@/lib/reviewRules";
 
 export function WriteReview({ orderId, productId, productName }: { orderId: string; productId: string; productName: string }) {
   const queryClient = useQueryClient();
@@ -17,7 +18,7 @@ export function WriteReview({ orderId, productId, productName }: { orderId: stri
   const [error, setError] = useState("");
 
   const submit = async () => {
-    if (!rating || saving) return;
+    if (!validReviewRating(rating) || saving) return;
     setSaving(true);
     setError("");
     try {
@@ -62,7 +63,7 @@ export function WriteReview({ orderId, productId, productName }: { orderId: stri
             <Textarea id="review-comment" value={comment} onChange={(event) => setComment(event.target.value)} disabled={saving} className="mt-2" rows={4} />
           </div>
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-          <Button type="submit" disabled={!rating || saving} className="w-full">{saving && <Loader2 className="size-4 animate-spin" />}Submit Review</Button>
+          <Button type="submit" disabled={!validReviewRating(rating) || saving} className="w-full">{saving && <Loader2 className="size-4 animate-spin" />}Submit Review</Button>
         </form>
       </DialogContent>
     </Dialog>
