@@ -1,3 +1,4 @@
-- [ ] Add purchase-verified review storage and enforce delivered-only, buyer-only, one-review-per-product-per-order rules.
-- [ ] Add review submission to buyer order items and reviews/averages to product details.
-- [ ] Test review rules and verify the signed-in submission flow.
+- [x] Add purchase-verified review storage and enforce delivered-only, buyer-only, one-review-per-product-per-order rules.
+- [x] Add review submission to buyer order items and reviews/averages to product details.
+- [x] Pass 11 review-rule tests and verify public product reviews and signed-out order gating.
+- [ ] Verify signed-in submission and public readback: blocked because session minting found no account matching the requesting user; requires preview sign-in or an explicitly approved account.
