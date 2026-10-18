@@ -14,6 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_conversations: {
+        Row: {
+          buyer_id: string
+          buyer_name: string
+          created_at: string
+          first_message_at: string | null
+          id: string
+          last_message_at: string | null
+          last_message_preview: string
+          product_id: string
+          product_image: string | null
+          product_name: string
+          product_price: number
+          seller_user_id: string
+          store_id: string
+          university_slug: string
+        }
+        Insert: {
+          buyer_id: string
+          buyer_name?: string
+          created_at?: string
+          first_message_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          last_message_preview?: string
+          product_id: string
+          product_image?: string | null
+          product_name: string
+          product_price: number
+          seller_user_id: string
+          store_id: string
+          university_slug: string
+        }
+        Update: {
+          buyer_id?: string
+          buyer_name?: string
+          created_at?: string
+          first_message_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          last_message_preview?: string
+          product_id?: string
+          product_image?: string | null
+          product_name?: string
+          product_price?: number
+          seller_user_id?: string
+          store_id?: string
+          university_slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_conversations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "seller_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_conversations_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_conversations_university_slug_fkey"
+            columns: ["university_slug"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      chat_messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          read_at: string | null
+          sender_id: string
+          sender_role: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id: string
+          sender_role: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id?: string
+          sender_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string
@@ -597,6 +708,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      mark_chat_read: { Args: { _conversation_id: string }; Returns: undefined }
+      open_product_chat: { Args: { _product_id: string }; Returns: string }
       place_order: {
         Args: {
           _address: string
@@ -606,6 +719,10 @@ export type Database = {
           _phone: string
         }
         Returns: string[]
+      }
+      send_chat_message: {
+        Args: { _body: string; _conversation_id: string }
+        Returns: string
       }
       submit_product_review: {
         Args: {
