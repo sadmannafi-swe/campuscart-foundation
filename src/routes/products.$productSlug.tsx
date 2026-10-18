@@ -8,6 +8,7 @@ import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
 import { Rating } from "@/components/common/Rating";
 import { CategoryIcon } from "@/components/common/CategoryIcon";
 import { ProductGrid } from "@/components/commerce/ProductGrid";
+import { ProductReviews } from "@/components/commerce/ProductReviews";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,7 +31,8 @@ export const Route = createFileRoute("/products/$productSlug")({
     const product = getProductBySlug(params.productSlug);
     // Seller listings live in the database; render them client-side.
     if (!product) return { live: true as const, slug: params.productSlug };
-    const store = getStoreById(product.storeId)!;
+    const store = getStoreById(product.storeId);
+    if (!store) return { live: true as const, slug: params.productSlug };
     return {
       live: false as const,
       product,
@@ -43,7 +45,12 @@ export const Route = createFileRoute("/products/$productSlug")({
     if (!loaderData || loaderData.live) {
       return {
         meta: [
-          { title: "Product unavailable — DIU CampusCart" },
+          { title: "Product Details — CampusCart" },
+          { name: "description", content: "View campus seller products and verified purchase reviews on CampusCart." },
+          { property: "og:title", content: "Product Details — CampusCart" },
+          { property: "og:description", content: "View campus seller products and verified purchase reviews on CampusCart." },
+          { property: "og:type", content: "website" },
+          { name: "twitter:card", content: "summary" },
           { name: "robots", content: "noindex" },
         ],
       };
@@ -55,6 +62,8 @@ export const Route = createFileRoute("/products/$productSlug")({
         { name: "description", content: product.description.slice(0, 155) },
         { property: "og:title", content: `${product.name} — DIU CampusCart` },
         { property: "og:description", content: product.description.slice(0, 155) },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary" },
       ],
     };
   },
@@ -111,6 +120,7 @@ function LiveProductDetails({ slug }: { slug: string }) {
                 <Button className="flex-1 sm:flex-none" disabled={!product.inStock} onClick={() => { cart.add(product, 1); toast.success("Added to cart"); }}>Add to Cart</Button>
                 <Button variant="secondary" className="flex-1 sm:flex-none" disabled={!product.inStock} onClick={() => void navigate({ to: "/checkout", search: { buy: product.slug, qty: 1 } })}>Buy Now</Button>
               </div>
+              <ProductReviews productId={product.id} />
             </div>
           </div>
         )}
@@ -133,7 +143,7 @@ function StaticProductDetails({
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
   const [selected, setSelected] = useState<Record<string, string>>(
-    Object.fromEntries((product.variants ?? []).map((v) => [v.id, v.options[0]!])),
+    Object.fromEntries((product.variants ?? []).map((v) => [v.id, v.options[0] ?? ""])),
   );
 
   const category = categories.find((c) => c.slug === product.categorySlug);

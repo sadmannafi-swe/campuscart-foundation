@@ -3,6 +3,8 @@ import { Loader2, Package } from "lucide-react";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
 import { ItemThumb } from "@/components/commerce/ItemThumb";
+import { WriteReview } from "@/components/commerce/WriteReview";
+import { useBuyerReviews } from "@/lib/reviews";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { orderStatusMeta, shortOrderId, useBuyerOrders } from "@/lib/orders";
@@ -18,6 +20,8 @@ export const Route = createFileRoute("/orders")({
       { property: "og:title", content: "Orders — DIU CampusCart" },
       { property: "og:description", content: "Track your campus pickups and deliveries." },
       { name: "robots", content: "noindex" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: OrdersPage,
@@ -26,6 +30,7 @@ export const Route = createFileRoute("/orders")({
 function OrdersPage() {
   const { user, loading } = useAuth();
   const { data: orders = [], isLoading } = useBuyerOrders(user?.id);
+  const { data: reviews, isError: reviewsFailed } = useBuyerReviews(user?.id);
 
   return (
     <SiteLayout>
@@ -74,6 +79,12 @@ function OrdersPage() {
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-semibold">{item.product_name}</p>
                           <p className="text-xs text-muted-foreground">{item.quantity} × {formatPrice(Number(item.unit_price))}</p>
+                          {order.status === "delivered" && item.product_id && reviews && (
+                            reviews.some((review) => review.order_id === order.id && review.product_id === item.product_id)
+                              ? <p className="mt-2 text-xs font-semibold text-accent">Reviewed</p>
+                              : <WriteReview orderId={order.id} productId={item.product_id} productName={item.product_name} />
+                          )}
+                          {order.status === "delivered" && reviewsFailed && <p className="mt-2 text-xs text-destructive">Unable to load review eligibility. Please refresh.</p>}
                         </div>
                         <p className="text-sm font-semibold">{formatPrice(Number(item.line_total))}</p>
                       </li>
