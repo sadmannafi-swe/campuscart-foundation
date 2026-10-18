@@ -22,6 +22,13 @@
       "when": 1792291989759,
       "tag": "0002_purchase_verified_product_reviews",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792293551364,
+      "tag": "0003_buyer_seller_product_chat",
+      "breakpoints": true
     }
   ]
 }
