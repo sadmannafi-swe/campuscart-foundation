@@ -185,6 +185,51 @@ export type Database = {
           },
         ]
       }
+      product_reviews: {
+        Row: {
+          buyer_id: string
+          comment: string
+          created_at: string
+          id: string
+          order_id: string
+          product_id: string
+          rating: number
+        }
+        Insert: {
+          buyer_id: string
+          comment?: string
+          created_at?: string
+          id?: string
+          order_id: string
+          product_id: string
+          rating: number
+        }
+        Update: {
+          buyer_id?: string
+          comment?: string
+          created_at?: string
+          id?: string
+          order_id?: string
+          product_id?: string
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "seller_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_path: string | null
@@ -535,6 +580,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_product_reviews: {
+        Args: { _product_id: string }
+        Returns: {
+          author: string
+          comment: string
+          created_at: string
+          id: string
+          rating: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -551,6 +606,15 @@ export type Database = {
           _phone: string
         }
         Returns: string[]
+      }
+      submit_product_review: {
+        Args: {
+          _comment?: string
+          _order_id: string
+          _product_id: string
+          _rating: number
+        }
+        Returns: string
       }
       update_order_status: {
         Args: {

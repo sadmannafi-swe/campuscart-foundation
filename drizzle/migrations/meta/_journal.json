@@ -15,6 +15,13 @@
       "when": 1791524032011,
       "tag": "0001_featured_and_no_shipping",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792291989759,
+      "tag": "0002_purchase_verified_product_reviews",
+      "breakpoints": true
     }
   ]
 }
