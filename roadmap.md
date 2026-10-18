@@ -1,0 +1,3 @@
+- [ ] Add purchase-verified review storage and enforce delivered-only, buyer-only, one-review-per-product-per-order rules.
+- [ ] Add review submission to buyer order items and reviews/averages to product details.
+- [ ] Test review rules and verify the signed-in submission flow.
