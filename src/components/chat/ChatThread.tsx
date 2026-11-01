@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -80,6 +81,7 @@ export function ChatThread({
   onBack?: () => void;
 }) {
   const styles = accentStyles[accent];
+  const queryClient = useQueryClient();
   const { data: messages = [] } = useChatMessages(conversation.id);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -100,6 +102,10 @@ export function ChatThread({
     try {
       await sendChatMessage(conversation.id, body);
       setDraft("");
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["chat-messages", conversation.id] }),
+        queryClient.invalidateQueries({ queryKey: ["chat-conversations"] }),
+      ]);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not send message");
     } finally {

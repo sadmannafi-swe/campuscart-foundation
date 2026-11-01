@@ -26,7 +26,7 @@ import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as CampusCampusSlugRouteImport } from './routes/campus.$campusSlug'
-import { Route as ChatConversationIdRouteImport } from './routes/chat.$conversationId'
+import { Route as ChatConversationIdRouteImport } from './routes/chat_.$conversationId'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsProductSlugRouteImport } from './routes/products.$productSlug'
 import { Route as SellIndexRouteImport } from './routes/sell.index'
@@ -136,9 +136,9 @@ const CampusCampusSlugRoute = CampusCampusSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatConversationIdRoute = ChatConversationIdRouteImport.update({
-  id: '/$conversationId',
-  path: '/$conversationId',
-  getParentRoute: () => ChatRoute,
+  id: '/chat_/$conversationId',
+  path: '/chat/$conversationId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsIndexRoute = ProductsIndexRouteImport.update({
   id: '/products/',
@@ -264,7 +264,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/ccadmingo': typeof CcadmingoRoute
-  '/chat': typeof ChatRouteWithChildren
+  '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
@@ -306,7 +306,7 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/ccadmingo': typeof CcadmingoRoute
-  '/chat': typeof ChatRouteWithChildren
+  '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
@@ -348,7 +348,7 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/ccadmingo': typeof CcadmingoRoute
-  '/chat': typeof ChatRouteWithChildren
+  '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
@@ -358,7 +358,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
-  '/chat/$conversationId': typeof ChatConversationIdRoute
+  '/chat_/$conversationId': typeof ChatConversationIdRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
   '/sell/dashboard': typeof SellDashboardRouteWithChildren
   '/sell/login': typeof SellLoginRoute
@@ -485,7 +485,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/wishlist'
     | '/campus/$campusSlug'
-    | '/chat/$conversationId'
+    | '/chat_/$conversationId'
     | '/products/$productSlug'
     | '/sell/dashboard'
     | '/sell/login'
@@ -518,7 +518,7 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
   CcadmingoRoute: typeof CcadmingoRoute
-  ChatRoute: typeof ChatRouteWithChildren
+  ChatRoute: typeof ChatRoute
   CheckoutRoute: typeof CheckoutRoute
   DiuRoute: typeof DiuRoute
   NewArrivalsRoute: typeof NewArrivalsRoute
@@ -528,6 +528,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   WishlistRoute: typeof WishlistRoute
   CampusCampusSlugRoute: typeof CampusCampusSlugRoute
+  ChatConversationIdRoute: typeof ChatConversationIdRoute
   ProductsProductSlugRoute: typeof ProductsProductSlugRoute
   SellDashboardRoute: typeof SellDashboardRouteWithChildren
   SellLoginRoute: typeof SellLoginRoute
@@ -660,12 +661,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CampusCampusSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/chat/$conversationId': {
-      id: '/chat/$conversationId'
-      path: '/$conversationId'
+    '/chat_/$conversationId': {
+      id: '/chat_/$conversationId'
+      path: '/chat/$conversationId'
       fullPath: '/chat/$conversationId'
       preLoaderRoute: typeof ChatConversationIdRouteImport
-      parentRoute: typeof ChatRoute
+      parentRoute: typeof rootRouteImport
     }
     '/products/': {
       id: '/products/'
@@ -824,16 +825,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface ChatRouteChildren {
-  ChatConversationIdRoute: typeof ChatConversationIdRoute
-}
-
-const ChatRouteChildren: ChatRouteChildren = {
-  ChatConversationIdRoute: ChatConversationIdRoute,
-}
-
-const ChatRouteWithChildren = ChatRoute._addFileChildren(ChatRouteChildren)
-
 interface SellDashboardMessagesRouteChildren {
   SellDashboardMessagesConversationIdRoute: typeof SellDashboardMessagesConversationIdRoute
 }
@@ -890,7 +881,7 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
   CcadmingoRoute: CcadmingoRoute,
-  ChatRoute: ChatRouteWithChildren,
+  ChatRoute: ChatRoute,
   CheckoutRoute: CheckoutRoute,
   DiuRoute: DiuRoute,
   NewArrivalsRoute: NewArrivalsRoute,
@@ -900,6 +891,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   WishlistRoute: WishlistRoute,
   CampusCampusSlugRoute: CampusCampusSlugRoute,
+  ChatConversationIdRoute: ChatConversationIdRoute,
   ProductsProductSlugRoute: ProductsProductSlugRoute,
   SellDashboardRoute: SellDashboardRouteWithChildren,
   SellLoginRoute: SellLoginRoute,
