@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BadgeCheck, Check, Heart, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
+import { BadgeCheck, Check, Heart, MessageCircle, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
@@ -16,6 +16,8 @@ import { discountPercent, formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useLiveProducts } from "@/lib/liveCatalog";
 import { cart } from "@/lib/cart";
+import { openProductChat } from "@/lib/chat";
+import { useAuth } from "@/lib/auth";
 import { useNavigate } from "@tanstack/react-router";
 import type { Product, Review, Store } from "@/lib/types";
 import {
@@ -78,9 +80,29 @@ function ProductDetailsPage() {
 
 function LiveProductDetails({ slug }: { slug: string }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [openingChat, setOpeningChat] = useState(false);
   const { data: live, isLoading } = useLiveProducts();
   const product = live?.find((p) => p.slug === slug);
   const category = categories.find((c) => c.slug === product?.categorySlug);
+
+  const chatWithSeller = async () => {
+    if (!product) return;
+    if (!user) {
+      toast.error("Log in to chat with the seller");
+      void navigate({ to: "/auth", search: { mode: "login" } });
+      return;
+    }
+    setOpeningChat(true);
+    try {
+      const conversationId = await openProductChat(product.id);
+      void navigate({ to: "/chat/$conversationId", params: { conversationId } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not open chat");
+    } finally {
+      setOpeningChat(false);
+    }
+  };
   return (
     <SiteLayout>
       <div className="container-page py-8">
@@ -120,6 +142,15 @@ function LiveProductDetails({ slug }: { slug: string }) {
                 <Button className="flex-1 sm:flex-none" disabled={!product.inStock} onClick={() => { cart.add(product, 1); toast.success("Added to cart"); }}>Add to Cart</Button>
                 <Button variant="secondary" className="flex-1 sm:flex-none" disabled={!product.inStock} onClick={() => void navigate({ to: "/checkout", search: { buy: product.slug, qty: 1 } })}>Buy Now</Button>
               </div>
+              <Button
+                variant="outline"
+                className="mt-3 w-full border-primary/40 text-primary hover:bg-primary-soft"
+                disabled={openingChat}
+                onClick={() => void chatWithSeller()}
+              >
+                <MessageCircle className="size-4" aria-hidden="true" />
+                {openingChat ? "Opening chat…" : `Chat with Seller about this product`}
+              </Button>
               <ProductReviews productId={product.id} />
             </div>
           </div>
