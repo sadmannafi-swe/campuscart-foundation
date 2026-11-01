@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BadgeCheck, Check, Heart, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
+import { BadgeCheck, Check, Heart, MessageCircle, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
@@ -16,6 +16,8 @@ import { discountPercent, formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useLiveProducts } from "@/lib/liveCatalog";
 import { cart } from "@/lib/cart";
+import { openProductChat } from "@/lib/chat";
+import { useAuth } from "@/lib/auth";
 import { useNavigate } from "@tanstack/react-router";
 import type { Product, Review, Store } from "@/lib/types";
 import {

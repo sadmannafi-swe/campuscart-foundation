@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as CcadmingoRouteImport } from './routes/ccadmingo'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DiuRouteImport } from './routes/diu'
 import { Route as NewArrivalsRouteImport } from './routes/new-arrivals'
@@ -25,6 +26,7 @@ import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as CampusCampusSlugRouteImport } from './routes/campus.$campusSlug'
+import { Route as ChatConversationIdRouteImport } from './routes/chat.$conversationId'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsProductSlugRouteImport } from './routes/products.$productSlug'
 import { Route as SellIndexRouteImport } from './routes/sell.index'
@@ -37,11 +39,13 @@ import { Route as StoresStoreSlugRouteImport } from './routes/stores.$storeSlug'
 import { Route as SellDashboardIndexRouteImport } from './routes/sell.dashboard.index'
 import { Route as SellDashboardEarningsRouteImport } from './routes/sell.dashboard.earnings'
 import { Route as SellDashboardHelpRouteImport } from './routes/sell.dashboard.help'
+import { Route as SellDashboardMessagesRouteImport } from './routes/sell.dashboard.messages'
 import { Route as SellDashboardNotificationsRouteImport } from './routes/sell.dashboard.notifications'
 import { Route as SellDashboardOrdersRouteImport } from './routes/sell.dashboard.orders'
 import { Route as SellDashboardReviewsRouteImport } from './routes/sell.dashboard.reviews'
 import { Route as SellDashboardSettingsRouteImport } from './routes/sell.dashboard.settings'
 import { Route as SellDashboardStoreRouteImport } from './routes/sell.dashboard.store'
+import { Route as SellDashboardMessagesConversationIdRouteImport } from './routes/sell.dashboard.messages.$conversationId'
 import { Route as SellDashboardProductsIndexRouteImport } from './routes/sell.dashboard.products.index'
 import { Route as SellDashboardProductsProductIdRouteImport } from './routes/sell.dashboard.products.$productId'
 import { Route as SellDashboardProductsNewRouteImport } from './routes/sell.dashboard.products.new'
@@ -79,6 +83,11 @@ const CategoriesRoute = CategoriesRouteImport.update({
 const CcadmingoRoute = CcadmingoRouteImport.update({
   id: '/ccadmingo',
   path: '/ccadmingo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutRoute = CheckoutRouteImport.update({
@@ -125,6 +134,11 @@ const CampusCampusSlugRoute = CampusCampusSlugRouteImport.update({
   id: '/campus/$campusSlug',
   path: '/campus/$campusSlug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ChatConversationIdRoute = ChatConversationIdRouteImport.update({
+  id: '/$conversationId',
+  path: '/$conversationId',
+  getParentRoute: () => ChatRoute,
 } as any)
 const ProductsIndexRoute = ProductsIndexRouteImport.update({
   id: '/products/',
@@ -186,6 +200,11 @@ const SellDashboardHelpRoute = SellDashboardHelpRouteImport.update({
   path: '/help',
   getParentRoute: () => SellDashboardRoute,
 } as any)
+const SellDashboardMessagesRoute = SellDashboardMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => SellDashboardRoute,
+} as any)
 const SellDashboardNotificationsRoute =
   SellDashboardNotificationsRouteImport.update({
     id: '/notifications',
@@ -212,6 +231,12 @@ const SellDashboardStoreRoute = SellDashboardStoreRouteImport.update({
   path: '/store',
   getParentRoute: () => SellDashboardRoute,
 } as any)
+const SellDashboardMessagesConversationIdRoute =
+  SellDashboardMessagesConversationIdRouteImport.update({
+    id: '/$conversationId',
+    path: '/$conversationId',
+    getParentRoute: () => SellDashboardMessagesRoute,
+  } as any)
 const SellDashboardProductsIndexRoute =
   SellDashboardProductsIndexRouteImport.update({
     id: '/products/',
@@ -239,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/ccadmingo': typeof CcadmingoRoute
+  '/chat': typeof ChatRouteWithChildren
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
@@ -248,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
+  '/chat/$conversationId': typeof ChatConversationIdRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
   '/sell/dashboard': typeof SellDashboardRouteWithChildren
   '/sell/login': typeof SellLoginRoute
@@ -259,12 +286,14 @@ export interface FileRoutesByFullPath {
   '/stores/': typeof StoresIndexRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
+  '/sell/dashboard/messages': typeof SellDashboardMessagesRouteWithChildren
   '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
   '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
   '/sell/dashboard/settings': typeof SellDashboardSettingsRoute
   '/sell/dashboard/store': typeof SellDashboardStoreRoute
   '/sell/dashboard/': typeof SellDashboardIndexRoute
+  '/sell/dashboard/messages/$conversationId': typeof SellDashboardMessagesConversationIdRoute
   '/sell/dashboard/products/$productId': typeof SellDashboardProductsProductIdRoute
   '/sell/dashboard/products/new': typeof SellDashboardProductsNewRoute
   '/sell/dashboard/products/': typeof SellDashboardProductsIndexRoute
@@ -277,6 +306,7 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/ccadmingo': typeof CcadmingoRoute
+  '/chat': typeof ChatRouteWithChildren
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
@@ -286,6 +316,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
+  '/chat/$conversationId': typeof ChatConversationIdRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
   '/sell/login': typeof SellLoginRoute
   '/sell/register': typeof SellRegisterRoute
@@ -296,12 +327,14 @@ export interface FileRoutesByTo {
   '/stores': typeof StoresIndexRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
+  '/sell/dashboard/messages': typeof SellDashboardMessagesRouteWithChildren
   '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
   '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
   '/sell/dashboard/settings': typeof SellDashboardSettingsRoute
   '/sell/dashboard/store': typeof SellDashboardStoreRoute
   '/sell/dashboard': typeof SellDashboardIndexRoute
+  '/sell/dashboard/messages/$conversationId': typeof SellDashboardMessagesConversationIdRoute
   '/sell/dashboard/products/$productId': typeof SellDashboardProductsProductIdRoute
   '/sell/dashboard/products/new': typeof SellDashboardProductsNewRoute
   '/sell/dashboard/products': typeof SellDashboardProductsIndexRoute
@@ -315,6 +348,7 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/ccadmingo': typeof CcadmingoRoute
+  '/chat': typeof ChatRouteWithChildren
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
@@ -324,6 +358,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
+  '/chat/$conversationId': typeof ChatConversationIdRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
   '/sell/dashboard': typeof SellDashboardRouteWithChildren
   '/sell/login': typeof SellLoginRoute
@@ -335,12 +370,14 @@ export interface FileRoutesById {
   '/stores/': typeof StoresIndexRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
+  '/sell/dashboard/messages': typeof SellDashboardMessagesRouteWithChildren
   '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
   '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
   '/sell/dashboard/settings': typeof SellDashboardSettingsRoute
   '/sell/dashboard/store': typeof SellDashboardStoreRoute
   '/sell/dashboard/': typeof SellDashboardIndexRoute
+  '/sell/dashboard/messages/$conversationId': typeof SellDashboardMessagesConversationIdRoute
   '/sell/dashboard/products/$productId': typeof SellDashboardProductsProductIdRoute
   '/sell/dashboard/products/new': typeof SellDashboardProductsNewRoute
   '/sell/dashboard/products/': typeof SellDashboardProductsIndexRoute
@@ -355,6 +392,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/categories'
     | '/ccadmingo'
+    | '/chat'
     | '/checkout'
     | '/diu'
     | '/new-arrivals'
@@ -364,6 +402,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/wishlist'
     | '/campus/$campusSlug'
+    | '/chat/$conversationId'
     | '/products/$productSlug'
     | '/sell/dashboard'
     | '/sell/login'
@@ -375,12 +414,14 @@ export interface FileRouteTypes {
     | '/stores/'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
+    | '/sell/dashboard/messages'
     | '/sell/dashboard/notifications'
     | '/sell/dashboard/orders'
     | '/sell/dashboard/reviews'
     | '/sell/dashboard/settings'
     | '/sell/dashboard/store'
     | '/sell/dashboard/'
+    | '/sell/dashboard/messages/$conversationId'
     | '/sell/dashboard/products/$productId'
     | '/sell/dashboard/products/new'
     | '/sell/dashboard/products/'
@@ -393,6 +434,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/categories'
     | '/ccadmingo'
+    | '/chat'
     | '/checkout'
     | '/diu'
     | '/new-arrivals'
@@ -402,6 +444,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/wishlist'
     | '/campus/$campusSlug'
+    | '/chat/$conversationId'
     | '/products/$productSlug'
     | '/sell/login'
     | '/sell/register'
@@ -412,12 +455,14 @@ export interface FileRouteTypes {
     | '/stores'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
+    | '/sell/dashboard/messages'
     | '/sell/dashboard/notifications'
     | '/sell/dashboard/orders'
     | '/sell/dashboard/reviews'
     | '/sell/dashboard/settings'
     | '/sell/dashboard/store'
     | '/sell/dashboard'
+    | '/sell/dashboard/messages/$conversationId'
     | '/sell/dashboard/products/$productId'
     | '/sell/dashboard/products/new'
     | '/sell/dashboard/products'
@@ -430,6 +475,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/categories'
     | '/ccadmingo'
+    | '/chat'
     | '/checkout'
     | '/diu'
     | '/new-arrivals'
@@ -439,6 +485,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/wishlist'
     | '/campus/$campusSlug'
+    | '/chat/$conversationId'
     | '/products/$productSlug'
     | '/sell/dashboard'
     | '/sell/login'
@@ -450,12 +497,14 @@ export interface FileRouteTypes {
     | '/stores/'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
+    | '/sell/dashboard/messages'
     | '/sell/dashboard/notifications'
     | '/sell/dashboard/orders'
     | '/sell/dashboard/reviews'
     | '/sell/dashboard/settings'
     | '/sell/dashboard/store'
     | '/sell/dashboard/'
+    | '/sell/dashboard/messages/$conversationId'
     | '/sell/dashboard/products/$productId'
     | '/sell/dashboard/products/new'
     | '/sell/dashboard/products/'
@@ -469,6 +518,7 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
   CcadmingoRoute: typeof CcadmingoRoute
+  ChatRoute: typeof ChatRouteWithChildren
   CheckoutRoute: typeof CheckoutRoute
   DiuRoute: typeof DiuRoute
   NewArrivalsRoute: typeof NewArrivalsRoute
@@ -540,6 +590,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CcadmingoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/checkout': {
       id: '/checkout'
       path: '/checkout'
@@ -602,6 +659,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/campus/$campusSlug'
       preLoaderRoute: typeof CampusCampusSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/chat/$conversationId': {
+      id: '/chat/$conversationId'
+      path: '/$conversationId'
+      fullPath: '/chat/$conversationId'
+      preLoaderRoute: typeof ChatConversationIdRouteImport
+      parentRoute: typeof ChatRoute
     }
     '/products/': {
       id: '/products/'
@@ -687,6 +751,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellDashboardHelpRouteImport
       parentRoute: typeof SellDashboardRoute
     }
+    '/sell/dashboard/messages': {
+      id: '/sell/dashboard/messages'
+      path: '/messages'
+      fullPath: '/sell/dashboard/messages'
+      preLoaderRoute: typeof SellDashboardMessagesRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
     '/sell/dashboard/notifications': {
       id: '/sell/dashboard/notifications'
       path: '/notifications'
@@ -722,6 +793,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellDashboardStoreRouteImport
       parentRoute: typeof SellDashboardRoute
     }
+    '/sell/dashboard/messages/$conversationId': {
+      id: '/sell/dashboard/messages/$conversationId'
+      path: '/$conversationId'
+      fullPath: '/sell/dashboard/messages/$conversationId'
+      preLoaderRoute: typeof SellDashboardMessagesConversationIdRouteImport
+      parentRoute: typeof SellDashboardMessagesRoute
+    }
     '/sell/dashboard/products/': {
       id: '/sell/dashboard/products/'
       path: '/products'
@@ -746,9 +824,34 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ChatRouteChildren {
+  ChatConversationIdRoute: typeof ChatConversationIdRoute
+}
+
+const ChatRouteChildren: ChatRouteChildren = {
+  ChatConversationIdRoute: ChatConversationIdRoute,
+}
+
+const ChatRouteWithChildren = ChatRoute._addFileChildren(ChatRouteChildren)
+
+interface SellDashboardMessagesRouteChildren {
+  SellDashboardMessagesConversationIdRoute: typeof SellDashboardMessagesConversationIdRoute
+}
+
+const SellDashboardMessagesRouteChildren: SellDashboardMessagesRouteChildren = {
+  SellDashboardMessagesConversationIdRoute:
+    SellDashboardMessagesConversationIdRoute,
+}
+
+const SellDashboardMessagesRouteWithChildren =
+  SellDashboardMessagesRoute._addFileChildren(
+    SellDashboardMessagesRouteChildren,
+  )
+
 interface SellDashboardRouteChildren {
   SellDashboardEarningsRoute: typeof SellDashboardEarningsRoute
   SellDashboardHelpRoute: typeof SellDashboardHelpRoute
+  SellDashboardMessagesRoute: typeof SellDashboardMessagesRouteWithChildren
   SellDashboardNotificationsRoute: typeof SellDashboardNotificationsRoute
   SellDashboardOrdersRoute: typeof SellDashboardOrdersRoute
   SellDashboardReviewsRoute: typeof SellDashboardReviewsRoute
@@ -763,6 +866,7 @@ interface SellDashboardRouteChildren {
 const SellDashboardRouteChildren: SellDashboardRouteChildren = {
   SellDashboardEarningsRoute: SellDashboardEarningsRoute,
   SellDashboardHelpRoute: SellDashboardHelpRoute,
+  SellDashboardMessagesRoute: SellDashboardMessagesRouteWithChildren,
   SellDashboardNotificationsRoute: SellDashboardNotificationsRoute,
   SellDashboardOrdersRoute: SellDashboardOrdersRoute,
   SellDashboardReviewsRoute: SellDashboardReviewsRoute,
@@ -786,6 +890,7 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
   CcadmingoRoute: CcadmingoRoute,
+  ChatRoute: ChatRouteWithChildren,
   CheckoutRoute: CheckoutRoute,
   DiuRoute: DiuRoute,
   NewArrivalsRoute: NewArrivalsRoute,
