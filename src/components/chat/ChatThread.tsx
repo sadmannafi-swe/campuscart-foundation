@@ -102,6 +102,10 @@ export function ChatThread({
     try {
       await sendChatMessage(conversation.id, body);
       setDraft("");
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["chat-messages", conversation.id] }),
+        queryClient.invalidateQueries({ queryKey: ["chat-conversations"] }),
+      ]);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not send message");
     } finally {
