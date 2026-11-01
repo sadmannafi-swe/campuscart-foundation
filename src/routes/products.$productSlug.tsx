@@ -142,6 +142,15 @@ function LiveProductDetails({ slug }: { slug: string }) {
                 <Button className="flex-1 sm:flex-none" disabled={!product.inStock} onClick={() => { cart.add(product, 1); toast.success("Added to cart"); }}>Add to Cart</Button>
                 <Button variant="secondary" className="flex-1 sm:flex-none" disabled={!product.inStock} onClick={() => void navigate({ to: "/checkout", search: { buy: product.slug, qty: 1 } })}>Buy Now</Button>
               </div>
+              <Button
+                variant="outline"
+                className="mt-3 w-full border-primary/40 text-primary hover:bg-primary-soft"
+                disabled={openingChat}
+                onClick={() => void chatWithSeller()}
+              >
+                <MessageCircle className="size-4" aria-hidden="true" />
+                {openingChat ? "Opening chat…" : `Chat with Seller about this product`}
+              </Button>
               <ProductReviews productId={product.id} />
             </div>
           </div>

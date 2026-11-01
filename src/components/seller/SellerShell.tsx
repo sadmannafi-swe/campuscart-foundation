@@ -7,6 +7,7 @@ import {
   LifeBuoy,
   LogOut,
   Menu,
+  MessageCircle,
   MoreHorizontal,
   Package,
   Receipt,
