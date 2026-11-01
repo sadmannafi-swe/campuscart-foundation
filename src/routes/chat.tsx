@@ -40,7 +40,7 @@ function BuyerInboxPage() {
                 Log in to chat with sellers about their products.
               </p>
               <Button asChild>
-                <Link to="/auth">Log in / Create account</Link>
+                <Link to="/auth" search={{ mode: "login" }}>Log in / Create account</Link>
               </Button>
             </div>
           ) : (

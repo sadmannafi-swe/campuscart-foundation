@@ -90,7 +90,7 @@ function LiveProductDetails({ slug }: { slug: string }) {
     if (!product) return;
     if (!user) {
       toast.error("Log in to chat with the seller");
-      void navigate({ to: "/auth" });
+      void navigate({ to: "/auth", search: { mode: "login" } });
       return;
     }
     setOpeningChat(true);

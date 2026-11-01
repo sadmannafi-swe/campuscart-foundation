@@ -39,7 +39,7 @@ function BuyerChatPage() {
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <p className="text-sm text-muted-foreground">Log in to view this conversation.</p>
             <Button asChild>
-              <Link to="/auth">Log in / Create account</Link>
+              <Link to="/auth" search={{ mode: "login" }}>Log in / Create account</Link>
             </Button>
           </div>
         ) : !conversation || !owned ? (
