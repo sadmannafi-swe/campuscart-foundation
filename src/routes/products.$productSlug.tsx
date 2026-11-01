@@ -80,9 +80,29 @@ function ProductDetailsPage() {
 
 function LiveProductDetails({ slug }: { slug: string }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [openingChat, setOpeningChat] = useState(false);
   const { data: live, isLoading } = useLiveProducts();
   const product = live?.find((p) => p.slug === slug);
   const category = categories.find((c) => c.slug === product?.categorySlug);
+
+  const chatWithSeller = async () => {
+    if (!product) return;
+    if (!user) {
+      toast.error("Log in to chat with the seller");
+      void navigate({ to: "/auth" });
+      return;
+    }
+    setOpeningChat(true);
+    try {
+      const conversationId = await openProductChat(product.id);
+      void navigate({ to: "/chat/$conversationId", params: { conversationId } });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not open chat");
+    } finally {
+      setOpeningChat(false);
+    }
+  };
   return (
     <SiteLayout>
       <div className="container-page py-8">
