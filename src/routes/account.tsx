@@ -37,6 +37,8 @@ function AccountPage() {
   const [studentId, setStudentId] = useState<string | null>(null);
   const [showStudentId, setShowStudentId] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const { data: unreadCounts } = useUnreadChatCounts(user?.id);
+  const unreadTotal = unreadCounts ? Object.values(unreadCounts).reduce((sum, n) => sum + n, 0) : 0;
 
   useEffect(() => {
     if (!user) return;
