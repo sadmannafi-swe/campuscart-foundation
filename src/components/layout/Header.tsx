@@ -1,7 +1,7 @@
 import { useCart } from "@/lib/cart";
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Heart, Menu, Search, ShoppingCart, User } from "lucide-react";
+import { Heart, Menu, MessageCircle, Search, ShoppingCart, User } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { CategoryIcon } from "@/components/common/CategoryIcon";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { categories } from "@/data/marketplace";
 import { useAuth } from "@/lib/auth";
+import { useUnreadChatCounts } from "@/lib/chat";
 
 const primaryLinks = [
   { label: "Stores", to: "/stores" as const },
