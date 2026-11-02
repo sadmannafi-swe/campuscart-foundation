@@ -62,7 +62,7 @@ function SellerChatPage() {
               emptyText="No buyer messages yet."
             />
           </aside>
-          <div className="card-surface h-[calc(100dvh-12rem)] overflow-hidden lg:h-[calc(100dvh-8rem)]">
+          <div className="card-surface h-[calc(100dvh-12rem)] overflow-hidden lg:h-[calc(100dvh-13rem)]">
             <ChatThread
               conversation={conversation}
               viewerId={user!.id}
