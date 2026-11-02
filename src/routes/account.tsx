@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Heart, LogOut, Package, ShieldCheck, ShoppingCart, User } from "lucide-react";
+import { Heart, LogOut, MessageCircle, Package, ShieldCheck, ShoppingCart, User } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useUnreadChatCounts } from "@/lib/chat";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
