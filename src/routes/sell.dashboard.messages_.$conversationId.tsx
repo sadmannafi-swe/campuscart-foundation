@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 import { useConversation, useSellerConversations, useUnreadChatCounts } from "@/lib/chat";
 
-export const Route = createFileRoute("/sell/dashboard/messages/$conversationId")({
+export const Route = createFileRoute("/sell/dashboard/messages_/$conversationId")({
   head: () => ({
     meta: [
       { title: "Buyer Chat — CampusCart Seller" },
