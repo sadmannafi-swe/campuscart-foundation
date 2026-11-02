@@ -168,6 +168,24 @@ function AccountPage() {
           </div>
 
           <div className="space-y-3">
+            <Button asChild className="w-full justify-between">
+              <Link to="/chat">
+                <span className="flex items-center gap-2">
+                  <MessageCircle className="size-4" aria-hidden="true" />
+                  Messages
+                </span>
+                {unreadTotal > 0 && (
+                  <span
+                    className={cn(
+                      "grid min-w-5 place-items-center rounded-full px-1.5 text-xs font-bold",
+                      "bg-background/25 text-primary-foreground",
+                    )}
+                  >
+                    {unreadTotal > 99 ? "99+" : unreadTotal}
+                  </span>
+                )}
+              </Link>
+            </Button>
             <div className="card-surface p-4">
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 Shortcuts
