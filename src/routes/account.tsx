@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Heart, LogOut, Package, ShieldCheck, ShoppingCart, User } from "lucide-react";
+import { Heart, LogOut, MessageCircle, Package, ShieldCheck, ShoppingCart, User } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { useUnreadChatCounts } from "@/lib/chat";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
@@ -35,6 +37,8 @@ function AccountPage() {
   const [studentId, setStudentId] = useState<string | null>(null);
   const [showStudentId, setShowStudentId] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const { data: unreadCounts } = useUnreadChatCounts(user?.id);
+  const unreadTotal = unreadCounts ? Object.values(unreadCounts).reduce((sum, n) => sum + n, 0) : 0;
 
   useEffect(() => {
     if (!user) return;
@@ -164,6 +168,24 @@ function AccountPage() {
           </div>
 
           <div className="space-y-3">
+            <Button asChild className="w-full justify-between">
+              <Link to="/chat">
+                <span className="flex items-center gap-2">
+                  <MessageCircle className="size-4" aria-hidden="true" />
+                  Messages
+                </span>
+                {unreadTotal > 0 && (
+                  <span
+                    className={cn(
+                      "grid min-w-5 place-items-center rounded-full px-1.5 text-xs font-bold",
+                      "bg-background/25 text-primary-foreground",
+                    )}
+                  >
+                    {unreadTotal > 99 ? "99+" : unreadTotal}
+                  </span>
+                )}
+              </Link>
+            </Button>
             <div className="card-surface p-4">
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 Shortcuts
