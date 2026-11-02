@@ -45,7 +45,7 @@ import { Route as SellDashboardOrdersRouteImport } from './routes/sell.dashboard
 import { Route as SellDashboardReviewsRouteImport } from './routes/sell.dashboard.reviews'
 import { Route as SellDashboardSettingsRouteImport } from './routes/sell.dashboard.settings'
 import { Route as SellDashboardStoreRouteImport } from './routes/sell.dashboard.store'
-import { Route as SellDashboardMessagesConversationIdRouteImport } from './routes/sell.dashboard.messages.$conversationId'
+import { Route as SellDashboardMessagesConversationIdRouteImport } from './routes/sell.dashboard.messages_.$conversationId'
 import { Route as SellDashboardProductsIndexRouteImport } from './routes/sell.dashboard.products.index'
 import { Route as SellDashboardProductsProductIdRouteImport } from './routes/sell.dashboard.products.$productId'
 import { Route as SellDashboardProductsNewRouteImport } from './routes/sell.dashboard.products.new'
@@ -233,9 +233,9 @@ const SellDashboardStoreRoute = SellDashboardStoreRouteImport.update({
 } as any)
 const SellDashboardMessagesConversationIdRoute =
   SellDashboardMessagesConversationIdRouteImport.update({
-    id: '/$conversationId',
-    path: '/$conversationId',
-    getParentRoute: () => SellDashboardMessagesRoute,
+    id: '/messages_/$conversationId',
+    path: '/messages/$conversationId',
+    getParentRoute: () => SellDashboardRoute,
   } as any)
 const SellDashboardProductsIndexRoute =
   SellDashboardProductsIndexRouteImport.update({
@@ -286,7 +286,7 @@ export interface FileRoutesByFullPath {
   '/stores/': typeof StoresIndexRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
-  '/sell/dashboard/messages': typeof SellDashboardMessagesRouteWithChildren
+  '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
   '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
   '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
@@ -327,7 +327,7 @@ export interface FileRoutesByTo {
   '/stores': typeof StoresIndexRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
-  '/sell/dashboard/messages': typeof SellDashboardMessagesRouteWithChildren
+  '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
   '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
   '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
@@ -370,14 +370,14 @@ export interface FileRoutesById {
   '/stores/': typeof StoresIndexRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
-  '/sell/dashboard/messages': typeof SellDashboardMessagesRouteWithChildren
+  '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
   '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
   '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
   '/sell/dashboard/settings': typeof SellDashboardSettingsRoute
   '/sell/dashboard/store': typeof SellDashboardStoreRoute
   '/sell/dashboard/': typeof SellDashboardIndexRoute
-  '/sell/dashboard/messages/$conversationId': typeof SellDashboardMessagesConversationIdRoute
+  '/sell/dashboard/messages_/$conversationId': typeof SellDashboardMessagesConversationIdRoute
   '/sell/dashboard/products/$productId': typeof SellDashboardProductsProductIdRoute
   '/sell/dashboard/products/new': typeof SellDashboardProductsNewRoute
   '/sell/dashboard/products/': typeof SellDashboardProductsIndexRoute
@@ -504,7 +504,7 @@ export interface FileRouteTypes {
     | '/sell/dashboard/settings'
     | '/sell/dashboard/store'
     | '/sell/dashboard/'
-    | '/sell/dashboard/messages/$conversationId'
+    | '/sell/dashboard/messages_/$conversationId'
     | '/sell/dashboard/products/$productId'
     | '/sell/dashboard/products/new'
     | '/sell/dashboard/products/'
@@ -794,12 +794,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellDashboardStoreRouteImport
       parentRoute: typeof SellDashboardRoute
     }
-    '/sell/dashboard/messages/$conversationId': {
-      id: '/sell/dashboard/messages/$conversationId'
-      path: '/$conversationId'
+    '/sell/dashboard/messages_/$conversationId': {
+      id: '/sell/dashboard/messages_/$conversationId'
+      path: '/messages/$conversationId'
       fullPath: '/sell/dashboard/messages/$conversationId'
       preLoaderRoute: typeof SellDashboardMessagesConversationIdRouteImport
-      parentRoute: typeof SellDashboardMessagesRoute
+      parentRoute: typeof SellDashboardRoute
     }
     '/sell/dashboard/products/': {
       id: '/sell/dashboard/products/'
@@ -825,30 +825,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface SellDashboardMessagesRouteChildren {
-  SellDashboardMessagesConversationIdRoute: typeof SellDashboardMessagesConversationIdRoute
-}
-
-const SellDashboardMessagesRouteChildren: SellDashboardMessagesRouteChildren = {
-  SellDashboardMessagesConversationIdRoute:
-    SellDashboardMessagesConversationIdRoute,
-}
-
-const SellDashboardMessagesRouteWithChildren =
-  SellDashboardMessagesRoute._addFileChildren(
-    SellDashboardMessagesRouteChildren,
-  )
-
 interface SellDashboardRouteChildren {
   SellDashboardEarningsRoute: typeof SellDashboardEarningsRoute
   SellDashboardHelpRoute: typeof SellDashboardHelpRoute
-  SellDashboardMessagesRoute: typeof SellDashboardMessagesRouteWithChildren
+  SellDashboardMessagesRoute: typeof SellDashboardMessagesRoute
   SellDashboardNotificationsRoute: typeof SellDashboardNotificationsRoute
   SellDashboardOrdersRoute: typeof SellDashboardOrdersRoute
   SellDashboardReviewsRoute: typeof SellDashboardReviewsRoute
   SellDashboardSettingsRoute: typeof SellDashboardSettingsRoute
   SellDashboardStoreRoute: typeof SellDashboardStoreRoute
   SellDashboardIndexRoute: typeof SellDashboardIndexRoute
+  SellDashboardMessagesConversationIdRoute: typeof SellDashboardMessagesConversationIdRoute
   SellDashboardProductsProductIdRoute: typeof SellDashboardProductsProductIdRoute
   SellDashboardProductsNewRoute: typeof SellDashboardProductsNewRoute
   SellDashboardProductsIndexRoute: typeof SellDashboardProductsIndexRoute
@@ -857,13 +844,15 @@ interface SellDashboardRouteChildren {
 const SellDashboardRouteChildren: SellDashboardRouteChildren = {
   SellDashboardEarningsRoute: SellDashboardEarningsRoute,
   SellDashboardHelpRoute: SellDashboardHelpRoute,
-  SellDashboardMessagesRoute: SellDashboardMessagesRouteWithChildren,
+  SellDashboardMessagesRoute: SellDashboardMessagesRoute,
   SellDashboardNotificationsRoute: SellDashboardNotificationsRoute,
   SellDashboardOrdersRoute: SellDashboardOrdersRoute,
   SellDashboardReviewsRoute: SellDashboardReviewsRoute,
   SellDashboardSettingsRoute: SellDashboardSettingsRoute,
   SellDashboardStoreRoute: SellDashboardStoreRoute,
   SellDashboardIndexRoute: SellDashboardIndexRoute,
+  SellDashboardMessagesConversationIdRoute:
+    SellDashboardMessagesConversationIdRoute,
   SellDashboardProductsProductIdRoute: SellDashboardProductsProductIdRoute,
   SellDashboardProductsNewRoute: SellDashboardProductsNewRoute,
   SellDashboardProductsIndexRoute: SellDashboardProductsIndexRoute,
