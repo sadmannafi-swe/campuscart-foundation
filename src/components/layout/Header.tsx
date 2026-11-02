@@ -1,7 +1,7 @@
 import { useCart } from "@/lib/cart";
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Heart, Menu, Search, ShoppingCart, User } from "lucide-react";
+import { Heart, Menu, MessageCircle, Search, ShoppingCart, User } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { CategoryIcon } from "@/components/common/CategoryIcon";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { categories } from "@/data/marketplace";
 import { useAuth } from "@/lib/auth";
+import { useUnreadChatCounts } from "@/lib/chat";
 
 const primaryLinks = [
   { label: "Stores", to: "/stores" as const },
@@ -28,6 +29,8 @@ export function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { count: cartCount } = useCart();
+  const { data: unreadCounts } = useUnreadChatCounts(user?.id);
+  const unreadTotal = unreadCounts ? Object.values(unreadCounts).reduce((sum, n) => sum + n, 0) : 0;
   const navigate = useNavigate();
 
   return (
@@ -73,6 +76,17 @@ export function Header() {
                 </Link>
               ))}
             </nav>
+
+            <Button variant="ghost" size="icon" asChild className="relative">
+              <Link to="/chat" aria-label="Messages">
+                <MessageCircle />
+                {unreadTotal > 0 && (
+                  <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                    {unreadTotal > 9 ? "9+" : unreadTotal}
+                  </span>
+                )}
+              </Link>
+            </Button>
 
             <Button
               variant="ghost"
