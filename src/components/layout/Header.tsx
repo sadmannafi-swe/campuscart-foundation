@@ -28,6 +28,8 @@ export function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { count: cartCount } = useCart();
+  const { data: unreadCounts } = useUnreadChatCounts(user?.id);
+  const unreadTotal = unreadCounts ? Object.values(unreadCounts).reduce((sum, n) => sum + n, 0) : 0;
   const navigate = useNavigate();
 
   return (
