@@ -77,6 +77,17 @@ export function Header() {
               ))}
             </nav>
 
+            <Button variant="ghost" size="icon" asChild className="relative">
+              <Link to="/chat" aria-label="Messages">
+                <MessageCircle />
+                {unreadTotal > 0 && (
+                  <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                    {unreadTotal > 9 ? "9+" : unreadTotal}
+                  </span>
+                )}
+              </Link>
+            </Button>
+
             <Button
               variant="ghost"
               size="icon"
