@@ -94,7 +94,6 @@ function CartPage() {
                 <span className="text-muted-foreground">Subtotal ({count} items)</span>
                 <span className="font-bold">{formatPrice(subtotal)}</span>
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">Shipping is calculated at checkout.</p>
               <Button asChild className="mt-4 w-full">
                 <Link to="/checkout" search={{}}>Proceed to Checkout</Link>
               </Button>
