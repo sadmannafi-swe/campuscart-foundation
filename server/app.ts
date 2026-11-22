@@ -2,7 +2,9 @@ import express, { type NextFunction, type Request, type Response } from "express
 import { toNodeHandler } from "better-auth/node";
 import { createHash, timingSafeEqual } from "node:crypto";
 import { getAuth, trustedOrigins } from "./lib/auth";
-import { ensureIndexes } from "./lib/db";
+import { getCloudinaryConfig } from "./lib/cloudinary";
+import { ensureIndexes, getDb } from "./lib/db";
+import { getGmailConfig } from "./lib/gmail";
 import { errorHandler } from "./lib/http";
 import { processEmailOutbox } from "./lib/outbox";
 import { accountRouter } from "./routes/account";
@@ -33,6 +35,32 @@ export function createApp() {
   });
 
   // Create indexes lazily on the first request of each instance.
+  // Health/config check — no database needed, reports only yes/no flags (never values).
+  app.get("/api/health", async (_req, res) => {
+    let db = "not_configured";
+    if (process.env["MONGODB_URI"]) {
+      try {
+        await Promise.race([
+          getDb().command({ ping: 1 }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 5000)),
+        ]);
+        db = "ok";
+      } catch {
+        db = "unreachable";
+      }
+    }
+    res.set("cache-control", "no-store").json({
+      ok: db === "ok",
+      db,
+      authSecret: process.env["BETTER_AUTH_SECRET"] ? "explicit" : "derived",
+      siteUrl: Boolean(process.env["SITE_URL"]),
+      cloudinary: getCloudinaryConfig() !== null,
+      gmail: getGmailConfig() !== null,
+      cron: (process.env["CRON_SECRET"] ?? "").length >= 16,
+      admins: (process.env["ADMIN_EMAILS"] ?? "").split(",").filter((e) => e.trim()).length,
+    });
+  });
+
   app.use("/api", async (_req: Request, _res: Response, next: NextFunction) => {
     await ensureIndexes();
     next();
@@ -57,8 +85,6 @@ export function createApp() {
     res.set("cache-control", "no-store");
     next();
   });
-
-  app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
   const cron = async (req: Request, res: Response) => {
     if (!cronAuthorized(req)) return res.status(401).json({ error: "Unauthorized" });

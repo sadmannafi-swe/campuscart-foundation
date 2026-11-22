@@ -15,6 +15,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CategoriesRouteImport } from './routes/categories'
+import { Route as CcadmingoRouteImport } from './routes/ccadmingo'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DiuRouteImport } from './routes/diu'
@@ -77,6 +78,11 @@ const CartRoute = CartRouteImport.update({
 const CategoriesRoute = CategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CcadmingoRoute = CcadmingoRouteImport.update({
+  id: '/ccadmingo',
+  path: '/ccadmingo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -257,6 +263,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/ccadmingo': typeof CcadmingoRoute
   '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
@@ -298,6 +305,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/ccadmingo': typeof CcadmingoRoute
   '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
@@ -339,6 +347,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/ccadmingo': typeof CcadmingoRoute
   '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
@@ -382,6 +391,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
+    | '/ccadmingo'
     | '/chat'
     | '/checkout'
     | '/diu'
@@ -423,6 +433,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
+    | '/ccadmingo'
     | '/chat'
     | '/checkout'
     | '/diu'
@@ -463,6 +474,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
+    | '/ccadmingo'
     | '/chat'
     | '/checkout'
     | '/diu'
@@ -505,6 +517,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
+  CcadmingoRoute: typeof CcadmingoRoute
   ChatRoute: typeof ChatRoute
   CheckoutRoute: typeof CheckoutRoute
   DiuRoute: typeof DiuRoute
@@ -569,6 +582,13 @@ declare module '@tanstack/react-router' {
       path: '/categories'
       fullPath: '/categories'
       preLoaderRoute: typeof CategoriesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ccadmingo': {
+      id: '/ccadmingo'
+      path: '/ccadmingo'
+      fullPath: '/ccadmingo'
+      preLoaderRoute: typeof CcadmingoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -849,6 +869,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
+  CcadmingoRoute: CcadmingoRoute,
   ChatRoute: ChatRoute,
   CheckoutRoute: CheckoutRoute,
   DiuRoute: DiuRoute,

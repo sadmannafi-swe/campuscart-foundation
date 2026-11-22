@@ -5,8 +5,8 @@ const MAX_BYTES = 8 * 1024 * 1024;
 
 /**
  * Uploads an image straight from the browser to Cloudinary using a short-lived
- * signature from our API. Returns the public URL (or, for private student ID
- * photos, the Cloudinary public_id).
+ * signature from our API. Returns the public URL, or for private kinds
+ * (student ID and profile photos) the Cloudinary public_id.
  */
 export async function uploadImage(file: File, kind: UploadKind): Promise<string> {
   if (!file.type.startsWith("image/")) throw new Error("Please choose an image file.");
@@ -29,7 +29,7 @@ export async function uploadImage(file: File, kind: UploadKind): Promise<string>
     error?: { message?: string };
   };
   if (!res.ok) throw new Error(data.error?.message ?? "Image upload failed.");
-  if (kind === "student-id") return data.public_id!;
+  if (sig.type === "authenticated") return data.public_id!;
   return data.secure_url!;
 }
 

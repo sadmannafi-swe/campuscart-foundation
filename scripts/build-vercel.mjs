@@ -35,7 +35,15 @@ await build({
     "@aws-sdk/credential-providers",
   ],
   banner: {
-    js: "import { createRequire as __cr } from 'node:module'; const require = __cr(import.meta.url);",
+    // CommonJS dependencies (e.g. Cloudinary) expect require/__dirname inside the ESM bundle.
+    js: [
+      "import { createRequire as __cr } from 'node:module';",
+      "import { fileURLToPath as __f2p } from 'node:url';",
+      "import { dirname as __dn } from 'node:path';",
+      "const require = __cr(import.meta.url);",
+      "const __filename = __f2p(import.meta.url);",
+      "const __dirname = __dn(__filename);",
+    ].join(" "),
   },
 });
 
@@ -61,6 +69,17 @@ await writeFile(
     {
       version: 3,
       routes: [
+        {
+          src: "^/(.*)$",
+          headers: {
+            "x-content-type-options": "nosniff",
+            "x-frame-options": "DENY",
+            "referrer-policy": "strict-origin-when-cross-origin",
+            "permissions-policy": "camera=(), microphone=(), geolocation=()",
+            "strict-transport-security": "max-age=63072000; includeSubDomains",
+          },
+          continue: true,
+        },
         {
           src: "^/assets/(.*)$",
           headers: { "cache-control": "public, max-age=31536000, immutable" },

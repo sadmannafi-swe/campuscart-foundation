@@ -8,7 +8,6 @@ import { EmptyState } from "@/components/common/StateBlocks";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/auth";
-import { thumbUrl } from "@/lib/uploads";
 import { useUnreadChatCounts } from "@/lib/chat";
 import { cn } from "@/lib/utils";
 
@@ -36,7 +35,7 @@ function AccountPage() {
   const navigate = useNavigate();
   const studentId = profile?.student_id ?? null;
   const [showStudentId, setShowStudentId] = useState(false);
-  const avatarUrl = thumbUrl(profile?.avatar_path, 200);
+  const avatarUrl = profile?.avatar_path ?? null;
   const { data: unreadCounts } = useUnreadChatCounts(user?.id);
   const unreadTotal = unreadCounts ? Object.values(unreadCounts).reduce((sum, n) => sum + n, 0) : 0;
 

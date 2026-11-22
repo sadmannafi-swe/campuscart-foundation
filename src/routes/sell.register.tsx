@@ -297,7 +297,7 @@ function AccountStep({
         department,
         batch,
         student_id: studentId.trim(),
-        avatar_url: avatarUrl,
+        avatar_id: avatarUrl,
         student_id_image: idImage,
       });
 

@@ -37,7 +37,12 @@ declare module "express-serve-static-core" {
 }
 
 export async function loadSession(req: Request): Promise<SessionUser | null> {
-  const session = await getAuth().api.getSession({ headers: fromNodeHeaders(req.headers) });
+  // Always validate against the database (not the 5-minute cookie cache), so
+  // sign-out elsewhere, password resets and bans take effect immediately.
+  const session = await getAuth().api.getSession({
+    headers: fromNodeHeaders(req.headers),
+    query: { disableCookieCache: true },
+  });
   return (session?.user as SessionUser | undefined) ?? null;
 }
 
@@ -91,11 +96,9 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   if (err instanceof HttpError) return res.status(err.status).json({ error: err.message });
   if (err instanceof ZodError) {
     const first = err.issues[0];
-    return res
-      .status(400)
-      .json({
-        error: first ? `${first.path.join(".") || "input"}: ${first.message}` : "Invalid input",
-      });
+    return res.status(400).json({
+      error: first ? `${first.path.join(".") || "input"}: ${first.message}` : "Invalid input",
+    });
   }
   if (
     err &&

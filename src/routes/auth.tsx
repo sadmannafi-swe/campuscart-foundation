@@ -256,7 +256,7 @@ function SignupForm() {
     if (avatar) {
       try {
         const url = await uploadImage(avatar, "avatar");
-        await apiPatch("/me", { avatar_url: url });
+        await apiPatch("/me", { avatar_id: url });
       } catch {
         toast.message("Account created — your profile photo couldn't be uploaded.");
       }

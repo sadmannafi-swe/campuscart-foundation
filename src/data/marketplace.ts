@@ -3,7 +3,7 @@ import type { Category, Product, Review, Store } from "@/lib/types";
 /**
  * Phase 1 sample catalogue used for visual development only.
  * Every accessor below is async-friendly by shape, so these functions can be
- * swapped for Supabase queries later without touching UI components.
+ * swapped for API queries later without touching UI components.
  */
 
 const tints: Array<{ from: string; to: string }> = [
@@ -272,7 +272,7 @@ export const products: Product[] = seeds.map((seed, index) => {
   };
 });
 
-/* ---------- accessors (swap these for Supabase queries later) ---------- */
+/* ---------- accessors (sample catalogue; live listings come from /api/products) ---------- */
 
 export const getStoreById = (id: string) => stores.find((s) => s.id === id);
 export const getStoreBySlug = (slug: string) => stores.find((s) => s.slug === slug);

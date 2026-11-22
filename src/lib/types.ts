@@ -1,6 +1,6 @@
 /**
  * Domain types for DIU CampusCart.
- * These mirror the shape the future backend (Supabase) will return,
+ * Buyer-facing product/store shapes; live API data is mapped into them,
  * so UI components never need to change when real data arrives.
  */
 

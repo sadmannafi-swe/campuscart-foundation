@@ -2,7 +2,7 @@ import { Router } from "express";
 import { ObjectId } from "mongodb";
 import { z } from "zod";
 import type { Profile, UploadKind } from "../../shared/types";
-import { assertOwnImageUrl, signUpload } from "../lib/cloudinary";
+import { assertOwnPrivateId, signedPrivateUrl, signUpload } from "../lib/cloudinary";
 import { col, toApi } from "../lib/db";
 import { me, parse, requireUser } from "../lib/http";
 
@@ -21,7 +21,7 @@ accountRouter.get("/me", async (req, res) => {
     phone: String(doc?.["phone"] ?? ""),
     department: (doc?.["department"] as string) || null,
     batch: (doc?.["batch"] as string) || null,
-    avatar_path: (doc?.["image"] as string) || null,
+    avatar_path: signedPrivateUrl((doc?.["avatarId"] as string) || null, 400),
     role: String(doc?.["role"] ?? "user"),
     student_id: (doc?.["studentId"] as string) || null,
   };
@@ -33,7 +33,7 @@ const profilePatch = z.object({
   phone: z.string().trim().max(20).optional(),
   department: z.string().trim().max(60).optional(),
   batch: z.string().trim().max(20).optional(),
-  avatar_url: z.string().url().nullable().optional(),
+  avatar_id: z.string().max(300).nullable().optional(),
 });
 
 accountRouter.patch("/me", async (req, res) => {
@@ -44,9 +44,9 @@ accountRouter.patch("/me", async (req, res) => {
   if (body.phone !== undefined) set["phone"] = body.phone;
   if (body.department !== undefined) set["department"] = body.department;
   if (body.batch !== undefined) set["batch"] = body.batch;
-  if (body.avatar_url !== undefined) {
-    set["image"] =
-      body.avatar_url === null ? null : assertOwnImageUrl(body.avatar_url, "avatar", u.id);
+  if (body.avatar_id !== undefined) {
+    set["avatarId"] =
+      body.avatar_id === null ? null : assertOwnPrivateId(body.avatar_id, u.id, "avatar");
   }
   await col.users().updateOne({ _id: userKey(u.id) } as never, { $set: set });
   res.json({ ok: true });

@@ -34,7 +34,7 @@ const sellerSchema = z.object({
   department: z.string().trim().min(1).max(60),
   batch: z.string().trim().min(1).max(20),
   student_id: z.string().trim().min(3).max(40),
-  avatar_url: z.string().url().nullable().optional(),
+  avatar_id: z.string().max(300).nullable().optional(),
   student_id_image: z.string().nullable().optional(),
 });
 
@@ -51,7 +51,7 @@ sellerRouter.post("/account", async (req, res) => {
     phone: body.phone,
     department: body.department,
     batch: body.batch,
-    avatar_path: body.avatar_url ? assertOwnImageUrl(body.avatar_url, "avatar", u.id) : null,
+    avatar_path: body.avatar_id ? assertOwnPrivateId(body.avatar_id, u.id, "avatar") : null,
     status: "pending",
     order_email_enabled: true,
     notification_email: null,
@@ -152,18 +152,16 @@ sellerRouter.patch("/settings", async (req, res) => {
     }),
     req.body,
   );
-  const r = await col
-    .sellers()
-    .updateOne(
-      { user_id: u.id },
-      {
-        $set: {
-          order_email_enabled: body.order_email_enabled,
-          notification_email: body.notification_email || null,
-          updated_at: new Date(),
-        },
+  const r = await col.sellers().updateOne(
+    { user_id: u.id },
+    {
+      $set: {
+        order_email_enabled: body.order_email_enabled,
+        notification_email: body.notification_email || null,
+        updated_at: new Date(),
       },
-    );
+    },
+  );
   if (r.matchedCount === 0) throw notFound("Seller account not found");
   res.json({ ok: true });
 });

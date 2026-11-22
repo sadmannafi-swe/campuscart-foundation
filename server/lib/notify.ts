@@ -12,21 +12,19 @@ async function add(
   orderId: string,
   session?: ClientSession,
 ) {
-  await col
-    .notifications()
-    .insertOne(
-      {
-        _id: newId(),
-        user_id: userId,
-        kind,
-        title,
-        body,
-        order_id: orderId,
-        read_at: null,
-        created_at: new Date(),
-      },
-      { session },
-    );
+  await col.notifications().insertOne(
+    {
+      _id: newId(),
+      user_id: userId,
+      kind,
+      title,
+      body,
+      order_id: orderId,
+      read_at: null,
+      created_at: new Date(),
+    },
+    { session },
+  );
 }
 
 export async function notifyNewOrder(order: OrderDoc, session?: ClientSession) {

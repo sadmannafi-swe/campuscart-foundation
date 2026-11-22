@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { betterAuth } from "better-auth";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { admin } from "better-auth/plugins";
 import { renderPasswordResetEmail, renderVerifyEmail } from "../../shared/email/authEmails";
@@ -71,6 +72,8 @@ function createAuth() {
           input: true,
           returned: false,
         },
+        // Private profile photo (Cloudinary "authenticated" public_id) — set only via PATCH /api/me.
+        avatarId: { type: "string", required: false, input: false, returned: false },
       },
     },
     databaseHooks: {
@@ -89,16 +92,42 @@ function createAuth() {
                 department: clip((user as Record<string, unknown>)["department"], 60),
                 batch: clip((user as Record<string, unknown>)["batch"], 20),
                 studentId: clip((user as Record<string, unknown>)["studentId"], 40),
+                image: null,
               },
             };
           },
         },
+        update: {
+          before: async (data) => {
+            const rest = { ...(data as Record<string, unknown>) };
+            const clip = (k: string, n: number) => {
+              if (typeof rest[k] === "string") rest[k] = (rest[k] as string).trim().slice(0, n);
+            };
+            clip("name", 80);
+            clip("phone", 20);
+            clip("department", 60);
+            clip("batch", 20);
+            return { data: rest };
+          },
+        },
       },
+    },
+    hooks: {
+      // The student ID is identity data, fixed after sign-up; `image` is unused
+      // (profile photos are private, set via PATCH /api/me).
+      before: createAuthMiddleware(async (ctx) => {
+        if (ctx.path !== "/update-user") return;
+        const body = (ctx.body ?? {}) as Record<string, unknown>;
+        if ("studentId" in body || "image" in body) {
+          throw new APIError("BAD_REQUEST", { message: "This field can't be changed here." });
+        }
+      }),
     },
     session: {
       expiresIn: 60 * 60 * 24 * 30,
       updateAge: 60 * 60 * 24,
-      cookieCache: { enabled: true, maxAge: 5 * 60 },
+      // No cookie cache: sign-outs, password resets and bans apply on the next request.
+      cookieCache: { enabled: false },
     },
     // Stored in MongoDB so limits hold across serverless instances.
     rateLimit: {
@@ -112,6 +141,9 @@ function createAuth() {
       // Keep CSRF/origin protection on in every environment (it is skipped under tests by default).
       disableOriginCheck: false,
       disableCSRFCheck: false,
+      // Vercel's edge sets these single-address headers (overwriting client values),
+      // so rate limits are per real client instead of one shared bucket.
+      ipAddress: { ipAddressHeaders: ["x-vercel-forwarded-for", "x-real-ip"] },
     },
     plugins: [admin({ defaultRole: "user", adminRoles: ["admin"] })],
   });
