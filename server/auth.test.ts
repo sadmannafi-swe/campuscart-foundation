@@ -130,6 +130,32 @@ describe.skipIf(!MONGO)("Auth, privacy and authorization", () => {
     );
   });
 
+  it("confirms an e-mail from the e-mailed link, which unlocks the ADMIN_EMAILS bootstrap", async () => {
+    mails.length = 0;
+    const boss = request.agent(app);
+    await post(boss, "/api/auth/sign-up/email", {
+      email: "verify-boss@diu.edu.bd",
+      password: "password123",
+      name: "Verify Boss",
+      callbackURL: "/account",
+    });
+    process.env["ADMIN_EMAILS"] = "boss@diu.edu.bd,verify-boss@diu.edu.bd";
+    expect((await boss.get("/api/admin/access")).status).toBe(403); // not confirmed yet
+    const mail = mails.find((m) => m.to === "verify-boss@diu.edu.bd");
+    const link = /https?:\/\/[^\s"<]+\/api\/auth\/verify-email\?[^\s"<]+/.exec(
+      mail?.body ?? "",
+    )?.[0];
+    expect(link).toBeTruthy();
+    const url = new URL(link!.replace(/&amp;/g, "&"));
+    const hop = await boss.get(url.pathname + url.search);
+    expect([200, 302]).toContain(hop.status);
+    expect((await users().findOne({ email: "verify-boss@diu.edu.bd" }))?.["emailVerified"]).toBe(
+      true,
+    );
+    expect((await boss.get("/api/admin/access")).status).toBe(200);
+    process.env["ADMIN_EMAILS"] = "boss@diu.edu.bd";
+  });
+
   it("resets a password end-to-end from the e-mailed link and revokes old sessions", async () => {
     const a = request.agent(app);
     await post(a, "/api/auth/sign-up/email", {
