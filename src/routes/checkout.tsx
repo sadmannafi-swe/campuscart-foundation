@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
@@ -15,6 +16,7 @@ import { useAuth } from "@/lib/auth";
 import { cart, productToCartItem, useCart, type CartItem } from "@/lib/cart";
 import { useCatalogProducts } from "@/lib/liveCatalog";
 import { formatPrice } from "@/lib/format";
+import { dispatchOrderEmails } from "@/lib/orderEmails.functions";
 
 interface CheckoutSearch {
   buy?: string | undefined;
@@ -46,6 +48,7 @@ function CheckoutPage() {
   const { products, isLoading: productsLoading } = useCatalogProducts();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const sendOrderEmails = useServerFn(dispatchOrderEmails);
 
   // Buy Now: a single product held only on this page — never added to the cart.
   const buyProduct = buy ? products.find((p) => p.slug === buy) : undefined;
@@ -93,10 +96,17 @@ function CheckoutPage() {
         _note: note.trim(),
       });
       if (error) throw error;
+      const orderIds = data ?? [];
+      // Notify sellers by e-mail in the background; failures stay queued for the cron retry.
+      if (orderIds.length > 0) {
+        sendOrderEmails({ data: { orderIds } }).catch((err: unknown) =>
+          console.warn("Order e-mail dispatch deferred", err),
+        );
+      }
       if (!buy) cart.removeMany(orderable.map((i) => i.productId));
       await queryClient.invalidateQueries({ queryKey: ["buyer-orders"] });
       toast.success("Order placed");
-      void navigate({ to: "/order-confirmation", search: { ids: (data ?? []).join(",") }, replace: true });
+      void navigate({ to: "/order-confirmation", search: { ids: orderIds.join(",") }, replace: true });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not place the order.");
     } finally {

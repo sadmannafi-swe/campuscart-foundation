@@ -1,479 +1,115 @@
-# DIU CampusCart Foundation
-
-Build the initial foundation of a modern, responsive multi-vendor university marketplace called DIU CampusCart.
-
-IMPORTANT:
-
-Do not build the entire application in this prompt.
-
-This is Phase 1 only.
-
-Focus on project architecture, visual design system, reusable components, responsive layout, and basic public pages.
-
-Do not add fake backend logic or fake authentication.
-
-Keep the codebase clean, modular, scalable, and easy to extend in future phases.
-
-BRAND
-
-Product name:
-DIU CampusCart
-
-Tagline:
-"Your Campus. Your Marketplace."
-
-I have an existing DIU CampusCart logo. I will upload the logo to Lovable. Use the uploaded logo as the official brand logo. Do not redesign or replace it.
-
-The logo uses blue and green. Build the overall design system around the logo's blue/green identity while keeping the UI modern and clean.
-
-DESIGN DIRECTION
-
-The UI should feel like a professional modern e-commerce marketplace designed specifically for university students.
-
-Reference style:
-
-Clean
-
-Modern
-
-Minimal
-
-Friendly
-
-Professional
-
-Student-focused
-
-Premium but not overly flashy
-
-Plenty of whitespace
-
-Rounded cards
-
-Subtle shadows
-
-Clear typography
-
-Strong visual hierarchy
-
-Use the provided DIU CampusCart logo as the primary visual reference.
-
-Do NOT make the website look like a generic template.
-
-RESPONSIVE DESIGN
-
-The website must be fully responsive.
-
-Desktop/Laptop:
-
-Wide content layout
-
-Proper navigation/header
-
-Sidebar where appropriate
-
-Multi-column product grids
-
-Tablet:
-
-Adaptive layouts
-
-Reduced columns
-
-Comfortable spacing
-
-Mobile:
-
-Mobile-first responsive behavior
-
-Compact header
-
-Mobile search
-
-Bottom navigation where appropriate
-
-Cards optimized for small screens
-
-No horizontal overflow
-
-Buttons must be easy to tap
-
-Do not simply shrink the desktop UI
-
-Every page must work properly at:
-
-Mobile
-
-Tablet
-
-Laptop
-
-Large desktop
-
-COLOR SYSTEM
-
-Create reusable design tokens.
-
-Primary:
-
-DIU-inspired deep blue
-
-Secondary/accent:
-
-Fresh green
-
-Supporting:
-
-White
-
-Very light gray backgrounds
-
-Dark navy/gray text
-
-Soft borders
-
-Subtle neutral shadows
-
-Use blue for primary actions and important navigation.
-Use green selectively for success, active states, availability, and positive indicators.
-
-Avoid excessive gradients.
-
-TYPOGRAPHY
-
-Use a modern, highly readable sans-serif font.
-
-Headings:
-
-Strong
-
-Clean
-
-Modern
-
-Body:
-
-Highly readable
-
-Comfortable line height
-
-Prices and important numbers should have strong visual hierarchy.
-
-GLOBAL COMPONENTS
-
-Create reusable components for:
-
-Header
-
-Logo
-
-Search bar
-
-Navigation
-
-Category navigation
-
-Buttons
-
-Product card
-
-Store card
-
-Rating component
-
-Badge
-
-Status badge
-
-Modal/dialog
-
-Dropdown
-
-Tabs
-
-Breadcrumb
-
-Pagination
-
-Empty state
-
-Loading state
-
-Error state
-
-Toast/notification
-
-Footer
-
-Mobile bottom navigation
-
-Do not duplicate components unnecessarily.
-
-INITIAL PUBLIC PAGES
-
-Create the following pages with realistic UI content only for visual development:
-
-1. Landing/Home page
-
-Sections:
-
-Header
-
-Search
-
-Hero section
-
-Popular categories
-
-Featured stores
-
-Featured products
-
-Trending products
-
-New arrivals
-
-Promotional section
-
-Top-rated stores
-
-Footer
-
-The homepage should look like a real university marketplace.
-
-2. Stores page
-
-Show:
-
-Search stores
-
-Store cards
-
-Store logo
-
-Store name
-
-Category
-
-Rating
-
-Number of products
-
-Store status
-
-3. Store details page
-
-Show:
-
-Store banner/logo
-
-Store name
-
-Rating
-
-Description
-
-Store information
-
-Store categories
-
-Products from that store
-
-4. Products/search page
-
-Show:
-
-Search input
-
-Categories
-
-Filters
-
-Sort options
-
-Product grid
-
-Product cards
-
-Product card should include:
-
-Product image
-
-Product name
-
-Price
-
-Discount if available
-
-Rating
-
-Store name
-
-Wishlist button
-
-5. Product details page
-
-Show:
-
-Large product image
-
-Product name
-
-Price
-
-Discount
-
-Rating
-
-Reviews count
-
-Store information
-
-Description
-
-Available variants if applicable
-
-Quantity selector
-
-Add to Cart
-
-Buy Now
-
-Wishlist
-
-NAVIGATION
-
-Desktop header should contain:
-
-DIU CampusCart logo
-
-Search
-
-Categories
-
-Stores
-
-Offers
-
-New Arrivals
-
-Wishlist
-
-Cart
-
-Account
-
-Mobile header:
-
-Logo
-
-Search
-
-Cart
-
-Profile/menu
-
-Mobile bottom navigation:
-
-Home
-
-Categories
-
-Cart
-
-Orders
-
-Profile
-
-IMPORTANT ARCHITECTURE RULES
-
-Use:
-
-React
-
-TypeScript
-
-Next.js-compatible architecture
-
-Tailwind CSS
-
-Reusable components
-
-Keep business logic separate from UI components.
-
-Do not hardcode the application architecture in a way that makes future Supabase integration difficult.
-
-Prepare the project so that future phases can add:
-
-Supabase authentication
-
-Buyer accounts
-
-Seller accounts
-
-Admin accounts
-
-Stores
-
-Products
-
-Orders
-
-Reviews
-
-Wishlist
-
-Notifications
-
-Seller subscriptions
-
-Admin moderation
-
-Featured content management
-
-Do NOT implement those backend features yet.
-
-QUALITY REQUIREMENTS
-
-No broken links
-
-No console errors
-
-No TypeScript errors
-
-No horizontal scrolling
-
-Responsive on mobile and desktop
-
-Accessible buttons and form controls
-
-Consistent spacing
-
-Consistent typography
-
-Reusable components
-
-Clean folder structure
-
-At the end of this phase, provide a polished frontend foundation that looks like a real product, not a prototype.
-
-This project was built with [Lovable](https://lovable.dev).
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/8b804af4-58bb-4d66-bfc7-7c32cec05ae6).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+# CampusCart
+
+**Your Campus. Your Marketplace.** — a multi-campus student marketplace where
+verified university students open stores and sell to students on their campus.
+DIU (Daffodil International University) is live; NSU, BRAC, DU and EWU are
+prepared as "coming soon" marketplaces.
+
+Live: <https://campuscart-foundation.vercel.app/>
+
+## Features
+
+| Area | What it does |
+| --- | --- |
+| Buyers | Browse/search/filter products and stores, cart, Buy Now, checkout (cash on delivery/pickup), order tracking, cancel while pending, wishlist, purchase-verified reviews, chat with the seller, in-app notifications |
+| Sellers | Register with university + student ID, store approval flow, product management with photos, order management (forward-only status), earnings, reviews, messages, **e-mail for every new order** |
+| Admins | `/admin` (admin role required): approve / reject / unpublish stores, view seller identity, all orders per store, feature stores/products per university |
+
+## Tech stack
+
+TanStack Start (React 19, SSR, file routes in `src/routes`) · TanStack Query ·
+Tailwind v4 + shadcn/Radix · Supabase (Postgres, Auth, Storage, RLS) ·
+Vitest · deployed on Vercel (also editable in [Lovable](https://lovable.dev/projects/8b804af4-58bb-4d66-bfc7-7c32cec05ae6)).
+
+Business rules live in the database, not the UI: `place_order`,
+`update_order_status`, `cancel_my_order`, `submit_product_review`,
+`get_product_reviews`, `open_product_chat`, `send_chat_message` are
+`SECURITY DEFINER` functions, and every table has row-level security.
+
+## Seller order e-mails (Gmail)
+
+When a buyer places an order, a database trigger queues an e-mail in
+`email_outbox` for that store's seller. The app sends it immediately after
+checkout through the **Gmail API**, and a cron job retries anything that failed.
+The e-mail contains the order number, items, quantities, prices, total, buyer
+name, phone, delivery address, note and a link to the order in the dashboard.
+
+Sellers control it in **Seller Dashboard → Settings → New order e-mails**
+(on/off, and an optional different address; default is their account e-mail).
+
+### One-time setup
+
+1. **Google Cloud** (use the Gmail account that should send the mails):
+   1. Create a project at <https://console.cloud.google.com/>, enable **Gmail API**.
+   2. *OAuth consent screen*: External, add yourself as a test user, then
+      **Publish app** (in "Testing" mode refresh tokens expire after 7 days).
+   3. *Credentials → Create OAuth client ID → Web application*, add the redirect
+      URI `https://developers.google.com/oauthplayground`.
+2. **Refresh token**: open <https://developers.google.com/oauthplayground>, ⚙ →
+   *Use your own OAuth credentials* (paste client ID/secret), authorise scope
+   `https://www.googleapis.com/auth/gmail.send`, then *Exchange authorization
+   code for tokens* and copy the **refresh token**.
+3. **Vercel → Project → Settings → Environment Variables** (Production):
+
+   | Variable | Value |
+   | --- | --- |
+   | `GMAIL_CLIENT_ID` | OAuth client ID |
+   | `GMAIL_CLIENT_SECRET` | OAuth client secret |
+   | `GMAIL_REFRESH_TOKEN` | refresh token from step 2 |
+   | `GMAIL_SENDER` | the Gmail address that authorised the token |
+   | `GMAIL_SENDER_NAME` | optional, default `CampusCart` |
+   | `SITE_URL` | `https://campuscart-foundation.vercel.app` (links in e-mails) |
+   | `CRON_SECRET` | random string, 16+ characters (Vercel Cron sends it automatically) |
+   | `SUPABASE_SERVICE_ROLE_KEY` | Supabase service-role key (server only — never `VITE_`) |
+   | `ADMIN_EMAILS` | comma-separated admin e-mails (see below) |
+
+4. Redeploy. Until the Gmail variables exist, e-mails simply stay queued
+   (nothing is lost; queued mails older than 3 days are not sent).
+
+`vercel.json` schedules the retry sweep (`/api/cron/order-emails`) once a day,
+which works on the Hobby plan; on Pro you can change it to e.g. `*/5 * * * *`.
+Gmail's free sending limit is about 500 messages/day — plenty for a campus.
+
+## Admin access
+
+The console is at `/admin` (the old `/ccadmingo` link redirects there) and is
+**no longer public**. Every admin server function checks the `admin` role.
+To create the first admin, put your e-mail in `ADMIN_EMAILS`, sign up/log in
+with that (confirmed) e-mail and open `/admin` — the role is granted
+automatically. Alternatively run in the Supabase SQL editor:
+
+```sql
+insert into public.user_roles (user_id, role)
+select id, 'admin' from auth.users where email = '<your e-mail>';
+```
+
+## Database migrations
+
+Schema changes are in `supabase/migrations` (older) and `drizzle/migrations`
+(newer, applied in `_journal.json` order). `0004_production_hardening_and_order_emails.sql`
+must be applied to the Supabase project that production uses (Lovable applies
+it when it syncs; otherwise paste it into the Supabase SQL editor). It adds:
+
+- listings can only be created in the seller's own store; store/seller
+  moderation fields (status, approval, name, category, university) are admin-only,
+  and approved stores can now save description/contact edits;
+- forward-only order status, `cancel_my_order` for buyers, no ordering from your own store;
+- forged chat conversations and notification edits blocked;
+- `email_outbox`, seller e-mail preferences, and the new-order e-mail trigger.
 
 ## Development
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+bun install    # or: npm install
+bun run dev
+bun run build
+npx vitest run
+npx tsc --noEmit
 ```
+
+Client env (`.env`, public by design): `VITE_SUPABASE_URL`,
+`VITE_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`.
+Server secrets (service role, Gmail, cron) must only be set in the hosting
+provider, never committed.
+
+> This repository is connected to Lovable: don't force-push or rewrite pushed history.

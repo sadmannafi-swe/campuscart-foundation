@@ -23,6 +23,15 @@ export const orderStatusMeta: Record<OrderStatus, { label: string; className: st
   cancelled: { label: "Cancelled", className: "bg-destructive/10 text-destructive" },
 };
 
+/** Mirrors update_order_status(): forward-only, delivered/cancelled are final. */
+export function allowedOrderStatuses(current: OrderStatus): OrderStatus[] {
+  if (current === "delivered" || current === "cancelled") return [current];
+  const rank = orderStatuses.indexOf(current);
+  return orderStatuses.filter((s) => s === "cancelled" || orderStatuses.indexOf(s) >= rank);
+}
+
+export const isFinalOrderStatus = (s: OrderStatus) => s === "delivered" || s === "cancelled";
+
 export const shortOrderId = (id: string) => `#${id.slice(0, 8).toUpperCase()}`;
 
 export function useBuyerOrders(userId: string | undefined) {

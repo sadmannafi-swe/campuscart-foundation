@@ -15,6 +15,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import {
+  allowedOrderStatuses,
+  isFinalOrderStatus,
   orderStatuses,
   orderStatusMeta,
   shortOrderId,
@@ -100,14 +102,19 @@ function SellerOrders() {
                   </div>
                   <Select
                     value={order.status}
-                    onValueChange={(v) => update.mutate({ id: order.id, status: v as OrderStatus })}
-                    disabled={update.isPending}
+                    onValueChange={(v) => {
+                      const next = v as OrderStatus;
+                      if (next === order.status) return;
+                      if (next === "cancelled" && !window.confirm("Cancel this order? This cannot be undone.")) return;
+                      update.mutate({ id: order.id, status: next });
+                    }}
+                    disabled={update.isPending || isFinalOrderStatus(order.status)}
                   >
                     <SelectTrigger className={cn("h-8 w-36 text-xs font-semibold", orderStatusMeta[order.status].className)}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {orderStatuses.map((s) => (
+                      {allowedOrderStatuses(order.status).map((s) => (
                         <SelectItem key={s} value={s}>{orderStatusMeta[s].label}</SelectItem>
                       ))}
                     </SelectContent>

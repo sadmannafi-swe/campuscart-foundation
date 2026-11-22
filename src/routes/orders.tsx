@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Package } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
 import { ItemThumb } from "@/components/commerce/ItemThumb";
@@ -32,6 +35,18 @@ function OrdersPage() {
   const { user, loading } = useAuth();
   const { data: orders = [], isLoading } = useBuyerOrders(user?.id);
   const { data: reviews, isError: reviewsFailed } = useBuyerReviews(user?.id);
+  const queryClient = useQueryClient();
+  const cancel = useMutation({
+    mutationFn: async (orderId: string) => {
+      const { error } = await supabase.rpc("cancel_my_order", { _order_id: orderId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Order cancelled");
+      void queryClient.invalidateQueries({ queryKey: ["buyer-orders"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not cancel the order."),
+  });
 
   return (
     <SiteLayout>
@@ -95,6 +110,20 @@ function OrdersPage() {
                     <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatPrice(Number(order.subtotal))}</span></div>
                     <div className="flex justify-between text-sm font-bold"><span>Total</span><span>{formatPrice(Number(order.subtotal))}</span></div>
                   </div>
+                  {order.status === "pending" && (
+                    <div className="mt-3 flex justify-end">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={cancel.isPending}
+                        onClick={() => {
+                          if (window.confirm("Cancel this order?")) cancel.mutate(order.id);
+                        }}
+                      >
+                        Cancel order
+                      </Button>
+                    </div>
+                  )}
                 </li>
               );
             })}

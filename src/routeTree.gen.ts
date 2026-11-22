@@ -36,6 +36,7 @@ import { Route as SellRegisterRouteImport } from './routes/sell.register'
 import { Route as SellStatusRouteImport } from './routes/sell.status'
 import { Route as StoresIndexRouteImport } from './routes/stores.index'
 import { Route as StoresStoreSlugRouteImport } from './routes/stores.$storeSlug'
+import { Route as ApiCronOrderEmailsRouteImport } from './routes/api/cron/order-emails'
 import { Route as SellDashboardIndexRouteImport } from './routes/sell.dashboard.index'
 import { Route as SellDashboardEarningsRouteImport } from './routes/sell.dashboard.earnings'
 import { Route as SellDashboardHelpRouteImport } from './routes/sell.dashboard.help'
@@ -185,6 +186,11 @@ const StoresStoreSlugRoute = StoresStoreSlugRouteImport.update({
   path: '/stores/$storeSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCronOrderEmailsRoute = ApiCronOrderEmailsRouteImport.update({
+  id: '/api/cron/order-emails',
+  path: '/api/cron/order-emails',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SellDashboardIndexRoute = SellDashboardIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -284,6 +290,7 @@ export interface FileRoutesByFullPath {
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
+  '/api/cron/order-emails': typeof ApiCronOrderEmailsRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
@@ -325,6 +332,7 @@ export interface FileRoutesByTo {
   '/products': typeof ProductsIndexRoute
   '/sell': typeof SellIndexRoute
   '/stores': typeof StoresIndexRoute
+  '/api/cron/order-emails': typeof ApiCronOrderEmailsRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
@@ -368,6 +376,7 @@ export interface FileRoutesById {
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
+  '/api/cron/order-emails': typeof ApiCronOrderEmailsRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
@@ -412,6 +421,7 @@ export interface FileRouteTypes {
     | '/products/'
     | '/sell/'
     | '/stores/'
+    | '/api/cron/order-emails'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
     | '/sell/dashboard/messages'
@@ -453,6 +463,7 @@ export interface FileRouteTypes {
     | '/products'
     | '/sell'
     | '/stores'
+    | '/api/cron/order-emails'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
     | '/sell/dashboard/messages'
@@ -495,6 +506,7 @@ export interface FileRouteTypes {
     | '/products/'
     | '/sell/'
     | '/stores/'
+    | '/api/cron/order-emails'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
     | '/sell/dashboard/messages'
@@ -538,6 +550,7 @@ export interface RootRouteChildren {
   ProductsIndexRoute: typeof ProductsIndexRoute
   SellIndexRoute: typeof SellIndexRoute
   StoresIndexRoute: typeof StoresIndexRoute
+  ApiCronOrderEmailsRoute: typeof ApiCronOrderEmailsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -731,6 +744,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoresStoreSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/cron/order-emails': {
+      id: '/api/cron/order-emails'
+      path: '/api/cron/order-emails'
+      fullPath: '/api/cron/order-emails'
+      preLoaderRoute: typeof ApiCronOrderEmailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sell/dashboard/': {
       id: '/sell/dashboard/'
       path: '/'
@@ -890,6 +910,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsIndexRoute: ProductsIndexRoute,
   SellIndexRoute: SellIndexRoute,
   StoresIndexRoute: StoresIndexRoute,
+  ApiCronOrderEmailsRoute: ApiCronOrderEmailsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

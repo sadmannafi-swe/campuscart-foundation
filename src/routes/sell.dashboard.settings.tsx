@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Eye, EyeOff } from "lucide-react";
 import { SellerShell } from "@/components/seller/SellerShell";
+import { OrderEmailSettings } from "@/components/seller/OrderEmailSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { useSellerAccount, useUniversities } from "@/lib/seller";
 
@@ -59,6 +60,7 @@ function SellerSettings() {
         Your Student ID is never shown on your public store, products or reviews. Only you and
         CampusCart admin can see it.
       </p>
+      {seller && <OrderEmailSettings seller={seller} />}
     </SellerShell>
   );
 }
