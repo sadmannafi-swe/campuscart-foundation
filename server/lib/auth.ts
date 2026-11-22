@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { admin } from "better-auth/plugins";
@@ -16,11 +17,20 @@ export function trustedOrigins(): string[] {
   return [...new Set(list)];
 }
 
+/**
+ * BETTER_AUTH_SECRET if set; otherwise derived from the (private) MongoDB URI so a
+ * deployment works with just MONGODB_URI. Changing either signs everyone out.
+ */
+function authSecret(): string {
+  const explicit = process.env["BETTER_AUTH_SECRET"]?.trim();
+  if (explicit) return explicit;
+  const uri = process.env["MONGODB_URI"];
+  if (uri) return createHash("sha256").update(`campuscart-auth:${uri}`).digest("base64url");
+  return "dev-only-secret-change-me-dev-only-secret";
+}
+
 function createAuth() {
-  const secret = process.env["BETTER_AUTH_SECRET"];
-  if (!secret && process.env["NODE_ENV"] === "production") {
-    throw new Error("BETTER_AUTH_SECRET is not set");
-  }
+  const secret = authSecret();
   // Only demand e-mail verification when we can actually send the e-mail.
   const verify = process.env["REQUIRE_EMAIL_VERIFICATION"] === "true" && isMailConfigured();
 
@@ -28,7 +38,7 @@ function createAuth() {
     appName: "CampusCart",
     baseURL: siteUrl(),
     basePath: "/api/auth",
-    secret: secret ?? "dev-only-secret-change-me-dev-only-secret",
+    secret,
     trustedOrigins: trustedOrigins(),
     database: mongodbAdapter(getDb(), { client: getClient() }),
     emailAndPassword: {

@@ -73,13 +73,13 @@ the **API environment variable** (`cloudinary://KEY:SECRET@CLOUD`) → `CLOUDINA
 | --- | --- |
 | `MONGODB_URI` | Atlas connection string |
 | `MONGODB_DB` | `campuscart` (optional) |
-| `BETTER_AUTH_SECRET` | random 32+ chars (`openssl rand -base64 32`) |
-| `SITE_URL` | `https://campuscart-foundation.vercel.app` |
+| `BETTER_AUTH_SECRET` | optional — random 32+ chars; if unset it is derived from `MONGODB_URI` |
+| `SITE_URL` | `https://campuscart-foundation.vercel.app` (already set) |
 | `CLOUDINARY_URL` | from step 2 |
 | `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN` | from step 3 |
 | `GMAIL_SENDER` | the Gmail address that authorised the token |
 | `ADMIN_EMAILS` | your e-mail (comma-separated for several admins) |
-| `CRON_SECRET` | random 16+ chars (Vercel Cron sends it automatically) |
+| `CRON_SECRET` | optional — random 16+ chars; enables the daily e-mail retry job |
 | `REQUIRE_EMAIL_VERIFICATION` | `true` to require confirmed e-mails (needs Gmail) |
 
 Also remove any old Supabase integration from the Vercel project (*Settings →
