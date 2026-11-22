@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Heart, LogOut, MessageCircle, Package, ShieldCheck, ShoppingCart, User } from "lucide-react";
+import { Bell, Heart, LogOut, MessageCircle, Package, ShieldCheck, ShoppingCart, User } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
@@ -26,6 +26,7 @@ export const Route = createFileRoute("/account")({
 
 const quickLinks = [
   { label: "Orders", to: "/orders" as const, icon: Package },
+  { label: "Notifications", to: "/notifications" as const, icon: Bell },
   { label: "Wishlist", to: "/wishlist" as const, icon: Heart },
   { label: "Cart", to: "/cart" as const, icon: ShoppingCart },
 ];

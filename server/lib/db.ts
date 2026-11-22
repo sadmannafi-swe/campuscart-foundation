@@ -144,6 +144,8 @@ export interface ReviewDoc {
 export interface NotificationDoc {
   _id: string;
   user_id: string;
+  /** Which side of the marketplace the alert is for (one user can be both). */
+  audience: "buyer" | "seller";
   kind: string;
   title: string;
   body: string;
@@ -219,7 +221,7 @@ export function ensureIndexes(): Promise<void> {
       col.orders().createIndex({ seller_user_id: 1, created_at: -1 }),
       col.reviews().createIndex({ order_id: 1, product_id: 1 }, { unique: true }),
       col.reviews().createIndex({ product_id: 1, created_at: -1 }),
-      col.notifications().createIndex({ user_id: 1, created_at: -1 }),
+      col.notifications().createIndex({ user_id: 1, audience: 1, created_at: -1 }),
       col.conversations().createIndex({ buyer_id: 1, product_id: 1 }, { unique: true }),
       col.conversations().createIndex({ seller_user_id: 1, last_message_at: -1 }),
       col.messages().createIndex({ conversation_id: 1, created_at: 1 }),

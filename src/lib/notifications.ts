@@ -4,12 +4,15 @@ import { api, apiPost } from "@/lib/api";
 
 export type AppNotification = AppNotificationT;
 
-export function useNotifications(userId: string | undefined) {
+export type NotificationAudience = "buyer" | "seller";
+
+/** Notifications for one side of the marketplace (a user can be buyer and seller). */
+export function useNotifications(userId: string | undefined, audience: NotificationAudience) {
   return useQuery({
-    queryKey: ["notifications", userId],
+    queryKey: ["notifications", audience, userId],
     enabled: !!userId,
     refetchInterval: 15000,
-    queryFn: () => api<AppNotification[]>("/notifications"),
+    queryFn: () => api<AppNotification[]>(`/notifications?audience=${audience}`),
   });
 }
 

@@ -20,6 +20,7 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DiuRouteImport } from './routes/diu'
 import { Route as NewArrivalsRouteImport } from './routes/new-arrivals'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OffersRouteImport } from './routes/offers'
 import { Route as OrderConfirmationRouteImport } from './routes/order-confirmation'
 import { Route as OrdersRouteImport } from './routes/orders'
@@ -103,6 +104,11 @@ const DiuRoute = DiuRouteImport.update({
 const NewArrivalsRoute = NewArrivalsRouteImport.update({
   id: '/new-arrivals',
   path: '/new-arrivals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OffersRoute = OffersRouteImport.update({
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
+  '/notifications': typeof NotificationsRoute
   '/offers': typeof OffersRoute
   '/order-confirmation': typeof OrderConfirmationRoute
   '/orders': typeof OrdersRoute
@@ -310,6 +317,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
+  '/notifications': typeof NotificationsRoute
   '/offers': typeof OffersRoute
   '/order-confirmation': typeof OrderConfirmationRoute
   '/orders': typeof OrdersRoute
@@ -352,6 +360,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
+  '/notifications': typeof NotificationsRoute
   '/offers': typeof OffersRoute
   '/order-confirmation': typeof OrderConfirmationRoute
   '/orders': typeof OrdersRoute
@@ -396,6 +405,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/diu'
     | '/new-arrivals'
+    | '/notifications'
     | '/offers'
     | '/order-confirmation'
     | '/orders'
@@ -438,6 +448,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/diu'
     | '/new-arrivals'
+    | '/notifications'
     | '/offers'
     | '/order-confirmation'
     | '/orders'
@@ -479,6 +490,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/diu'
     | '/new-arrivals'
+    | '/notifications'
     | '/offers'
     | '/order-confirmation'
     | '/orders'
@@ -522,6 +534,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   DiuRoute: typeof DiuRoute
   NewArrivalsRoute: typeof NewArrivalsRoute
+  NotificationsRoute: typeof NotificationsRoute
   OffersRoute: typeof OffersRoute
   OrderConfirmationRoute: typeof OrderConfirmationRoute
   OrdersRoute: typeof OrdersRoute
@@ -617,6 +630,13 @@ declare module '@tanstack/react-router' {
       path: '/new-arrivals'
       fullPath: '/new-arrivals'
       preLoaderRoute: typeof NewArrivalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/offers': {
@@ -874,6 +894,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   DiuRoute: DiuRoute,
   NewArrivalsRoute: NewArrivalsRoute,
+  NotificationsRoute: NotificationsRoute,
   OffersRoute: OffersRoute,
   OrderConfirmationRoute: OrderConfirmationRoute,
   OrdersRoute: OrdersRoute,

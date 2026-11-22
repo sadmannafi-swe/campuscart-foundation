@@ -1,7 +1,7 @@
 import { useCart } from "@/lib/cart";
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Heart, Menu, MessageCircle, Search, ShoppingCart, User } from "lucide-react";
+import { Bell, Heart, Menu, MessageCircle, Search, ShoppingCart, User } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { CategoryIcon } from "@/components/common/CategoryIcon";
@@ -16,6 +16,7 @@ import {
 import { categories } from "@/data/marketplace";
 import { useAuth } from "@/lib/auth";
 import { useUnreadChatCounts } from "@/lib/chat";
+import { useNotifications } from "@/lib/notifications";
 
 const primaryLinks = [
   { label: "Stores", to: "/stores" as const },
@@ -31,6 +32,8 @@ export function Header() {
   const { count: cartCount } = useCart();
   const { data: unreadCounts } = useUnreadChatCounts(user?.id);
   const unreadTotal = unreadCounts ? Object.values(unreadCounts).reduce((sum, n) => sum + n, 0) : 0;
+  const { data: buyerNotes = [] } = useNotifications(user?.id, "buyer");
+  const unreadNotes = buyerNotes.filter((n) => !n.read_at).length;
   const navigate = useNavigate();
 
   return (
@@ -87,6 +90,19 @@ export function Header() {
                 )}
               </Link>
             </Button>
+
+            {user && (
+              <Button variant="ghost" size="icon" asChild className="relative">
+                <Link to="/notifications" aria-label="Notifications">
+                  <Bell />
+                  {unreadNotes > 0 && (
+                    <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                      {unreadNotes > 9 ? "9+" : unreadNotes}
+                    </span>
+                  )}
+                </Link>
+              </Button>
+            )}
 
             <Button
               variant="ghost"

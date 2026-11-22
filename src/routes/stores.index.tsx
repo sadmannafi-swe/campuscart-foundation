@@ -7,7 +7,8 @@ import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
 import { StoreCard } from "@/components/commerce/StoreCard";
 import { EmptyState } from "@/components/common/StateBlocks";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { categories, stores } from "@/data/marketplace";
+import { categories } from "@/data/marketplace";
+import { useLiveStores } from "@/lib/liveCatalog";
 
 export const Route = createFileRoute("/stores/")({
   head: () => ({
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/stores/")({
 function StoresPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
+  const { stores, isLoading } = useLiveStores("diu");
 
   const filtered = useMemo(
     () =>
@@ -35,7 +37,7 @@ function StoresPage() {
           (category === "all" || store.categorySlug === category) &&
           store.name.toLowerCase().includes(query.trim().toLowerCase()),
       ),
-    [query, category],
+    [query, category, stores],
   );
 
   return (
@@ -82,10 +84,14 @@ function StoresPage() {
         </div>
 
         <div className="mt-8">
-          {filtered.length === 0 ? (
+          {filtered.length === 0 && !isLoading ? (
             <EmptyState
               title="No stores found"
-              description="Try a different name or category filter."
+              description={
+                stores.length === 0
+                  ? "Verified campus stores will appear here once they're approved."
+                  : "Try a different name or category filter."
+              }
             />
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">

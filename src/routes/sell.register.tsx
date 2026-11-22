@@ -231,6 +231,9 @@ function AccountStep({
   onDone: () => Promise<void>;
   onBack: () => void;
 }) {
+  const { user: accountUser } = useAuth();
+  // Signed-in users register with their verified account e-mail (locked).
+  const accountEmail = existingUserId ? (accountUser?.email ?? "") : null;
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -333,12 +336,21 @@ function AccountStep({
           <Input
             id="s-email"
             type="email"
-            value={email}
+            value={accountEmail ?? email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
             autoComplete="email"
+            readOnly={accountEmail !== null}
+            aria-readonly={accountEmail !== null}
+            className={cn(accountEmail !== null && "cursor-not-allowed bg-muted text-muted-foreground")}
             required
           />
+          <p className="mt-1 text-[11px] text-muted-foreground">
+            {accountEmail !== null
+              ? "Your account e-mail can't be changed here. "
+              : "This becomes your login e-mail. "}
+            To get order e-mails at another address, use Settings → New order e-mails after setup.
+          </p>
         </Field>
 
         <Field id="s-phone" label="Phone Number" icon={Phone}>

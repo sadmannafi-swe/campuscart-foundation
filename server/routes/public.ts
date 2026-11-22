@@ -1,5 +1,11 @@
 import { Router } from "express";
-import type { PublicProduct, PublicReview, PublicStore } from "../../shared/types";
+import type {
+  PublicProduct,
+  PublicReview,
+  PublicStore,
+  PublicStoreSummary,
+} from "../../shared/types";
+import { universityBySlug } from "../../shared/universities";
 import { col, toApi, type StoreDoc } from "../lib/db";
 import { notFound } from "../lib/http";
 
@@ -47,6 +53,53 @@ publicRouter.get("/products", async (_req, res) => {
     review_count: ratingBy.get(p._id)?.count ?? 0,
   }));
   res.set("cache-control", "public, max-age=15").json(out);
+});
+
+/** Approved stores (optionally one university), with active-listing counts and ratings. */
+publicRouter.get("/stores", async (req, res) => {
+  const university = typeof req.query["university"] === "string" ? req.query["university"] : "";
+  const filter: Record<string, unknown> = { status: "approved" };
+  if (university) {
+    if (!universityBySlug(university)) return res.json([]);
+    filter["university_slug"] = university;
+  }
+  const stores = await col.stores().find(filter).sort({ approved_at: -1 }).limit(500).toArray();
+  const ids = stores.map((s) => s._id);
+  const counts = await col
+    .products()
+    .aggregate<{ _id: string; n: number; ids: string[] }>([
+      { $match: { store_id: { $in: ids }, is_active: true } },
+      { $group: { _id: "$store_id", n: { $sum: 1 }, ids: { $push: "$_id" } } },
+    ])
+    .toArray();
+  const productStore = new Map<string, string>();
+  for (const c of counts) for (const pid of c.ids) productStore.set(pid, c._id);
+  const ratings = await col
+    .reviews()
+    .aggregate<{ _id: string; sum: number; count: number }>([
+      { $match: { product_id: { $in: [...productStore.keys()] } } },
+      { $group: { _id: "$product_id", sum: { $sum: "$rating" }, count: { $sum: 1 } } },
+    ])
+    .toArray();
+  const byStore = new Map<string, { sum: number; count: number }>();
+  for (const r of ratings) {
+    const sid = productStore.get(r._id);
+    if (!sid) continue;
+    const agg = byStore.get(sid) ?? { sum: 0, count: 0 };
+    agg.sum += r.sum;
+    agg.count += r.count;
+    byStore.set(sid, agg);
+  }
+  const out: PublicStoreSummary[] = stores.map((s) => {
+    const r = byStore.get(s._id);
+    return {
+      ...publicStore(s),
+      product_count: counts.find((c) => c._id === s._id)?.n ?? 0,
+      rating: r && r.count ? Math.round((r.sum / r.count) * 10) / 10 : 0,
+      review_count: r?.count ?? 0,
+    };
+  });
+  return res.set("cache-control", "public, max-age=15").json(out);
 });
 
 publicRouter.get("/stores/featured", async (req, res) => {

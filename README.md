@@ -34,7 +34,7 @@ scripts/         dev runner, Vercel build output, make-admin
 
 | Area | What it does |
 | --- | --- |
-| Buyers | Browse/search/filter products and stores, cart, Buy Now, checkout (cash on delivery/pickup), order tracking, cancel while pending, wishlist, purchase-verified reviews, chat with the seller, notifications |
+| Buyers | Browse/search/filter products and stores, cart, Buy Now, checkout (cash on delivery/pickup), order tracking, cancel while pending, wishlist, purchase-verified reviews, chat with the seller, order notifications (bell + `/notifications`) |
 | Sellers | Register with university + student ID, store approval flow, products with photos, orders (forward-only status), earnings, reviews, messages, **e-mail for every new order** |
 | Admins | `/admin`: approve / reject / unpublish stores, view seller identity (incl. private student ID photo), all orders per store, feature stores/products per university |
 
@@ -46,6 +46,8 @@ uploads must be in the uploader's own Cloudinary folder, and every mutating
 request must come from the site's own origin.
 
 ## Setup (one time)
+
+Step-by-step guide with exact screens: [docs/SETUP.md](docs/SETUP.md).
 
 ### 1. MongoDB Atlas (free)
 1. Create an account at <https://www.mongodb.com/cloud/atlas>, create a free **M0** cluster.
@@ -109,6 +111,13 @@ Settings**.
 Put the logo files in `public/brand/`: `campuscart-logo.png`,
 `campuscart-main-logo.png`, `diu.png`, `nsu.png`, `brac.png`, `du.jpg`, `ewu.jpg`.
 Until then a text badge is shown in their place.
+
+## Sample catalogue (development only)
+
+Production shows only real listings. The old sample stores/products live in
+`src/data/fixtures/sampleCatalog.ts` for tests and local design work; set
+`VITE_SAMPLE_CATALOG=true` in `.env.local` to show them in `npm run dev`. They
+are compiled out of production builds.
 
 ## Development
 

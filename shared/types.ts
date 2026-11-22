@@ -105,6 +105,13 @@ export interface PublicStore {
   created_at: string;
 }
 
+/** Approved store in the public directory, with listing and rating aggregates. */
+export interface PublicStoreSummary extends PublicStore {
+  product_count: number;
+  rating: number;
+  review_count: number;
+}
+
 export interface OrderItem {
   id: string;
   order_id: string;
@@ -163,6 +170,7 @@ export interface SellerReview extends PublicReview {
 export interface AppNotification {
   id: string;
   user_id: string;
+  audience: "buyer" | "seller";
   kind: string;
   title: string;
   body: string;

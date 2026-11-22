@@ -2,7 +2,9 @@ import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Search, Store as StoreIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { categories, products, stores } from "@/data/marketplace";
+import { categories } from "@/data/marketplace";
+import { useCatalogProducts, useLiveStores } from "@/lib/liveCatalog";
+import type { Product, Store } from "@/lib/types";
 
 interface SearchBarProps {
   placeholder?: string;
@@ -39,7 +41,7 @@ interface Suggestion {
   kind: "product" | "store" | "category";
 }
 
-function buildSuggestions(query: string): Suggestion[] {
+function buildSuggestions(query: string, products: Product[], stores: Store[]): Suggestion[] {
   const q = query.trim().toLowerCase();
   if (!q) return [];
   const out: Suggestion[] = [];
@@ -90,7 +92,9 @@ export function SearchBar({
     };
   }, [open]);
 
-  const suggestions = buildSuggestions(value);
+  const { products } = useCatalogProducts();
+  const { stores } = useLiveStores(null);
+  const suggestions = buildSuggestions(value, products, stores);
 
   function runSearch(term: string) {
     const q = term.trim();

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Package } from "lucide-react";
@@ -17,6 +18,8 @@ import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/orders")({
   ssr: false,
+  validateSearch: (s: Record<string, unknown>): { order?: string } =>
+    typeof s["order"] === "string" ? { order: s["order"] } : {},
   head: () => ({
     meta: [
       { title: "Orders — DIU CampusCart" },
@@ -35,6 +38,11 @@ function OrdersPage() {
   const { user, loading } = useAuth();
   const { data: orders = [], isLoading } = useBuyerOrders(user?.id);
   const { data: reviews, isError: reviewsFailed } = useBuyerReviews(user?.id);
+  const { order: focusId } = Route.useSearch();
+  useEffect(() => {
+    if (!focusId || orders.length === 0) return;
+    document.getElementById(`order-${focusId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [focusId, orders.length]);
   const queryClient = useQueryClient();
   const cancel = useMutation({
     mutationFn: async (orderId: string) => {
@@ -77,7 +85,11 @@ function OrdersPage() {
             {orders.map((order) => {
               const meta = orderStatusMeta[order.status];
               return (
-                <li key={order.id} className="card-surface p-4">
+                <li
+                  key={order.id}
+                  id={`order-${order.id}`}
+                  className={cn("card-surface p-4", focusId === order.id && "ring-2 ring-primary")}
+                >
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <p className="text-sm font-bold">{shortOrderId(order.id)}</p>

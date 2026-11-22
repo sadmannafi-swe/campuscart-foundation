@@ -66,6 +66,7 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
       batch: "Batch 60",
       student_id: "221-15-0001",
       student_id_image: `campuscart/student-id/${userId}/card`,
+      email: "spoofed@evil.example", // ignored: the account e-mail is always used
     });
     expect(r.status, JSON.stringify(r.body)).toBe(201);
     r = await post(a, "/api/seller/store", {
@@ -162,6 +163,11 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
       ).toBe(200);
     }
     expect((await request(app).get(`/api/stores/${storeA}`)).body.name).toBe("Store A");
+    const dir = (await request(app).get("/api/stores?university=diu")).body;
+    expect(dir.map((d: { name: string }) => d.name).sort()).toEqual(["Store A", "Store B"]);
+    expect(dir[0]).not.toHaveProperty("user_id");
+    expect(dir[0]).not.toHaveProperty("seller_id");
+    expect((await request(app).get("/api/stores?university=nsu")).body).toEqual([]);
   });
 
   it("lets sellers manage only their own listings", async () => {
@@ -327,7 +333,13 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     expect((await set(sellerA, orderA, "delivered")).status).toBe(200);
     expect((await set(sellerA, orderA, "cancelled")).status).toBe(409);
     expect((await post(buyer, `/api/orders/${orderB}/cancel`)).status).toBe(200);
-    const notes = (await buyer.get("/api/notifications")).body.map((n: { body: string }) => n.body);
+    const buyerNotes = (await buyer.get("/api/notifications?audience=buyer")).body;
+    expect(buyerNotes.every((n: { audience: string }) => n.audience === "buyer")).toBe(true);
+    expect((await buyer.get("/api/notifications?audience=seller")).body).toHaveLength(0);
+    const sellerOnly = (await sellerA.get("/api/notifications?audience=seller")).body;
+    expect(sellerOnly.map((n: { title: string }) => n.title)).toContain("New order received");
+    expect((await sellerA.get("/api/notifications?audience=buyer")).body).toHaveLength(0);
+    const notes = buyerNotes.map((n: { body: string }) => n.body);
     expect(notes.some((b: string) => b.endsWith("is now delivered"))).toBe(true);
     const sellerNotes = (await sellerB.get("/api/notifications")).body.map(
       (n: { title: string }) => n.title,
@@ -372,6 +384,10 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
       (p: { id: string }) => p.id === productA,
     );
     expect(listed).toMatchObject({ rating: 4, review_count: 1 });
+    const dirA = (await request(app).get("/api/stores")).body.find(
+      (d: { id: string }) => d.id === storeA,
+    );
+    expect(dirA).toMatchObject({ product_count: 1, rating: 4, review_count: 1 });
     expect((await sellerA.get("/api/seller/reviews")).body[0].product_name).toBe("Calculator");
   });
 

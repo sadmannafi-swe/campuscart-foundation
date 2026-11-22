@@ -69,7 +69,7 @@ export function SellerShell({ children, title }: { children: ReactNode; title: s
   const { store } = useSellerAccount();
   const [menuOpen, setMenuOpen] = useState(false);
   const { user } = useAuth();
-  const { data: notes = [] } = useNotifications(user?.id);
+  const { data: notes = [] } = useNotifications(user?.id, "seller");
   const unread = notes.filter((n) => !n.read_at).length;
   const navigate = useNavigate();
   const queryClient = useQueryClient();

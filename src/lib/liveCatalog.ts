@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import type { PublicProduct, PublicStore } from "@shared/types";
+import type { PublicProduct, PublicStore, PublicStoreSummary } from "@shared/types";
 import { api } from "@/lib/api";
 import { thumbUrl } from "@/lib/uploads";
-import type { Product } from "@/lib/types";
-import { products as staticProducts } from "@/data/marketplace";
+import type { Product, Store } from "@/lib/types";
+import { categories, products as sampleProducts, stores as sampleStores } from "@/data/marketplace";
 
 const slugify = (value: string) =>
   value
@@ -60,10 +60,64 @@ export function useLiveProducts() {
   });
 }
 
-/** Live seller listings first, then the seeded catalogue. */
+/** Live seller listings (plus the dev-only sample catalogue when enabled). */
 export function useCatalogProducts() {
   const { data, isLoading } = useLiveProducts();
-  return { products: [...(data ?? []), ...staticProducts], isLoading };
+  return { products: [...(data ?? []), ...sampleProducts], isLoading };
+}
+
+const categoryByName = (name: string) =>
+  categories.find((c) => c.name.toLowerCase() === name.trim().toLowerCase());
+
+/** Map an approved store from the API to the card shape the UI already uses. */
+export function liveStoreToStore(s: PublicStoreSummary): Store {
+  const category = categoryByName(s.category);
+  return {
+    id: s.id,
+    slug: s.id,
+    name: s.name,
+    categorySlug: category?.slug ?? s.category,
+    categoryName: category?.name ?? s.category,
+    description: s.description,
+    rating: s.rating,
+    reviewCount: s.review_count,
+    productCount: s.product_count,
+    status: "open",
+    location: "On campus",
+    responseTime: "Usually within a day",
+    joinedAt: new Date(s.approved_at ?? s.created_at).toLocaleDateString("en-GB", {
+      month: "short",
+      year: "numeric",
+    }),
+    verified: true,
+    featured: Boolean(s.featured_university_slug),
+    accentFrom: "from-primary-soft",
+    accentTo: "to-accent-soft",
+    initials: s.name.slice(0, 2).toUpperCase(),
+  };
+}
+
+/** Approved stores of one university (null = all), plus dev-only samples when enabled. */
+export function useLiveStores(universitySlug: string | null = "diu") {
+  const query = useQuery({
+    queryKey: ["live-stores", universitySlug],
+    staleTime: 30 * 1000,
+    queryFn: async () =>
+      (
+        await api<PublicStoreSummary[]>(
+          universitySlug ? `/stores?university=${encodeURIComponent(universitySlug)}` : "/stores",
+        )
+      ).map(liveStoreToStore),
+  });
+  return { ...query, stores: [...(query.data ?? []), ...sampleStores] };
+}
+
+/** Number of live listings per category slug. */
+export function useCategoryCounts(): Record<string, number> {
+  const { products } = useCatalogProducts();
+  const counts: Record<string, number> = {};
+  for (const p of products) counts[p.categorySlug] = (counts[p.categorySlug] ?? 0) + 1;
+  return counts;
 }
 
 export interface FeaturedLiveStore {

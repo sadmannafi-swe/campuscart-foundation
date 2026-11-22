@@ -14,11 +14,19 @@ export async function sendMail(to: string, email: RenderedEmail): Promise<boolea
   return true;
 }
 
-/** Public base URL for links in e-mails and auth callbacks. */
+/**
+ * Public base URL for links in e-mails and auth callbacks.
+ * Vercel previews use their own URL, so previews never send production links.
+ */
 export function siteUrl(fallback?: string): string {
-  const configured = process.env["SITE_URL"]?.trim().replace(/\/+$/, "");
+  const env = process.env;
+  if (env["VERCEL_ENV"] === "preview") {
+    const host = env["VERCEL_BRANCH_URL"] || env["VERCEL_URL"];
+    if (host) return `https://${host}`;
+  }
+  const configured = env["SITE_URL"]?.trim().replace(/\/+$/, "");
   if (configured) return configured;
-  if (process.env["VERCEL_PROJECT_PRODUCTION_URL"])
-    return `https://${process.env["VERCEL_PROJECT_PRODUCTION_URL"]}`;
+  if (env["VERCEL_PROJECT_PRODUCTION_URL"])
+    return `https://${env["VERCEL_PROJECT_PRODUCTION_URL"]}`;
   return fallback ?? "http://localhost:5173";
 }

@@ -12,7 +12,7 @@ export const Route = createFileRoute("/sell/dashboard/notifications")({
 function SellerNotifications() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { data: notes = [], isLoading } = useNotifications(user?.id);
+  const { data: notes = [], isLoading } = useNotifications(user?.id, "seller");
   const markRead = useMarkNotificationsRead();
   const unreadIds = notes.filter((n) => !n.read_at).map((n) => n.id);
 

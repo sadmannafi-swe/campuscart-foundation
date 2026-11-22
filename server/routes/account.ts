@@ -69,12 +69,10 @@ accountRouter.post("/uploads/sign", (req, res) => {
 });
 
 accountRouter.get("/notifications", async (req, res) => {
-  const list = await col
-    .notifications()
-    .find({ user_id: me(req).id })
-    .sort({ created_at: -1 })
-    .limit(100)
-    .toArray();
+  const audience = req.query["audience"];
+  const filter: Record<string, unknown> = { user_id: me(req).id };
+  if (audience === "buyer" || audience === "seller") filter["audience"] = audience;
+  const list = await col.notifications().find(filter).sort({ created_at: -1 }).limit(100).toArray();
   res.json(list.map((n) => toApi(n)));
 });
 
