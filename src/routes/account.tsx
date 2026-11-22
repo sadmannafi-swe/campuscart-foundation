@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/auth";
 import { useUnreadChatCounts } from "@/lib/chat";
 import { cn } from "@/lib/utils";
+import { useImageFallback } from "@/lib/useImageFallback";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
@@ -37,6 +38,7 @@ function AccountPage() {
   const studentId = profile?.student_id ?? null;
   const [showStudentId, setShowStudentId] = useState(false);
   const avatarUrl = profile?.avatar_path ?? null;
+  const avatarImg = useImageFallback(avatarUrl);
   const { data: unreadCounts } = useUnreadChatCounts(user?.id);
   const unreadTotal = unreadCounts ? Object.values(unreadCounts).reduce((sum, n) => sum + n, 0) : 0;
 
@@ -99,8 +101,9 @@ function AccountPage() {
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
           <div className="card-surface p-4 sm:p-6 lg:col-span-2">
             <div className="flex items-center gap-4">
-              {avatarUrl ? (
+              {avatarImg.showImage && avatarUrl ? (
                 <img
+                  onError={avatarImg.onError}
                   src={avatarUrl}
                   alt={profile?.full_name || "Profile picture"}
                   className="size-16 rounded-full object-cover"

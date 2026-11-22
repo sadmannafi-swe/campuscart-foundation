@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { PublicProduct, PublicStore, PublicStoreSummary } from "@shared/types";
 import { api } from "@/lib/api";
 import { thumbUrl } from "@/lib/uploads";
+import { useMarketplace } from "@/lib/marketplace";
 import type { Product, Store } from "@/lib/types";
 import { categories, products as sampleProducts, stores as sampleStores } from "@/data/marketplace";
 
@@ -17,45 +18,59 @@ export const liveProductSlug = (name: string, id: string) =>
 const NEW_WINDOW_DAYS = 30;
 
 /** Live listings published by approved campus stores, mapped to the buyer Product shape. */
-async function fetchLiveProducts(): Promise<Product[]> {
-  const rows = await api<PublicProduct[]>("/products");
-  const now = Date.now();
-  return rows.map((row) => {
-    const image = row.images[0];
-    const isNew = now - new Date(row.created_at).getTime() < NEW_WINDOW_DAYS * 86_400_000;
-    return {
-      id: row.id,
-      slug: liveProductSlug(row.name, row.id),
-      name: row.name,
-      categorySlug: row.category,
-      storeId: row.store_id,
-      storeName: row.store_name,
-      image: thumbUrl(image, 800) ?? undefined,
-      imagePath: image,
-      sellerId: row.seller_id,
-      universitySlug: row.university_slug,
-      featuredIn: row.featured_university_slug ?? undefined,
-      live: true,
-      price: Number(row.price),
-      originalPrice: undefined,
-      rating: row.rating,
-      reviewCount: row.review_count,
-      inStock: row.in_stock,
-      condition: (row.condition as Product["condition"]) ?? "new",
-      description: row.description,
-      highlights: ["Listed by a verified campus seller", "Meet-up on campus"],
-      variants: undefined,
-      tags: isNew ? (["new"] as Product["tags"]) : ([] as Product["tags"]),
-      accentFrom: "from-primary-soft",
-      accentTo: "to-accent-soft",
-    } satisfies Product;
-  });
+/** Map an API listing to the buyer Product shape (pure; unit-tested). */
+export function liveProductFromApi(row: PublicProduct, now = Date.now()): Product {
+  const image = row.images[0];
+  const isNew = now - new Date(row.created_at).getTime() < NEW_WINDOW_DAYS * 86_400_000;
+  return {
+    id: row.id,
+    slug: liveProductSlug(row.name, row.id),
+    name: row.name,
+    categorySlug: row.category,
+    storeId: row.store_id,
+    storeName: row.store_name,
+    image: thumbUrl(image, 800) ?? undefined,
+    imagePath: image,
+    sellerId: row.seller_id,
+    universitySlug: row.university_slug,
+    featuredIn: row.featured_university_slug ?? undefined,
+    live: true,
+    price: Number(row.price),
+    // Only a valid "was" price (greater than the selling price) marks an offer.
+    originalPrice:
+      row.original_price != null && row.original_price > Number(row.price)
+        ? Number(row.original_price)
+        : undefined,
+    rating: row.rating,
+    reviewCount: row.review_count,
+    inStock: row.in_stock,
+    condition: (row.condition as Product["condition"]) ?? "new",
+    description: row.description,
+    highlights: ["Listed by a verified campus seller", "Meet-up on campus"],
+    variants: undefined,
+    tags: [
+      ...(isNew ? (["new"] as const) : []),
+      ...(row.original_price != null && row.original_price > Number(row.price)
+        ? (["offer"] as const)
+        : []),
+    ],
+    accentFrom: "from-primary-soft",
+    accentTo: "to-accent-soft",
+  } satisfies Product;
 }
 
+async function fetchLiveProducts(university: string): Promise<Product[]> {
+  const rows = await api<PublicProduct[]>(`/products?university=${encodeURIComponent(university)}`);
+  const now = Date.now();
+  return rows.map((row) => liveProductFromApi(row, now));
+}
+
+/** Live listings of the current university marketplace (server-filtered). */
 export function useLiveProducts() {
+  const university = useMarketplace();
   return useQuery({
-    queryKey: ["live-products"],
-    queryFn: fetchLiveProducts,
+    queryKey: ["live-products", university],
+    queryFn: () => fetchLiveProducts(university),
     staleTime: 30 * 1000,
   });
 }
@@ -97,16 +112,15 @@ export function liveStoreToStore(s: PublicStoreSummary): Store {
   };
 }
 
-/** Approved stores of one university (null = all), plus dev-only samples when enabled. */
-export function useLiveStores(universitySlug: string | null = "diu") {
+/** Approved stores of the current marketplace, plus dev-only samples when enabled. */
+export function useLiveStores() {
+  const universitySlug = useMarketplace();
   const query = useQuery({
     queryKey: ["live-stores", universitySlug],
     staleTime: 30 * 1000,
     queryFn: async () =>
       (
-        await api<PublicStoreSummary[]>(
-          universitySlug ? `/stores?university=${encodeURIComponent(universitySlug)}` : "/stores",
-        )
+        await api<PublicStoreSummary[]>(`/stores?university=${encodeURIComponent(universitySlug)}`)
       ).map(liveStoreToStore),
   });
   return { ...query, stores: [...(query.data ?? []), ...sampleStores] };
@@ -138,8 +152,12 @@ export function useFeaturedLiveStores(universitySlug: string) {
 }
 
 export function useLiveStore(id: string) {
+  const university = useMarketplace();
   return useQuery({
-    queryKey: ["live-store", id],
-    queryFn: () => api<PublicStore>(`/stores/${id}`).catch(() => null),
+    queryKey: ["live-store", id, university],
+    queryFn: () =>
+      api<PublicStore>(`/stores/${id}?university=${encodeURIComponent(university)}`).catch(
+        () => null,
+      ),
   });
 }

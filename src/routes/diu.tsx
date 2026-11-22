@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Store as StoreIcon, Zap } from "lucide-react";
 import heroImage from "@/assets/hero-campus.jpg";
 import { SiteLayout } from "@/components/layout/SiteLayout";
@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/common/StateBlocks";
 import { useFeaturedLiveStores, useLiveProducts, useLiveStores } from "@/lib/liveCatalog";
 import { products, getFeaturedStores, getProductsByTag } from "@/data/marketplace";
+import { setMarketplace } from "@/lib/marketplace";
 
 
 export const Route = createFileRoute("/diu")({
@@ -41,12 +42,14 @@ const tabs = [
 
 function HomePage() {
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]["id"]>("recommended");
+  // Entering the DIU marketplace selects it for catalogue, chat and checkout.
+  useEffect(() => setMarketplace("diu"), []);
   const { data: allLive = [], isLoading: loadingLive } = useLiveProducts();
   // only this marketplace's seller listings
   const live = allLive.filter((p) => p.universitySlug === "diu");
   const liveDeals = live.filter((p) => p.originalPrice !== undefined && p.originalPrice > p.price);
   const flashDeals = [...liveDeals, ...getProductsByTag("offer")].slice(0, 6);
-  const { stores: diuStores } = useLiveStores("diu");
+  const { stores: diuStores } = useLiveStores();
   const topRatedStores = [...diuStores]
     .sort((a, b) => b.rating - a.rating || b.productCount - a.productCount)
     .slice(0, 4);

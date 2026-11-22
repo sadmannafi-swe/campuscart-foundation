@@ -5,9 +5,8 @@ import type {
   PublicStore,
   PublicStoreSummary,
 } from "../../shared/types";
-import { universityBySlug } from "../../shared/universities";
 import { col, toApi, type StoreDoc } from "../lib/db";
-import { notFound } from "../lib/http";
+import { marketplaceParam, notFound } from "../lib/http";
 
 export const publicRouter = Router();
 
@@ -25,15 +24,24 @@ const publicStore = (s: StoreDoc): PublicStore => ({
 });
 
 /** Active listings of approved stores, newest first, with rating aggregates. */
-publicRouter.get("/products", async (_req, res) => {
+/** Active listings of approved stores in ONE university marketplace. */
+publicRouter.get("/products", async (req, res) => {
+  const university = marketplaceParam(req.query["university"]);
   const stores = await col
     .stores()
-    .find({ status: "approved" }, { projection: { name: 1, seller_id: 1 } })
+    .find(
+      { status: "approved", university_slug: university },
+      { projection: { name: 1, seller_id: 1 } },
+    )
     .toArray();
   const storeById = new Map(stores.map((s) => [s._id, s]));
   const products = await col
     .products()
-    .find({ is_active: true, store_id: { $in: [...storeById.keys()] } })
+    .find({
+      is_active: true,
+      university_slug: university,
+      store_id: { $in: [...storeById.keys()] },
+    })
     .sort({ created_at: -1 })
     .limit(500)
     .toArray();
@@ -57,12 +65,8 @@ publicRouter.get("/products", async (_req, res) => {
 
 /** Approved stores (optionally one university), with active-listing counts and ratings. */
 publicRouter.get("/stores", async (req, res) => {
-  const university = typeof req.query["university"] === "string" ? req.query["university"] : "";
-  const filter: Record<string, unknown> = { status: "approved" };
-  if (university) {
-    if (!universityBySlug(university)) return res.json([]);
-    filter["university_slug"] = university;
-  }
+  const university = marketplaceParam(req.query["university"]);
+  const filter: Record<string, unknown> = { status: "approved", university_slug: university };
   const stores = await col.stores().find(filter).sort({ approved_at: -1 }).limit(500).toArray();
   const ids = stores.map((s) => s._id);
   const counts = await col
@@ -103,7 +107,7 @@ publicRouter.get("/stores", async (req, res) => {
 });
 
 publicRouter.get("/stores/featured", async (req, res) => {
-  const university = String(req.query["university"] ?? "");
+  const university = marketplaceParam(req.query["university"]);
   const stores = await col
     .stores()
     .find({ status: "approved", featured_university_slug: university })
@@ -114,14 +118,20 @@ publicRouter.get("/stores/featured", async (req, res) => {
 });
 
 publicRouter.get("/stores/:id", async (req, res) => {
-  const store = await col.stores().findOne({ _id: req.params["id"], status: "approved" });
+  const university = marketplaceParam(req.query["university"]);
+  const store = await col
+    .stores()
+    .findOne({ _id: req.params["id"], status: "approved", university_slug: university });
   if (!store) throw notFound("Store unavailable");
   res.json(publicStore(store));
 });
 
 /** Public reviews: author name, rating, comment, date only — never buyer ids. */
 publicRouter.get("/products/:id/reviews", async (req, res) => {
-  const product = await col.products().findOne({ _id: req.params["id"], is_active: true });
+  const university = marketplaceParam(req.query["university"]);
+  const product = await col
+    .products()
+    .findOne({ _id: req.params["id"], is_active: true, university_slug: university });
   const store = product
     ? await col.stores().findOne({ _id: product.store_id, status: "approved" })
     : null;

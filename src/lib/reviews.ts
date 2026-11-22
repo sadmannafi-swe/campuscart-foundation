@@ -1,14 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import type { PublicReview, Review, SellerReview } from "@shared/types";
 import { api } from "@/lib/api";
+import { useMarketplace } from "@/lib/marketplace";
 
 export type ProductReview = PublicReview;
 
 export function useProductReviews(productId: string | undefined) {
+  const university = useMarketplace();
   return useQuery({
-    queryKey: ["product-reviews", productId],
+    queryKey: ["product-reviews", productId, university],
     enabled: Boolean(productId),
-    queryFn: () => api<ProductReview[]>(`/products/${productId}/reviews`),
+    queryFn: () =>
+      api<ProductReview[]>(
+        `/products/${productId}/reviews?university=${encodeURIComponent(university)}`,
+      ),
   });
 }
 

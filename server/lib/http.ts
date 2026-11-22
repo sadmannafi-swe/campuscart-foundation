@@ -3,6 +3,7 @@ import { fromNodeHeaders } from "better-auth/node";
 import { ObjectId } from "mongodb";
 import { z, ZodError, type ZodTypeAny } from "zod";
 import { getAuth } from "./auth";
+import { isUniversitySlug } from "../../shared/universities";
 import { col } from "./db";
 
 export class HttpError extends Error {
@@ -113,4 +114,11 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
 }
 
 export const newId = () => crypto.randomUUID();
+
+/** Every buyer-facing catalogue/checkout request names its university marketplace. */
+export function marketplaceParam(value: unknown): string {
+  if (typeof value !== "string" || !value) throw badRequest("University marketplace is required");
+  if (!isUniversitySlug(value)) throw badRequest("Unknown university marketplace");
+  return value;
+}
 export const uuid = z.string().uuid();

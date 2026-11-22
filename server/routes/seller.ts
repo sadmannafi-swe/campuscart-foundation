@@ -1,6 +1,11 @@
 import { Router } from "express";
 import { z } from "zod";
-import { canMoveOrder, ORDER_STATUSES, type SellerReview } from "../../shared/types";
+import {
+  canMoveOrder,
+  ORDER_STATUSES,
+  type SellerEarnings,
+  type SellerReview,
+} from "../../shared/types";
 import { PRODUCT_CONDITIONS, STORE_CATEGORIES, universityBySlug } from "../../shared/universities";
 import { isValidEmail } from "../../shared/email/mime";
 import { assertOwnImageUrl, assertOwnPrivateId } from "../lib/cloudinary";
@@ -177,12 +182,26 @@ const productSchema = z.object({
   name: z.string().trim().min(2).max(120),
   category: z.string().trim().min(1).max(60),
   price: z.number().min(0).max(10_000_000),
+  original_price: z.number().min(0).max(10_000_000).nullable().optional(),
   condition: z.enum(PRODUCT_CONDITIONS),
   description: z.string().trim().max(2000).default(""),
   images: z.array(z.string().url()).max(6).default([]),
   in_stock: z.boolean().default(true),
   is_active: z.boolean().optional(),
 });
+
+const roundMoney = (n: number) => Math.round(n * 100) / 100;
+
+/** An original price is optional, but when present it must exceed the selling price. */
+export function checkOriginalPrice(
+  price: number,
+  original: number | null | undefined,
+): number | null {
+  if (original === null || original === undefined) return null;
+  if (!(original > price))
+    throw badRequest("Original price must be greater than the selling price");
+  return roundMoney(original);
+}
 
 sellerRouter.get("/products", async (req, res) => {
   const store = await storeOf(me(req).id);
@@ -207,7 +226,8 @@ sellerRouter.post("/products", async (req, res) => {
     university_slug: store.university_slug,
     name: body.name,
     category: body.category,
-    price: Math.round(body.price * 100) / 100,
+    price: roundMoney(body.price),
+    original_price: checkOriginalPrice(roundMoney(body.price), body.original_price),
     condition: body.condition,
     description: body.description,
     images: body.images.map((url) => assertOwnImageUrl(url, "product", u.id)),
@@ -235,7 +255,16 @@ sellerRouter.patch("/products/:id", async (req, res) => {
   ] as const) {
     if (body[key] !== undefined) (set as Record<string, unknown>)[key] = body[key];
   }
-  if (body.price !== undefined) set.price = Math.round(body.price * 100) / 100;
+  if (body.price !== undefined) set.price = roundMoney(body.price);
+  if (body.price !== undefined || body.original_price !== undefined) {
+    const current = await col.products().findOne({ _id: req.params["id"], user_id: u.id });
+    if (!current) throw notFound("Product not found");
+    const price = set.price ?? current.price;
+    const original =
+      body.original_price !== undefined ? body.original_price : current.original_price;
+    // Lowering a "was" price below the new selling price would fake a discount: reject.
+    set.original_price = checkOriginalPrice(price, original);
+  }
   if (body.images !== undefined)
     set.images = body.images.map((url) => assertOwnImageUrl(url, "product", u.id));
   const r = await col.products().updateOne({ _id: req.params["id"], user_id: u.id }, { $set: set });
@@ -280,16 +309,65 @@ sellerRouter.post("/orders/:id/status", async (req, res) => {
     );
   }
   // Compare-and-set so two tabs can't race each other.
-  const updated = await col
-    .orders()
-    .findOneAndUpdate(
-      { _id: order._id, status: order.status },
-      { $set: { status: next, updated_at: new Date() } },
-      { returnDocument: "after" },
-    );
+  const updated = await col.orders().findOneAndUpdate(
+    { _id: order._id, status: order.status },
+    {
+      $set: {
+        status: next,
+        updated_at: new Date(),
+        ...(next === "delivered" ? { delivered_at: new Date() } : {}),
+      },
+    },
+    { returnDocument: "after" },
+  );
   if (!updated) throw new HttpError(409, "The order changed meanwhile — refresh and try again");
   await notifyStatusChange(updated, next);
   return res.json(orderToApi(updated));
+});
+
+/** Start of the current calendar month in Bangladesh time (UTC+6, no DST). */
+export function dhakaMonthStart(now = new Date()): Date {
+  const dhaka = new Date(now.getTime() + 6 * 3600_000);
+  return new Date(Date.UTC(dhaka.getUTCFullYear(), dhaka.getUTCMonth(), 1) - 6 * 3600_000);
+}
+
+/** Earnings come only from this seller's delivered orders — never pending or cancelled. */
+sellerRouter.get("/earnings", async (req, res) => {
+  const u = me(req);
+  const orders = await col
+    .orders()
+    .find({ seller_user_id: u.id, status: { $ne: "cancelled" } })
+    .sort({ created_at: -1 })
+    .toArray();
+  const delivered = orders.filter((o) => o.status === "delivered");
+  const deliveredAt = (o: (typeof orders)[number]) => o.delivered_at ?? o.updated_at;
+  const monthStart = dhakaMonthStart();
+  const money = (n: number) => Math.round(n * 100) / 100;
+  const out: SellerEarnings = {
+    total_earnings: money(delivered.reduce((n, o) => n + o.subtotal, 0)),
+    this_month: money(
+      delivered.filter((o) => deliveredAt(o) >= monthStart).reduce((n, o) => n + o.subtotal, 0),
+    ),
+    delivered_orders: delivered.length,
+    awaiting_delivery: money(
+      orders.filter((o) => o.status !== "delivered").reduce((n, o) => n + o.subtotal, 0),
+    ),
+    transactions: delivered
+      .sort((a, b) => deliveredAt(b).getTime() - deliveredAt(a).getTime())
+      .slice(0, 200)
+      .map((o) => ({
+        order_id: o._id,
+        delivered_at: deliveredAt(o).toISOString(),
+        customer_name: o.customer_name,
+        items: o.items.map((i) => ({
+          product_name: i.product_name,
+          quantity: i.quantity,
+          line_total: i.line_total,
+        })),
+        amount: o.subtotal,
+      })),
+  };
+  res.json(out);
 });
 
 sellerRouter.get("/reviews", async (req, res) => {

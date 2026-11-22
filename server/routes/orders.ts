@@ -2,7 +2,15 @@ import { Router } from "express";
 import { z } from "zod";
 import type { Order } from "../../shared/types";
 import { col, getClient, toApi, type OrderDoc, type OrderItemDoc } from "../lib/db";
-import { badRequest, HttpError, me, newId, parse, requireUser } from "../lib/http";
+import {
+  badRequest,
+  HttpError,
+  marketplaceParam,
+  me,
+  newId,
+  parse,
+  requireUser,
+} from "../lib/http";
 import { notifyNewOrder, notifyStatusChange } from "../lib/notify";
 import { processEmailOutbox } from "../lib/outbox";
 
@@ -27,12 +35,15 @@ const placeSchema = z.object({
   phone: z.string().trim().min(6, "Please fill in your phone number").max(20),
   address: z.string().trim().min(3, "Please fill in your delivery address").max(300),
   note: z.string().trim().max(300).default(""),
+  /** The marketplace the buyer is shopping in; every product must belong to it. */
+  university: z.string(),
 });
 
 /** One order per store; prices always come from the database, never the client. */
 ordersRouter.post("/orders", async (req, res) => {
   const buyer = me(req);
   const body = parse(placeSchema, req.body);
+  const marketplace = marketplaceParam(body.university);
 
   const qty = new Map<string, number>();
   for (const i of body.items)
@@ -59,6 +70,17 @@ ordersRouter.post("/orders", async (req, res) => {
         )
       ) {
         throw badRequest("One or more products are no longer available");
+      }
+      if (
+        products.some(
+          (p) =>
+            p.university_slug !== marketplace ||
+            storeById.get(p.store_id)?.university_slug !== marketplace,
+        )
+      ) {
+        throw badRequest(
+          "Some items belong to another university marketplace and can't be ordered here",
+        );
       }
       if (stores.some((s) => s.user_id === buyer.id))
         throw badRequest("You cannot order from your own store");

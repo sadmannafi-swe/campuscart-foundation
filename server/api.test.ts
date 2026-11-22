@@ -57,9 +57,14 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     return a;
   }
 
-  async function makeSellerWithStore(a: Agent, userId: string, storeName: string) {
+  async function makeSellerWithStore(
+    a: Agent,
+    userId: string,
+    storeName: string,
+    university = "diu",
+  ) {
     let r = await post(a, "/api/seller/account", {
-      university_slug: "diu",
+      university_slug: university,
       full_name: `${storeName} Owner`,
       phone: "01711111111",
       department: "CSE",
@@ -123,7 +128,7 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     const acc = await sellerA.get("/api/seller/account");
     expect(acc.body.store.status).toBe("pending");
     expect(acc.body.seller.email).toBe("a@diu.edu.bd");
-    expect((await request(app).get(`/api/stores/${storeA}`)).status).toBe(404);
+    expect((await request(app).get(`/api/stores/${storeA}?university=diu`)).status).toBe(404);
     // second store / foreign image rejected
     expect(
       (
@@ -162,7 +167,9 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
         (await post(adminAgent, `/api/admin/stores/${id}/status`, { status: "approved" })).status,
       ).toBe(200);
     }
-    expect((await request(app).get(`/api/stores/${storeA}`)).body.name).toBe("Store A");
+    expect((await request(app).get(`/api/stores/${storeA}?university=diu`)).body.name).toBe(
+      "Store A",
+    );
     const dir = (await request(app).get("/api/stores?university=diu")).body;
     expect(dir.map((d: { name: string }) => d.name).sort()).toEqual(["Store A", "Store B"]);
     expect(dir[0]).not.toHaveProperty("user_id");
@@ -193,7 +200,7 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     expect(
       (await sellerB.delete(`/api/seller/products/${productA}`).set("origin", ORIGIN)).status,
     ).toBe(404);
-    const list = await request(app).get("/api/products");
+    const list = await request(app).get("/api/products?university=diu");
     expect(list.body.map((p: { name: string }) => p.name).sort()).toEqual(["Book", "Calculator"]);
     expect(list.body.find((p: { id: string }) => p.id === productA).store_name).toBe("Store A");
   });
@@ -201,6 +208,7 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
   let orderA: string, orderB: string;
   it("places one order per store with database prices, atomically", async () => {
     let r = await post(sellerA, "/api/orders", {
+      university: "diu",
       items: [{ product_id: productA, quantity: 1 }],
       name: "Seller A",
       phone: "0170000",
@@ -210,6 +218,7 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     expect(r.body.error).toBe("You cannot order from your own store");
 
     r = await post(buyer, "/api/orders", {
+      university: "diu",
       items: [
         { product_id: productA, quantity: 2 },
         { product_id: productB, quantity: 1, price: 1 },
@@ -241,6 +250,7 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     // unavailable product rolls back the whole order
     await patch(sellerB, `/api/seller/products/${productB}`, { in_stock: false });
     r = await post(buyer, "/api/orders", {
+      university: "diu",
       items: [
         { product_id: productA, quantity: 1 },
         { product_id: productB, quantity: 1 },
@@ -347,6 +357,38 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     expect(sellerNotes).toContain("Order cancelled");
   });
 
+  it("computes seller earnings only from that seller's delivered orders", async () => {
+    // Seller A: one delivered order (৳1000). Seller B: one cancelled order.
+    const a = (await sellerA.get("/api/seller/earnings")).body;
+    expect(a).toMatchObject({
+      total_earnings: 1000,
+      this_month: 1000,
+      delivered_orders: 1,
+      awaiting_delivery: 0,
+    });
+    expect(a.transactions.map((t: { order_id: string }) => t.order_id)).toEqual([orderA]);
+    expect(a.transactions[0]).toMatchObject({ amount: 1000, customer_name: "Buyer C" });
+    const b = (await sellerB.get("/api/seller/earnings")).body;
+    expect(b).toMatchObject({
+      total_earnings: 0,
+      delivered_orders: 0,
+      awaiting_delivery: 0,
+      transactions: [],
+    });
+    // a pending order counts as awaiting delivery, never as earnings
+    await patch(sellerB, `/api/seller/products/${productB}`, { in_stock: true });
+    await post(buyer, "/api/orders", {
+      university: "diu",
+      items: [{ product_id: productB, quantity: 2 }],
+      name: "Buyer C",
+      phone: "01700000000",
+      address: "Hall 3",
+    });
+    const b2 = (await sellerB.get("/api/seller/earnings")).body;
+    expect(b2).toMatchObject({ total_earnings: 0, delivered_orders: 0, awaiting_delivery: 500 });
+    expect((await request(app).get("/api/seller/earnings")).status).toBe(401);
+  });
+
   it("allows one review per delivered purchase and exposes only public fields", async () => {
     expect(
       (await post(buyer, "/api/reviews", { order_id: orderB, product_id: productB, rating: 5 }))
@@ -370,7 +412,8 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
       (await post(buyer, "/api/reviews", { order_id: orderA, product_id: productA, rating: 1 }))
         .status,
     ).toBe(409);
-    const reviews = (await request(app).get(`/api/products/${productA}/reviews`)).body;
+    const reviews = (await request(app).get(`/api/products/${productA}/reviews?university=diu`))
+      .body;
     expect(reviews).toHaveLength(1);
     expect(Object.keys(reviews[0]).sort()).toEqual([
       "author",
@@ -380,11 +423,11 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
       "rating",
     ]);
     expect(reviews[0].author).toBe("Buyer C");
-    const listed = (await request(app).get("/api/products")).body.find(
+    const listed = (await request(app).get("/api/products?university=diu")).body.find(
       (p: { id: string }) => p.id === productA,
     );
     expect(listed).toMatchObject({ rating: 4, review_count: 1 });
-    const dirA = (await request(app).get("/api/stores")).body.find(
+    const dirA = (await request(app).get("/api/stores?university=diu")).body.find(
       (d: { id: string }) => d.id === storeA,
     );
     expect(dirA).toMatchObject({ product_count: 1, rating: 4, review_count: 1 });
@@ -392,9 +435,15 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
   });
 
   it("runs buyer–seller chat with participant-only access", async () => {
-    expect((await post(sellerA, "/api/chat/open", { product_id: productA })).status).toBe(400);
-    const { id } = (await post(buyer, "/api/chat/open", { product_id: productA })).body;
-    expect((await post(buyer, "/api/chat/open", { product_id: productA })).body.id).toBe(id);
+    expect(
+      (await post(sellerA, "/api/chat/open", { product_id: productA, university: "diu" })).status,
+    ).toBe(400);
+    const { id } = (
+      await post(buyer, "/api/chat/open", { product_id: productA, university: "diu" })
+    ).body;
+    expect(
+      (await post(buyer, "/api/chat/open", { product_id: productA, university: "diu" })).body.id,
+    ).toBe(id);
     expect(
       (await post(sellerA, `/api/chat/conversations/${id}/messages`, { body: "hi" })).status,
     ).toBe(409);
@@ -433,7 +482,9 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     await post(adminAgent, `/api/admin/stores/${storeA}/status`, { status: "suspended" });
     expect((await request(app).get("/api/stores/featured?university=diu")).body).toHaveLength(0);
     expect(
-      (await request(app).get("/api/products")).body.map((p: { id: string }) => p.id),
+      (await request(app).get("/api/products?university=diu")).body.map(
+        (p: { id: string }) => p.id,
+      ),
     ).not.toContain(productA);
     expect(
       (
@@ -453,5 +504,141 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     expect(sig).toMatchObject({ cloudName: "testcloud", type: "authenticated" });
     expect(sig.folder).toBe(`campuscart/student-id/${await userIdOf(buyer)}`);
     expect((await post(buyer, "/api/uploads/sign", { kind: "anything" })).status).toBe(400);
+  });
+
+  it("separates university marketplaces on the server (DIU vs NSU)", async () => {
+    const sellerN = await signUp("n@nsu.edu.bd", "Seller N");
+    const sellerNId = await userIdOf(sellerN);
+    const storeN = await makeSellerWithStore(sellerN, sellerNId, "NSU Store", "nsu");
+    expect(
+      (await post(adminAgent, `/api/admin/stores/${storeN}/status`, { status: "approved" })).status,
+    ).toBe(200);
+    // re-approve the DIU store B so both marketplaces have a live listing
+    await patch(sellerB, `/api/seller/products/${productB}`, { in_stock: true });
+    const productN = (
+      await post(sellerN, "/api/seller/products", {
+        name: "NSU Book",
+        category: "textbooks",
+        price: 300,
+        condition: "used",
+      })
+    ).body.id as string;
+
+    // catalogue requires and respects the marketplace
+    expect((await request(app).get("/api/products")).status).toBe(400);
+    expect((await request(app).get("/api/products?university=mit")).status).toBe(400);
+    const diu = (await request(app).get("/api/products?university=diu")).body.map(
+      (p: { id: string }) => p.id,
+    );
+    const nsu = (await request(app).get("/api/products?university=nsu")).body.map(
+      (p: { id: string }) => p.id,
+    );
+    expect(diu).toContain(productB);
+    expect(diu).not.toContain(productN);
+    expect(nsu).toEqual([productN]);
+    expect((await request(app).get("/api/stores")).status).toBe(400);
+    expect(
+      (await request(app).get("/api/stores?university=nsu")).body.map((x: { id: string }) => x.id),
+    ).toEqual([storeN]);
+    expect((await request(app).get(`/api/stores/${storeN}?university=diu`)).status).toBe(404);
+    expect((await request(app).get(`/api/stores/${storeN}?university=nsu`)).status).toBe(200);
+    expect(
+      (await request(app).get(`/api/products/${productN}/reviews?university=diu`)).body,
+    ).toEqual([]);
+
+    // checkout rejects products from another marketplace — atomically
+    const ordersBefore = (await buyer.get("/api/orders")).body.length;
+    const order = (items: Array<{ product_id: string; quantity: number }>, university: string) =>
+      post(buyer, "/api/orders", {
+        university,
+        items,
+        name: "Buyer C",
+        phone: "01700000000",
+        address: "Hall 3",
+      });
+    let r = await order([{ product_id: productN, quantity: 1 }], "diu");
+    expect(r.status).toBe(400);
+    expect(r.body.error).toMatch(/another university marketplace/);
+    r = await order(
+      [
+        { product_id: productB, quantity: 1 },
+        { product_id: productN, quantity: 1 },
+      ],
+      "diu",
+    );
+    expect(r.status).toBe(400);
+    expect((await order([{ product_id: productB, quantity: 1 }], "mit")).status).toBe(400);
+    expect(
+      (
+        await post(buyer, "/api/orders", {
+          items: [{ product_id: productB, quantity: 1 }],
+          name: "B",
+          phone: "0170000",
+          address: "Hall",
+        })
+      ).status,
+    ).toBe(400);
+    expect((await buyer.get("/api/orders")).body).toHaveLength(ordersBefore);
+    // the same product in its own marketplace works
+    r = await order([{ product_id: productN, quantity: 1 }], "nsu");
+    expect(r.status).toBe(201);
+    const placed = (await buyer.get("/api/orders")).body.find(
+      (o: { id: string }) => o.id === r.body.ids[0],
+    );
+    expect(placed.university_slug).toBe("nsu");
+
+    // chat follows the same rule
+    expect(
+      (await post(buyer, "/api/chat/open", { product_id: productN, university: "diu" })).status,
+    ).toBe(400);
+    expect((await post(buyer, "/api/chat/open", { product_id: productN })).status).toBe(400);
+    expect(
+      (await post(buyer, "/api/chat/open", { product_id: productN, university: "nsu" })).status,
+    ).toBe(201);
+  });
+
+  it("validates optional original prices and exposes valid offers", async () => {
+    const create = (body: object) =>
+      post(sellerB, "/api/seller/products", {
+        name: "Desk Lamp",
+        category: "hostel",
+        condition: "new",
+        ...body,
+      });
+    expect((await create({ price: 500, original_price: 500 })).status).toBe(400);
+    expect((await create({ price: 500, original_price: 450 })).body.error).toMatch(
+      /greater than the selling price/,
+    );
+    const offer = await create({ price: 500, original_price: 800 });
+    expect(offer.status).toBe(201);
+    const plain = await create({ name: "Plain Lamp", price: 300 });
+    expect(plain.status).toBe(201);
+    const listing = (await request(app).get("/api/products?university=diu")).body as Array<{
+      id: string;
+      original_price?: number | null;
+    }>;
+    expect(listing.find((p) => p.id === offer.body.id)?.original_price).toBe(800);
+    expect(listing.find((p) => p.id === plain.body.id)?.original_price ?? null).toBeNull();
+    // raising the selling price above the original price is rejected
+    expect(
+      (await patch(sellerB, `/api/seller/products/${offer.body.id}`, { price: 900 })).status,
+    ).toBe(400);
+    expect(
+      (await patch(sellerB, `/api/seller/products/${offer.body.id}`, { price: 600 })).status,
+    ).toBe(200);
+    expect(
+      (await patch(sellerB, `/api/seller/products/${offer.body.id}`, { original_price: 550 }))
+        .status,
+    ).toBe(400);
+    // removing the original price turns the offer back into a normal listing
+    expect(
+      (await patch(sellerB, `/api/seller/products/${offer.body.id}`, { original_price: null }))
+        .status,
+    ).toBe(200);
+    const after = (await request(app).get("/api/products?university=diu")).body.find(
+      (p: { id: string }) => p.id === offer.body.id,
+    );
+    expect(after.original_price ?? null).toBeNull();
+    expect(after.price).toBe(600);
   });
 });

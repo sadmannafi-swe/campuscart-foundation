@@ -9,8 +9,8 @@ export type ChatConversation = ChatConversationT;
 export type ChatMessage = ChatMessageT;
 
 /** Open (or create) the buyer's conversation for a product. Returns the conversation id. */
-export async function openProductChat(productId: string): Promise<string> {
-  const { id } = await apiPost<{ id: string }>("/chat/open", { product_id: productId });
+export async function openProductChat(productId: string, university: string): Promise<string> {
+  const { id } = await apiPost<{ id: string }>("/chat/open", { product_id: productId, university });
   return id;
 }
 

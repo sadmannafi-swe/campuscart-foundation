@@ -23,6 +23,7 @@ import { useSellerAccount, useSignedUrl } from "@/lib/seller";
 import { useAuth } from "@/lib/auth";
 import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
+import { useImageFallback } from "@/lib/useImageFallback";
 
 const menu = [
   { label: "Dashboard", to: "/sell/dashboard" as const, icon: LayoutGrid },
@@ -49,6 +50,7 @@ export function StoreAvatar({
   className?: string;
 }) {
   const { data: url } = useSignedUrl(logoPath);
+  const img = useImageFallback(url);
   return (
     <span
       className={cn(
@@ -56,8 +58,8 @@ export function StoreAvatar({
         className,
       )}
     >
-      {url ? (
-        <img src={url} alt="" className="size-full object-cover" />
+      {img.showImage && url ? (
+        <img src={url} alt="" className="size-full object-cover" onError={img.onError} />
       ) : (
         name.slice(0, 2).toUpperCase()
       )}

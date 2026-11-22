@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { formatPrice } from "@/lib/format";
 import { orderStatusMeta, shortOrderId } from "@/lib/orders";
+import { useImageFallback } from "@/lib/useImageFallback";
 
 interface FeaturableProduct {
   id: string;
@@ -184,13 +185,7 @@ function AdminConsole() {
               <li key={store.id} className="card-surface p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-3">
-                    {logoUrl ? (
-                      <img src={logoUrl} alt={`${store.name} logo`} className="size-12 shrink-0 rounded-xl border border-border object-cover" />
-                    ) : (
-                      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary-soft text-sm font-bold text-primary">
-                        {store.name.slice(0, 2).toUpperCase()}
-                      </span>
-                    )}
+                    <StoreLogo url={logoUrl} name={store.name} />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-bold">{store.name}</p>
                       <p className="text-xs text-muted-foreground">
@@ -319,6 +314,17 @@ function AdminConsole() {
         </p>
       </div>
     </div>
+  );
+}
+
+function StoreLogo({ url, name }: { url: string | null; name: string }) {
+  const img = useImageFallback(url);
+  return img.showImage && url ? (
+    <img src={url} alt={`${name} logo`} onError={img.onError} className="size-12 shrink-0 rounded-xl border border-border object-cover" />
+  ) : (
+    <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary-soft text-sm font-bold text-primary">
+      {name.slice(0, 2).toUpperCase()}
+    </span>
   );
 }
 

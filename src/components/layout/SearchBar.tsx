@@ -93,7 +93,7 @@ export function SearchBar({
   }, [open]);
 
   const { products } = useCatalogProducts();
-  const { stores } = useLiveStores(null);
+  const { stores } = useLiveStores();
   const suggestions = buildSuggestions(value, products, stores);
 
   function runSearch(term: string) {

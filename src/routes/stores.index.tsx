@@ -28,7 +28,7 @@ export const Route = createFileRoute("/stores/")({
 function StoresPage() {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
-  const { stores, isLoading } = useLiveStores("diu");
+  const { stores, isLoading } = useLiveStores();
 
   const filtered = useMemo(
     () =>

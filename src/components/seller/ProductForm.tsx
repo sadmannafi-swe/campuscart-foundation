@@ -27,6 +27,9 @@ export function ProductForm({ product }: { product?: SellerProduct }) {
   const [name, setName] = useState(product?.name ?? "");
   const [category, setCategory] = useState(product?.category ?? "");
   const [price, setPrice] = useState(product ? String(product.price) : "");
+  const [originalPrice, setOriginalPrice] = useState(
+    product?.original_price != null ? String(product.original_price) : "",
+  );
   const [condition, setCondition] = useState(product?.condition ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
   const [inStock, setInStock] = useState(product?.in_stock ?? true);
@@ -35,6 +38,10 @@ export function ProductForm({ product }: { product?: SellerProduct }) {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!store) return;
+    if (originalPrice.trim() && !(Number(originalPrice) > Number(price))) {
+      toast.error("Original price must be greater than the selling price.");
+      return;
+    }
     setBusy(true);
     try {
       const uploaded: string[] = [];
@@ -51,6 +58,7 @@ export function ProductForm({ product }: { product?: SellerProduct }) {
         name: name.trim(),
         category,
         price: Number(price),
+        original_price: originalPrice.trim() ? Number(originalPrice) : null,
         condition,
         description: description.trim(),
         images,
@@ -131,6 +139,24 @@ export function ProductForm({ product }: { product?: SellerProduct }) {
           placeholder="Enter price"
           required
         />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="p-original-price">Original Price (৳, optional)</Label>
+        <Input
+          id="p-original-price"
+          type="number"
+          min={0}
+          step="1"
+          value={originalPrice}
+          onChange={(e) => setOriginalPrice(e.target.value)}
+          placeholder="Only for a discount"
+          aria-describedby="p-original-price-hint"
+        />
+        <p id="p-original-price-hint" className="text-[11px] text-muted-foreground">
+          Set the price before the discount to show this listing in Offers. Must be higher than the
+          price above.
+        </p>
       </div>
 
       <div className="space-y-1.5">

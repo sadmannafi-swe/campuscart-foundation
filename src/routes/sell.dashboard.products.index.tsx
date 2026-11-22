@@ -15,6 +15,7 @@ import { apiDelete, apiPatch } from "@/lib/api";
 import { formatPrice } from "@/lib/format";
 import { useSellerAccount, useSellerProducts, useSignedUrl, type SellerProduct } from "@/lib/seller";
 import { cn } from "@/lib/utils";
+import { useImageFallback } from "@/lib/useImageFallback";
 
 export const Route = createFileRoute("/sell/dashboard/products/")({
   component: SellerProducts,
@@ -130,11 +131,12 @@ function ProductRow({
 }) {
   const images = (product.images as string[] | null) ?? [];
   const { data: url } = useSignedUrl(images[0] ?? null);
+  const img = useImageFallback(url);
   return (
     <div className="card-surface flex items-center gap-3 p-3">
       <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-muted">
-        {url ? (
-          <img src={url} alt="" className="size-full object-cover" />
+        {img.showImage && url ? (
+          <img src={url} alt="" className="size-full object-cover" onError={img.onError} />
         ) : (
           <Package className="size-5 text-muted-foreground" aria-hidden="true" />
         )}

@@ -90,6 +90,8 @@ export interface ProductDoc {
   name: string;
   category: string;
   price: number;
+  /** Optional "was" price; when set it is always greater than `price`. */
+  original_price?: number | null;
   condition: string;
   description: string;
   images: string[];
@@ -125,6 +127,8 @@ export interface OrderDoc {
   shipping_fee: number;
   total: number;
   status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
+  /** Set when the seller marks the order delivered (earnings date). */
+  delivered_at?: Date | null;
   items: OrderItemDoc[];
   created_at: Date;
   updated_at: Date;

@@ -101,7 +101,7 @@ function ProductsPage() {
   const navigate = useNavigate({ from: "/products/" });
 
   const { products } = useCatalogProducts();
-  const { stores } = useLiveStores(null);
+  const { stores } = useLiveStores();
   const results = useMemo(() => filterProducts(products, search), [products, search]);
   const activeCategory = categories.find((c) => c.slug === search.category);
   const activeCount = countActiveFilters(search);

@@ -27,6 +27,8 @@ import {
   getReviewsForProduct,
   getStoreById,
 } from "@/data/marketplace";
+import { useMarketplace } from "@/lib/marketplace";
+import { useImageFallback } from "@/lib/useImageFallback";
 
 export const Route = createFileRoute("/products/$productSlug")({
   loader: ({ params }) => {
@@ -83,8 +85,10 @@ function LiveProductDetails({ slug }: { slug: string }) {
   const { user } = useAuth();
   const [openingChat, setOpeningChat] = useState(false);
   const { data: live, isLoading } = useLiveProducts();
+  const marketplace = useMarketplace();
   const product = live?.find((p) => p.slug === slug);
   const category = categories.find((c) => c.slug === product?.categorySlug);
+  const img = useImageFallback(product?.image);
 
   const chatWithSeller = async () => {
     if (!product) return;
@@ -95,7 +99,7 @@ function LiveProductDetails({ slug }: { slug: string }) {
     }
     setOpeningChat(true);
     try {
-      const conversationId = await openProductChat(product.id);
+      const conversationId = await openProductChat(product.id, marketplace);
       void navigate({ to: "/chat/$conversationId", params: { conversationId } });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not open chat");
@@ -118,8 +122,8 @@ function LiveProductDetails({ slug }: { slug: string }) {
         ) : (
           <div className="grid gap-8 lg:grid-cols-2">
             <div className={cn("grid aspect-square w-full place-items-center overflow-hidden rounded-3xl border border-border bg-gradient-to-br", product.accentFrom, product.accentTo)}>
-              {product.image ? (
-                <img src={product.image} alt={product.name} className="size-full object-cover" />
+              {img.showImage ? (
+                <img src={product.image} alt={product.name} className="size-full object-cover" onError={img.onError} />
               ) : (
                 <CategoryIcon name={category?.icon ?? "Tag"} className="size-24 text-primary/70" />
               )}
@@ -135,7 +139,19 @@ function LiveProductDetails({ slug }: { slug: string }) {
                 )}
               </div>
               <h1 className="mt-3 text-2xl font-extrabold sm:text-3xl">{product.name}</h1>
-              <p className="price-lg mt-3 text-2xl">{formatPrice(product.price)}</p>
+              <div className="mt-3 flex flex-wrap items-baseline gap-3">
+                <span className="price-lg text-2xl">{formatPrice(product.price)}</span>
+                {discountPercent(product.price, product.originalPrice) !== null && product.originalPrice && (
+                  <>
+                    <span className="text-base text-muted-foreground line-through">
+                      {formatPrice(product.originalPrice)}
+                    </span>
+                    <span className="rounded-full bg-destructive px-2.5 py-1 text-xs font-bold text-destructive-foreground">
+                      Save {discountPercent(product.price, product.originalPrice)}%
+                    </span>
+                  </>
+                )}
+              </div>
               <p className="mt-2 text-sm text-muted-foreground">Sold by <span className="font-semibold text-foreground">{product.storeName}</span></p>
               {product.description && <p className="mt-4 whitespace-pre-line text-sm leading-relaxed">{product.description}</p>}
               <div className="mt-6 flex gap-3">

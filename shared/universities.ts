@@ -29,6 +29,10 @@ export const UNIVERSITIES: University[] = [
 
 export const universityBySlug = (slug: string) => UNIVERSITIES.find((u) => u.slug === slug);
 
+/** Zod-friendly check used by every marketplace-scoped API request. */
+export const isUniversitySlug = (slug: unknown): slug is string =>
+  typeof slug === "string" && UNIVERSITIES.some((u) => u.slug === slug);
+
 export const STORE_CATEGORIES = [
   "Textbooks & Notes",
   "Electronics",

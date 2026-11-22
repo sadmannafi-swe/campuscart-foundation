@@ -6,6 +6,7 @@ import {
   badRequest,
   forbidden,
   HttpError,
+  marketplaceParam,
   me,
   newId,
   notFound,
@@ -27,8 +28,14 @@ async function participantConversation(id: string, userId: string): Promise<Conv
 /** Open (or reuse) the buyer's conversation about a product. */
 chatRouter.post("/chat/open", async (req, res) => {
   const u = me(req);
-  const { product_id } = parse(z.object({ product_id: z.string().uuid() }), req.body);
-  const product = await col.products().findOne({ _id: product_id, is_active: true });
+  const { product_id, university } = parse(
+    z.object({ product_id: z.string().uuid(), university: z.string() }),
+    req.body,
+  );
+  const marketplace = marketplaceParam(university);
+  const product = await col
+    .products()
+    .findOne({ _id: product_id, is_active: true, university_slug: marketplace });
   const store = product
     ? await col.stores().findOne({ _id: product.store_id, status: "approved" })
     : null;

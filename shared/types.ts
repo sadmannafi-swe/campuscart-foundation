@@ -74,6 +74,8 @@ export interface SellerProduct {
   name: string;
   category: string;
   price: number;
+  /** Optional "was" price (always greater than `price`) — marks the listing as an offer. */
+  original_price?: number | null;
   condition: string;
   description: string;
   images: string[];
@@ -141,6 +143,7 @@ export interface Order {
   status: OrderStatus;
   created_at: string;
   updated_at: string;
+  delivered_at?: string | null;
   order_items: OrderItem[];
 }
 
@@ -165,6 +168,24 @@ export interface PublicReview {
 export interface SellerReview extends PublicReview {
   product_id: string;
   product_name: string;
+}
+
+export interface EarningsTransaction {
+  order_id: string;
+  delivered_at: string;
+  customer_name: string;
+  items: Array<{ product_name: string; quantity: number; line_total: number }>;
+  amount: number;
+}
+
+/** Seller earnings — computed only from this seller's DELIVERED orders. */
+export interface SellerEarnings {
+  total_earnings: number;
+  this_month: number;
+  delivered_orders: number;
+  /** Value of orders still in progress (pending → shipped); not counted as earnings. */
+  awaiting_delivery: number;
+  transactions: EarningsTransaction[];
 }
 
 export interface AppNotification {

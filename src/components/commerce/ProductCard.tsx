@@ -7,11 +7,13 @@ import { discountPercent, formatPrice } from "@/lib/format";
 import { CategoryIcon } from "@/components/common/CategoryIcon";
 import { categories } from "@/data/marketplace";
 import { cn } from "@/lib/utils";
+import { useImageFallback } from "@/lib/useImageFallback";
 
 export function ProductCard({ product, className }: { product: Product; className?: string }) {
   const store = getStoreById(product.storeId);
   const category = categories.find((c) => c.slug === product.categorySlug);
   const discount = discountPercent(product.price, product.originalPrice);
+  const img = useImageFallback(product.image);
 
   return (
     <article
@@ -27,11 +29,12 @@ export function ProductCard({ product, className }: { product: Product; classNam
           product.accentTo,
         )}
       >
-        {product.image ? (
+        {img.showImage ? (
           <img
             src={product.image}
             alt={product.name}
             loading="lazy"
+            onError={img.onError}
             className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (

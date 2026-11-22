@@ -5,6 +5,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import { admin } from "better-auth/plugins";
 import { renderPasswordResetEmail, renderVerifyEmail } from "../../shared/email/authEmails";
 import { getClient, getDb } from "./db";
+import { loginGuardAfter, loginGuardBefore } from "./loginGuard";
 import { isMailConfigured, sendMail, siteUrl } from "./mailer";
 
 export function trustedOrigins(): string[] {
@@ -113,15 +114,18 @@ function createAuth() {
       },
     },
     hooks: {
-      // The student ID is identity data, fixed after sign-up; `image` is unused
-      // (profile photos are private, set via PATCH /api/me).
       before: createAuthMiddleware(async (ctx) => {
-        if (ctx.path !== "/update-user") return;
-        const body = (ctx.body ?? {}) as Record<string, unknown>;
-        if ("studentId" in body || "image" in body) {
-          throw new APIError("BAD_REQUEST", { message: "This field can't be changed here." });
+        // The student ID is identity data, fixed after sign-up; `image` is unused
+        // (profile photos are private, set via PATCH /api/me).
+        if (ctx.path === "/update-user") {
+          const body = (ctx.body ?? {}) as Record<string, unknown>;
+          if ("studentId" in body || "image" in body) {
+            throw new APIError("BAD_REQUEST", { message: "This field can't be changed here." });
+          }
         }
+        await loginGuardBefore(ctx);
       }),
+      after: loginGuardAfter,
     },
     session: {
       expiresIn: 60 * 60 * 24 * 30,
@@ -129,12 +133,21 @@ function createAuth() {
       // No cookie cache: sign-outs, password resets and bans apply on the next request.
       cookieCache: { enabled: false },
     },
-    // Stored in MongoDB so limits hold across serverless instances.
+    // Per-IP limits, stored in MongoDB so they hold across serverless instances.
+    // Students on campus Wi-Fi share one public IP, so sign-in/sign-up limits are
+    // sized for a whole campus; each account is additionally protected by the
+    // failed-login lock in loginGuard.ts.
     rateLimit: {
-      enabled: process.env["NODE_ENV"] !== "test",
+      enabled: process.env["NODE_ENV"] !== "test" || process.env["RATE_LIMIT_IN_TESTS"] === "true",
       storage: "database",
       window: 60,
       max: 100,
+      customRules: {
+        "/sign-in/email": { window: 60, max: 60 },
+        "/sign-up/email": { window: 60, max: 30 },
+        "/request-password-reset": { window: 60, max: 10 },
+        "/reset-password": { window: 60, max: 20 },
+      },
     },
     advanced: {
       useSecureCookies: process.env["NODE_ENV"] === "production",

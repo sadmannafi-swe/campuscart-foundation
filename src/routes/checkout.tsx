@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/auth";
 import { cart, productToCartItem, useCart, type CartItem } from "@/lib/cart";
 import { useCatalogProducts } from "@/lib/liveCatalog";
 import { formatPrice } from "@/lib/format";
+import { marketplaceName, useMarketplace } from "@/lib/marketplace";
 
 interface CheckoutSearch {
   buy?: string | undefined;
@@ -68,8 +69,11 @@ function CheckoutPage() {
     setPhone((v) => v || profile.phone);
   }, [profile]);
 
-  const orderable = items.filter((i) => i.live);
-  const demo = items.filter((i) => !i.live);
+  const marketplace = useMarketplace();
+  // Only real listings from the current university marketplace can be ordered.
+  const inMarketplace = (i: CartItem) => i.live && i.universitySlug === marketplace;
+  const orderable = items.filter(inMarketplace);
+  const demo = items.filter((i) => !inMarketplace(i));
   const subtotal = orderable.reduce((n, i) => n + i.price * i.quantity, 0);
   const total = subtotal;
 
@@ -87,6 +91,7 @@ function CheckoutPage() {
     try {
       // The server prices the order, splits it per store and e-mails each seller.
       const { ids: orderIds } = await apiPost<{ ids: string[] }>("/orders", {
+        university: marketplace,
         items: orderable.map((i) => ({ product_id: i.productId, quantity: i.quantity })),
         name: name.trim(),
         phone: phone.trim(),
@@ -146,11 +151,15 @@ function CheckoutPage() {
                       <div className="min-w-0 flex-1">
                         <p className="line-clamp-2 text-sm font-semibold">{item.name}</p>
                         <p className="text-xs text-muted-foreground">{item.storeName}</p>
-                        {!item.live && (
+                        {!item.live ? (
                           <p className="mt-1 text-xs font-semibold text-destructive">
                             Sample listing — can't be ordered.
                           </p>
-                        )}
+                        ) : item.universitySlug !== marketplace ? (
+                          <p className="mt-1 text-xs font-semibold text-destructive">
+                            Not available in the {marketplaceName(marketplace)} marketplace.
+                          </p>
+                        ) : null}
                         <div className="mt-2 flex items-center rounded-full border border-border w-fit">
                           <button type="button" aria-label="Decrease quantity" onClick={() => setQty(item, item.quantity - 1)} className="grid size-8 place-items-center text-muted-foreground hover:text-primary">
                             <Minus className="size-3.5" />
@@ -202,7 +211,7 @@ function CheckoutPage() {
                 <span className="font-extrabold">{formatPrice(total)}</span>
               </div>
               {demo.length > 0 && orderable.length > 0 && (
-                <p className="text-xs text-muted-foreground">Sample listings are left in your cart.</p>
+                <p className="text-xs text-muted-foreground">Items that can't be ordered here stay in your cart.</p>
               )}
               <Button type="submit" className="mt-2 w-full" disabled={busy || orderable.length === 0}>
                 {busy && <Loader2 className="mr-2 size-4 animate-spin" />}
