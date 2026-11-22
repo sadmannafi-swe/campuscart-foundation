@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Heart, LogOut, MessageCircle, Package, ShieldCheck, ShoppingCart, User } from "lucide-react";
+import { Bell, Heart, LogOut, MessageCircle, Package, ShieldCheck, ShoppingCart, User } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
 import { EmptyState } from "@/components/common/StateBlocks";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useUnreadChatCounts } from "@/lib/chat";
 import { cn } from "@/lib/utils";
+import { useImageFallback } from "@/lib/useImageFallback";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
@@ -27,6 +27,7 @@ export const Route = createFileRoute("/account")({
 
 const quickLinks = [
   { label: "Orders", to: "/orders" as const, icon: Package },
+  { label: "Notifications", to: "/notifications" as const, icon: Bell },
   { label: "Wishlist", to: "/wishlist" as const, icon: Heart },
   { label: "Cart", to: "/cart" as const, icon: ShoppingCart },
 ];
@@ -34,32 +35,12 @@ const quickLinks = [
 function AccountPage() {
   const { user, profile, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const [studentId, setStudentId] = useState<string | null>(null);
+  const studentId = profile?.student_id ?? null;
   const [showStudentId, setShowStudentId] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const avatarUrl = profile?.avatar_path ?? null;
+  const avatarImg = useImageFallback(avatarUrl);
   const { data: unreadCounts } = useUnreadChatCounts(user?.id);
   const unreadTotal = unreadCounts ? Object.values(unreadCounts).reduce((sum, n) => sum + n, 0) : 0;
-
-  useEffect(() => {
-    if (!user) return;
-    void supabase
-      .from("student_identity")
-      .select("student_id")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => setStudentId((data?.student_id as string | undefined) ?? null));
-  }, [user]);
-
-  useEffect(() => {
-    if (!profile?.avatar_path) {
-      setAvatarUrl(null);
-      return;
-    }
-    void supabase.storage
-      .from("avatars")
-      .createSignedUrl(profile.avatar_path, 3600)
-      .then(({ data }) => setAvatarUrl(data?.signedUrl ?? null));
-  }, [profile?.avatar_path]);
 
   if (loading) {
     return (
@@ -120,8 +101,9 @@ function AccountPage() {
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
           <div className="card-surface p-4 sm:p-6 lg:col-span-2">
             <div className="flex items-center gap-4">
-              {avatarUrl ? (
+              {avatarImg.showImage && avatarUrl ? (
                 <img
+                  onError={avatarImg.onError}
                   src={avatarUrl}
                   alt={profile?.full_name || "Profile picture"}
                   className="size-16 rounded-full object-cover"

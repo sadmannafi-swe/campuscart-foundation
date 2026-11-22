@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { apiPost } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { validReviewRating } from "@/lib/reviewRules";
 
@@ -22,13 +22,11 @@ export function WriteReview({ orderId, productId, productName }: { orderId: stri
     setSaving(true);
     setError("");
     try {
-      const { error: failure } = await supabase.rpc("submit_product_review", {
-        _order_id: orderId, _product_id: productId, _rating: rating, _comment: comment,
-      });
-      if (failure) throw failure;
+      await apiPost("/reviews", { order_id: orderId, product_id: productId, rating, comment });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["buyer-reviews"] }),
         queryClient.invalidateQueries({ queryKey: ["product-reviews", productId] }),
+        queryClient.invalidateQueries({ queryKey: ["live-products"] }),
       ]);
       setOpen(false);
       toast.success("Review submitted");

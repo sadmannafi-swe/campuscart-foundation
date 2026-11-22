@@ -9,6 +9,7 @@ import { liveProductSlug } from "@/lib/liveCatalog";
 import { markChatRead, sendChatMessage, useChatMessages, type ChatConversation } from "@/lib/chat";
 import { useSignedUrl } from "@/lib/seller";
 import { cn } from "@/lib/utils";
+import { useImageFallback } from "@/lib/useImageFallback";
 
 export type ChatAccent = "buyer" | "seller";
 
@@ -36,12 +37,13 @@ function ProductContextCard({
   accent: ChatAccent;
 }) {
   const { data: imageUrl } = useSignedUrl(conversation.product_image);
+  const img = useImageFallback(imageUrl);
   const slug = liveProductSlug(conversation.product_name, conversation.product_id);
   return (
     <div className="flex items-center gap-3 border-b border-border bg-surface px-3 py-2.5">
       <span className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted text-xs font-bold text-muted-foreground">
-        {imageUrl ? (
-          <img src={imageUrl} alt="" className="size-full object-cover" />
+        {img.showImage && imageUrl ? (
+          <img src={imageUrl} alt="" className="size-full object-cover" onError={img.onError} />
         ) : (
           conversation.product_name.slice(0, 2).toUpperCase()
         )}

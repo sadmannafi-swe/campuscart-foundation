@@ -4,6 +4,7 @@ import { BackButton } from "@/components/common/BackButton";
 import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
 import { CategoryIcon } from "@/components/common/CategoryIcon";
 import { categories } from "@/data/marketplace";
+import { useCategoryCounts } from "@/lib/liveCatalog";
 
 export const Route = createFileRoute("/categories")({
   head: () => ({
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/categories")({
 });
 
 function CategoriesPage() {
+  const counts = useCategoryCounts();
   return (
     <SiteLayout>
       <div className="container-page py-8">
@@ -39,7 +41,7 @@ function CategoriesPage() {
                 <CategoryIcon name={category.icon} className="size-6" />
               </span>
               <span className="text-sm font-semibold">{category.name}</span>
-              <span className="text-xs text-muted-foreground">{category.productCount} listings</span>
+              <span className="text-xs text-muted-foreground">{counts[category.slug] ?? 0} listings</span>
             </Link>
           ))}
         </div>

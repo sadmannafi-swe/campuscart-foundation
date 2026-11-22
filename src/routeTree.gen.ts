@@ -20,6 +20,7 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DiuRouteImport } from './routes/diu'
 import { Route as NewArrivalsRouteImport } from './routes/new-arrivals'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as OffersRouteImport } from './routes/offers'
 import { Route as OrderConfirmationRouteImport } from './routes/order-confirmation'
 import { Route as OrdersRouteImport } from './routes/orders'
@@ -36,7 +37,6 @@ import { Route as SellRegisterRouteImport } from './routes/sell.register'
 import { Route as SellStatusRouteImport } from './routes/sell.status'
 import { Route as StoresIndexRouteImport } from './routes/stores.index'
 import { Route as StoresStoreSlugRouteImport } from './routes/stores.$storeSlug'
-import { Route as ApiCronOrderEmailsRouteImport } from './routes/api/cron/order-emails'
 import { Route as SellDashboardIndexRouteImport } from './routes/sell.dashboard.index'
 import { Route as SellDashboardEarningsRouteImport } from './routes/sell.dashboard.earnings'
 import { Route as SellDashboardHelpRouteImport } from './routes/sell.dashboard.help'
@@ -104,6 +104,11 @@ const DiuRoute = DiuRouteImport.update({
 const NewArrivalsRoute = NewArrivalsRouteImport.update({
   id: '/new-arrivals',
   path: '/new-arrivals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OffersRoute = OffersRouteImport.update({
@@ -184,11 +189,6 @@ const StoresIndexRoute = StoresIndexRouteImport.update({
 const StoresStoreSlugRoute = StoresStoreSlugRouteImport.update({
   id: '/stores/$storeSlug',
   path: '/stores/$storeSlug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiCronOrderEmailsRoute = ApiCronOrderEmailsRouteImport.update({
-  id: '/api/cron/order-emails',
-  path: '/api/cron/order-emails',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellDashboardIndexRoute = SellDashboardIndexRouteImport.update({
@@ -274,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
+  '/notifications': typeof NotificationsRoute
   '/offers': typeof OffersRoute
   '/order-confirmation': typeof OrderConfirmationRoute
   '/orders': typeof OrdersRoute
@@ -290,7 +291,6 @@ export interface FileRoutesByFullPath {
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
-  '/api/cron/order-emails': typeof ApiCronOrderEmailsRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
@@ -317,6 +317,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
+  '/notifications': typeof NotificationsRoute
   '/offers': typeof OffersRoute
   '/order-confirmation': typeof OrderConfirmationRoute
   '/orders': typeof OrdersRoute
@@ -332,7 +333,6 @@ export interface FileRoutesByTo {
   '/products': typeof ProductsIndexRoute
   '/sell': typeof SellIndexRoute
   '/stores': typeof StoresIndexRoute
-  '/api/cron/order-emails': typeof ApiCronOrderEmailsRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
@@ -360,6 +360,7 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
   '/new-arrivals': typeof NewArrivalsRoute
+  '/notifications': typeof NotificationsRoute
   '/offers': typeof OffersRoute
   '/order-confirmation': typeof OrderConfirmationRoute
   '/orders': typeof OrdersRoute
@@ -376,7 +377,6 @@ export interface FileRoutesById {
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
-  '/api/cron/order-emails': typeof ApiCronOrderEmailsRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
@@ -405,6 +405,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/diu'
     | '/new-arrivals'
+    | '/notifications'
     | '/offers'
     | '/order-confirmation'
     | '/orders'
@@ -421,7 +422,6 @@ export interface FileRouteTypes {
     | '/products/'
     | '/sell/'
     | '/stores/'
-    | '/api/cron/order-emails'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
     | '/sell/dashboard/messages'
@@ -448,6 +448,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/diu'
     | '/new-arrivals'
+    | '/notifications'
     | '/offers'
     | '/order-confirmation'
     | '/orders'
@@ -463,7 +464,6 @@ export interface FileRouteTypes {
     | '/products'
     | '/sell'
     | '/stores'
-    | '/api/cron/order-emails'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
     | '/sell/dashboard/messages'
@@ -490,6 +490,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/diu'
     | '/new-arrivals'
+    | '/notifications'
     | '/offers'
     | '/order-confirmation'
     | '/orders'
@@ -506,7 +507,6 @@ export interface FileRouteTypes {
     | '/products/'
     | '/sell/'
     | '/stores/'
-    | '/api/cron/order-emails'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
     | '/sell/dashboard/messages'
@@ -534,6 +534,7 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   DiuRoute: typeof DiuRoute
   NewArrivalsRoute: typeof NewArrivalsRoute
+  NotificationsRoute: typeof NotificationsRoute
   OffersRoute: typeof OffersRoute
   OrderConfirmationRoute: typeof OrderConfirmationRoute
   OrdersRoute: typeof OrdersRoute
@@ -550,7 +551,6 @@ export interface RootRouteChildren {
   ProductsIndexRoute: typeof ProductsIndexRoute
   SellIndexRoute: typeof SellIndexRoute
   StoresIndexRoute: typeof StoresIndexRoute
-  ApiCronOrderEmailsRoute: typeof ApiCronOrderEmailsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -630,6 +630,13 @@ declare module '@tanstack/react-router' {
       path: '/new-arrivals'
       fullPath: '/new-arrivals'
       preLoaderRoute: typeof NewArrivalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/offers': {
@@ -742,13 +749,6 @@ declare module '@tanstack/react-router' {
       path: '/stores/$storeSlug'
       fullPath: '/stores/$storeSlug'
       preLoaderRoute: typeof StoresStoreSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/cron/order-emails': {
-      id: '/api/cron/order-emails'
-      path: '/api/cron/order-emails'
-      fullPath: '/api/cron/order-emails'
-      preLoaderRoute: typeof ApiCronOrderEmailsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sell/dashboard/': {
@@ -894,6 +894,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   DiuRoute: DiuRoute,
   NewArrivalsRoute: NewArrivalsRoute,
+  NotificationsRoute: NotificationsRoute,
   OffersRoute: OffersRoute,
   OrderConfirmationRoute: OrderConfirmationRoute,
   OrdersRoute: OrdersRoute,
@@ -910,18 +911,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsIndexRoute: ProductsIndexRoute,
   SellIndexRoute: SellIndexRoute,
   StoresIndexRoute: StoresIndexRoute,
-  ApiCronOrderEmailsRoute: ApiCronOrderEmailsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

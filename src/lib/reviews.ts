@@ -1,25 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
+import type { PublicReview, Review, SellerReview } from "@shared/types";
+import { api } from "@/lib/api";
+import { useMarketplace } from "@/lib/marketplace";
 
-export type ProductReview = {
-  id: string;
-  author: string;
-  rating: number;
-  comment: string;
-  created_at: string;
-};
+export type ProductReview = PublicReview;
 
 export function useProductReviews(productId: string | undefined) {
+  const university = useMarketplace();
   return useQuery({
-    queryKey: ["product-reviews", productId],
+    queryKey: ["product-reviews", productId, university],
     enabled: Boolean(productId),
-    queryFn: async (): Promise<ProductReview[]> => {
-      if (!productId) return [];
-      const { data, error } = await supabase.rpc("get_product_reviews", { _product_id: productId });
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: () =>
+      api<ProductReview[]>(
+        `/products/${productId}/reviews?university=${encodeURIComponent(university)}`,
+      ),
   });
 }
 
@@ -27,11 +21,14 @@ export function useBuyerReviews(userId: string | undefined) {
   return useQuery({
     queryKey: ["buyer-reviews", userId],
     enabled: Boolean(userId),
-    queryFn: async (): Promise<Tables<"product_reviews">[]> => {
-      if (!userId) return [];
-      const { data, error } = await supabase.from("product_reviews").select("*").eq("buyer_id", userId);
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: () => api<Review[]>("/me/reviews"),
+  });
+}
+
+export function useSellerReviews(userId: string | undefined) {
+  return useQuery({
+    queryKey: ["seller-reviews", userId],
+    enabled: Boolean(userId),
+    queryFn: () => api<SellerReview[]>("/seller/reviews"),
   });
 }

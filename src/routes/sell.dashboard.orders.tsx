@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import {
   allowedOrderStatuses,
@@ -48,8 +48,7 @@ function SellerOrders() {
 
   const update = useMutation({
     mutationFn: async (v: { id: string; status: OrderStatus }) => {
-      const { error } = await supabase.rpc("update_order_status", { _order_id: v.id, _status: v.status });
-      if (error) throw error;
+      await apiPost(`/seller/orders/${v.id}/status`, { status: v.status });
     },
     onSuccess: () => {
       toast.success("Order status updated");

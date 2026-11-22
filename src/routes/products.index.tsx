@@ -23,8 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { categories, stores } from "@/data/marketplace";
-import { useCatalogProducts } from "@/lib/liveCatalog";
+import { categories } from "@/data/marketplace";
+import type { Store } from "@/lib/types";
+import { useCatalogProducts, useLiveStores } from "@/lib/liveCatalog";
 import {
   filterProducts,
   sortOptions,
@@ -100,6 +101,7 @@ function ProductsPage() {
   const navigate = useNavigate({ from: "/products/" });
 
   const { products } = useCatalogProducts();
+  const { stores } = useLiveStores();
   const results = useMemo(() => filterProducts(products, search), [products, search]);
   const activeCategory = categories.find((c) => c.slug === search.category);
   const activeCount = countActiveFilters(search);
@@ -119,7 +121,7 @@ function ProductsPage() {
           s.name.toLowerCase().includes(term) || s.categoryName.toLowerCase().includes(term),
       )
       .slice(0, 4);
-  }, [search.q]);
+  }, [search.q, stores]);
 
   const matchingCategories = useMemo(() => {
     const term = search.q?.trim().toLowerCase();
@@ -167,6 +169,7 @@ function ProductsPage() {
     <FilterPanel
       selectedCats={selectedCats}
       selectedStores={selectedStores}
+      stores={stores}
       min={search.min ?? PRICE_MIN}
       max={search.max ?? PRICE_MAX}
       rating={search.rating ?? 0}
@@ -373,6 +376,7 @@ function ProductsPage() {
 function FilterPanel({
   selectedCats,
   selectedStores,
+  stores,
   min,
   max,
   rating,
@@ -385,6 +389,7 @@ function FilterPanel({
 }: {
   selectedCats: string[];
   selectedStores: string[];
+  stores: Store[];
   min: number;
   max: number;
   rating: number;

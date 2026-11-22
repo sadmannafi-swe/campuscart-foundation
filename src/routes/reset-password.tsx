@@ -7,7 +7,7 @@ import { BackButton } from "@/components/common/BackButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
+import { authClient, authErrorMessage } from "@/lib/authClient";
 
 export const Route = createFileRoute("/reset-password")({
   head: () => ({
@@ -33,14 +33,20 @@ function ResetPasswordPage() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.updateUser({ password });
-    setBusy(false);
-    if (error) {
-      toast.error(error.message);
+    const token = new URLSearchParams(window.location.search).get("token");
+    if (!token) {
+      setBusy(false);
+      toast.error("This reset link is invalid or has expired. Request a new one from the login page.");
       return;
     }
-    toast.success("Password updated.");
-    void navigate({ to: "/account" });
+    const { error } = await authClient.resetPassword({ newPassword: password, token });
+    setBusy(false);
+    if (error) {
+      toast.error(authErrorMessage(error));
+      return;
+    }
+    toast.success("Password updated. Log in with your new password.");
+    void navigate({ to: "/auth", search: { mode: "login" } });
   }
 
   return (

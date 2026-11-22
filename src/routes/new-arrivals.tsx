@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
 import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
+import { EmptyState } from "@/components/common/StateBlocks";
 import { ProductGrid } from "@/components/commerce/ProductGrid";
 import { getProductsByTag } from "@/data/marketplace";
 import { useLiveProducts } from "@/lib/liveCatalog";
@@ -19,7 +20,7 @@ export const Route = createFileRoute("/new-arrivals")({
 });
 
 function NewArrivalsPage() {
-  const { data: live = [] } = useLiveProducts();
+  const { data: live = [], isLoading } = useLiveProducts();
   const items = [...live, ...getProductsByTag("new")];
   return (
     <SiteLayout>
@@ -31,7 +32,14 @@ function NewArrivalsPage() {
           {items.length} listings published recently by campus sellers.
         </p>
         <div className="mt-8">
-          <ProductGrid products={items} />
+          {items.length === 0 && !isLoading ? (
+            <EmptyState
+              title="No new listings yet"
+              description="Fresh listings from campus sellers will appear here."
+            />
+          ) : (
+            <ProductGrid products={items} />
+          )}
         </div>
       </div>
     </SiteLayout>

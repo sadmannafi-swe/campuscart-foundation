@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { supabase } from "@/integrations/supabase/client";
-import { isValidEmail } from "@/lib/email/mime";
+import { apiPatch } from "@/lib/api";
+import { isValidEmail } from "@shared/email/mime";
 import type { Seller } from "@/lib/seller";
 
 /** Seller preference: receive a Gmail/e-mail with full order details for every new order. */
@@ -30,10 +30,13 @@ export function OrderEmailSettings({ seller }: { seller: Seller }) {
       return;
     }
     setBusy(true);
-    const { error } = await supabase
-      .from("sellers")
-      .update({ order_email_enabled: enabled, notification_email: trimmed || null })
-      .eq("id", seller.id);
+    const error = await apiPatch("/seller/settings", {
+      order_email_enabled: enabled,
+      notification_email: trimmed || null,
+    }).then(
+      () => null,
+      (e: Error) => e,
+    );
     setBusy(false);
     if (error) toast.error(error.message);
     else {

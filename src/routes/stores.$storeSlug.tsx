@@ -11,9 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useLiveProducts } from "@/lib/liveCatalog";
+import { useLiveProducts, useLiveStore } from "@/lib/liveCatalog";
 import type { Product, Store } from "@/lib/types";
 import { getProductsByStore, getStoreBySlug } from "@/data/marketplace";
 
@@ -53,19 +51,7 @@ function StoreDetailsPage() {
 
 function LiveStorePage({ id }: { id: string }) {
   const { data: live = [] } = useLiveProducts();
-  const { data: row, isLoading } = useQuery({
-    queryKey: ["live-store", id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("stores")
-        .select("id,name,category,description,created_at")
-        .eq("id", id)
-        .eq("status", "approved")
-        .maybeSingle();
-      if (error) throw error;
-      return data;
-    },
-  });
+  const { data: row, isLoading } = useLiveStore(id);
   if (isLoading) {
     return <SiteLayout><div className="grid place-items-center py-20"><Loader2 className="size-6 animate-spin text-primary" /></div></SiteLayout>;
   }

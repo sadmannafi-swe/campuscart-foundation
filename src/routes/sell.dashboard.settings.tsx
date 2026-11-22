@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Eye, EyeOff } from "lucide-react";
 import { SellerShell } from "@/components/seller/SellerShell";
 import { OrderEmailSettings } from "@/components/seller/OrderEmailSettings";
-import { supabase } from "@/integrations/supabase/client";
+import { api } from "@/lib/api";
 import { useSellerAccount, useUniversities } from "@/lib/seller";
 
 export const Route = createFileRoute("/sell/dashboard/settings")({
@@ -19,14 +19,7 @@ function SellerSettings() {
   const { data: studentId } = useQuery({
     queryKey: ["seller-student-id", seller?.id],
     enabled: !!seller,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("seller_identity")
-        .select("student_id")
-        .eq("seller_id", seller!.id)
-        .maybeSingle();
-      return data?.student_id ?? null;
-    },
+    queryFn: async () => (await api<{ student_id: string | null }>("/seller/identity")).student_id,
   });
 
   const uni = universities.find((u) => u.slug === seller?.university_slug);

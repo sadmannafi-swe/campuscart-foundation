@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { apiPatch } from "@/lib/api";
 import { storeCategories, storeStatusMeta, useSellerAccount, useUniversities } from "@/lib/seller";
 import { cn } from "@/lib/utils";
 
@@ -31,10 +31,13 @@ function SellerStore() {
     e.preventDefault();
     if (!store) return;
     setBusy(true);
-    const { error } = await supabase
-      .from("stores")
-      .update({ description: description.trim(), contact_number: contact.trim() })
-      .eq("id", store.id);
+    const error = await apiPatch("/seller/store", {
+      description: description.trim(),
+      contact_number: contact.trim(),
+    }).then(
+      () => null,
+      (e: Error) => e,
+    );
     setBusy(false);
     if (error) toast.error(error.message);
     else {

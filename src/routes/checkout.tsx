@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
@@ -11,12 +10,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { cart, productToCartItem, useCart, type CartItem } from "@/lib/cart";
 import { useCatalogProducts } from "@/lib/liveCatalog";
 import { formatPrice } from "@/lib/format";
-import { dispatchOrderEmails } from "@/lib/orderEmails.functions";
+import { marketplaceName, useMarketplace } from "@/lib/marketplace";
 
 interface CheckoutSearch {
   buy?: string | undefined;
@@ -48,7 +47,6 @@ function CheckoutPage() {
   const { products, isLoading: productsLoading } = useCatalogProducts();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const sendOrderEmails = useServerFn(dispatchOrderEmails);
 
   // Buy Now: a single product held only on this page — never added to the cart.
   const buyProduct = buy ? products.find((p) => p.slug === buy) : undefined;
@@ -71,8 +69,11 @@ function CheckoutPage() {
     setPhone((v) => v || profile.phone);
   }, [profile]);
 
-  const orderable = items.filter((i) => i.live);
-  const demo = items.filter((i) => !i.live);
+  const marketplace = useMarketplace();
+  // Only real listings from the current university marketplace can be ordered.
+  const inMarketplace = (i: CartItem) => i.live && i.universitySlug === marketplace;
+  const orderable = items.filter(inMarketplace);
+  const demo = items.filter((i) => !inMarketplace(i));
   const subtotal = orderable.reduce((n, i) => n + i.price * i.quantity, 0);
   const total = subtotal;
 
@@ -88,21 +89,16 @@ function CheckoutPage() {
     }
     setBusy(true);
     try {
-      const { data, error } = await supabase.rpc("place_order", {
-        _items: orderable.map((i) => ({ product_id: i.productId, quantity: i.quantity })),
-        _name: name.trim(),
-        _phone: phone.trim(),
-        _address: address.trim(),
-        _note: note.trim(),
+      // The server prices the order, splits it per store and e-mails each seller.
+      const { ids: orderIds } = await apiPost<{ ids: string[] }>("/orders", {
+        university: marketplace,
+        items: orderable.map((i) => ({ product_id: i.productId, quantity: i.quantity })),
+        name: name.trim(),
+        phone: phone.trim(),
+        address: address.trim(),
+        note: note.trim(),
       });
-      if (error) throw error;
-      const orderIds = data ?? [];
-      // Notify sellers by e-mail in the background; failures stay queued for the cron retry.
-      if (orderIds.length > 0) {
-        sendOrderEmails({ data: { orderIds } }).catch((err: unknown) =>
-          console.warn("Order e-mail dispatch deferred", err),
-        );
-      }
+      void queryClient.invalidateQueries({ queryKey: ["notifications"] });
       if (!buy) cart.removeMany(orderable.map((i) => i.productId));
       await queryClient.invalidateQueries({ queryKey: ["buyer-orders"] });
       toast.success("Order placed");
@@ -155,11 +151,15 @@ function CheckoutPage() {
                       <div className="min-w-0 flex-1">
                         <p className="line-clamp-2 text-sm font-semibold">{item.name}</p>
                         <p className="text-xs text-muted-foreground">{item.storeName}</p>
-                        {!item.live && (
+                        {!item.live ? (
                           <p className="mt-1 text-xs font-semibold text-destructive">
                             Sample listing — can't be ordered.
                           </p>
-                        )}
+                        ) : item.universitySlug !== marketplace ? (
+                          <p className="mt-1 text-xs font-semibold text-destructive">
+                            Not available in the {marketplaceName(marketplace)} marketplace.
+                          </p>
+                        ) : null}
                         <div className="mt-2 flex items-center rounded-full border border-border w-fit">
                           <button type="button" aria-label="Decrease quantity" onClick={() => setQty(item, item.quantity - 1)} className="grid size-8 place-items-center text-muted-foreground hover:text-primary">
                             <Minus className="size-3.5" />
@@ -211,7 +211,7 @@ function CheckoutPage() {
                 <span className="font-extrabold">{formatPrice(total)}</span>
               </div>
               {demo.length > 0 && orderable.length > 0 && (
-                <p className="text-xs text-muted-foreground">Sample listings are left in your cart.</p>
+                <p className="text-xs text-muted-foreground">Items that can't be ordered here stay in your cart.</p>
               )}
               <Button type="submit" className="mt-2 w-full" disabled={busy || orderable.length === 0}>
                 {busy && <Loader2 className="mr-2 size-4 animate-spin" />}

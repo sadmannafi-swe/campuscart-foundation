@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRight, Store, UserPlus } from "lucide-react";
-import mainLogo from "@/assets/campuscart-main-logo.png.asset.json";
+import { brandAssets } from "@/lib/brand";
+import { BrandImage } from "@/components/brand/BrandImage";
 
 export const Route = createFileRoute("/sell/")({
   head: () => ({
@@ -36,8 +37,9 @@ export default function SellerEntry() {
     <div className="min-h-screen bg-background">
       <div className="mx-auto w-full max-w-md px-4 py-8 sm:py-12">
         <div className="flex flex-col items-center text-center">
-          <img
-            src={mainLogo.url}
+          <BrandImage
+            fallback="CampusCart"
+            src={brandAssets.mainLogo}
             alt="CampusCart"
             className="h-16 w-auto object-contain"
             width={512}

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
+import { authClient, authErrorMessage } from "@/lib/authClient";
 
 export const Route = createFileRoute("/sell/login")({
   head: () => ({
@@ -30,10 +30,10 @@ export default function SellerLogin() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    const { error } = await authClient.signIn.email({ email: email.trim(), password });
     setBusy(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(authErrorMessage(error));
       return;
     }
     toast.success("Welcome back!");
@@ -45,11 +45,12 @@ export default function SellerLogin() {
       toast.error("Enter your email first, then tap 'Forgot Password'.");
       return;
     }
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+    const { error } = await authClient.requestPasswordReset({
+      email: email.trim(),
       redirectTo: `${window.location.origin}/reset-password`,
     });
-    if (error) toast.error(error.message);
-    else toast.success("Password reset link sent to your email.");
+    if (error) toast.error(authErrorMessage(error));
+    else toast.success("If an account exists for this e-mail, a reset link is on its way.");
   }
 
   return (

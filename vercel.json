@@ -1,9 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "crons": [
-    {
-      "path": "/api/cron/order-emails",
-      "schedule": "17 3 * * *"
-    }
-  ]
+  "framework": null,
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build"
 }

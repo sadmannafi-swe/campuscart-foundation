@@ -1,15 +1,24 @@
 import { describe, expect, it } from "vitest";
 import { averageReviewRating, canWriteReview, validReviewRating } from "./reviewRules";
 
-const purchase = { status: "delivered", buyerId: "buyer-a", userId: "buyer-a", productId: "product-a", reviewed: false };
+const purchase = {
+  status: "delivered",
+  buyerId: "buyer-a",
+  userId: "buyer-a",
+  productId: "product-a",
+  reviewed: false,
+};
 
 describe("purchase review rules", () => {
   it("allows the purchasing buyer after delivery", () => {
     expect(canWriteReview(purchase)).toBe(true);
   });
-  it.each(["pending", "confirmed", "processing", "shipped", "cancelled"])("rejects %s orders", (status) => {
-    expect(canWriteReview({ ...purchase, status })).toBe(false);
-  });
+  it.each(["pending", "confirmed", "processing", "shipped", "cancelled"])(
+    "rejects %s orders",
+    (status) => {
+      expect(canWriteReview({ ...purchase, status })).toBe(false);
+    },
+  );
   it("rejects a different buyer or a signed-out visitor", () => {
     expect(canWriteReview({ ...purchase, userId: "buyer-b" })).toBe(false);
     expect(canWriteReview({ ...purchase, userId: undefined })).toBe(false);

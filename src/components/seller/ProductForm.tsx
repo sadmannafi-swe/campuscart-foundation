@@ -14,14 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { apiPatch, apiPost } from "@/lib/api";
+import { uploadImage } from "@/lib/uploads";
 import { categories } from "@/data/marketplace";
-import {
-  productConditions,
-  uploadSellerFile,
-  useSellerAccount,
-  type SellerProduct,
-} from "@/lib/seller";
+import { productConditions, useSellerAccount, type SellerProduct } from "@/lib/seller";
 
 export function ProductForm({ product }: { product?: SellerProduct }) {
   const { store } = useSellerAccount();
@@ -31,6 +27,9 @@ export function ProductForm({ product }: { product?: SellerProduct }) {
   const [name, setName] = useState(product?.name ?? "");
   const [category, setCategory] = useState(product?.category ?? "");
   const [price, setPrice] = useState(product ? String(product.price) : "");
+  const [originalPrice, setOriginalPrice] = useState(
+    product?.original_price != null ? String(product.original_price) : "",
+  );
   const [condition, setCondition] = useState(product?.condition ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
   const [inStock, setInStock] = useState(product?.in_stock ?? true);
@@ -39,35 +38,35 @@ export function ProductForm({ product }: { product?: SellerProduct }) {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (!store) return;
+    if (originalPrice.trim() && !(Number(originalPrice) > Number(price))) {
+      toast.error("Original price must be greater than the selling price.");
+      return;
+    }
     setBusy(true);
     try {
       const uploaded: string[] = [];
       for (const file of files.slice(0, 3)) {
         try {
-          uploaded.push(await uploadSellerFile(store.user_id, file, "product"));
-        } catch {
-          /* ignore a failed image, keep the product */
+          uploaded.push(await uploadImage(file, "product"));
+        } catch (err) {
+          toast.error(`${file.name}: ${err instanceof Error ? err.message : "upload failed"}`);
         }
       }
-      const existing = ((product?.images as string[] | null) ?? []).concat(uploaded);
+      const images = (product?.images ?? []).concat(uploaded).slice(0, 6);
 
       const payload = {
-        store_id: store.id,
-        user_id: store.user_id,
-        university_slug: store.university_slug,
         name: name.trim(),
         category,
         price: Number(price),
+        original_price: originalPrice.trim() ? Number(originalPrice) : null,
         condition,
         description: description.trim(),
-        images: existing,
+        images,
         in_stock: inStock,
       };
 
-      const { error } = product
-        ? await supabase.from("seller_products").update(payload).eq("id", product.id)
-        : await supabase.from("seller_products").insert(payload);
-      if (error) throw error;
+      if (product) await apiPatch(`/seller/products/${product.id}`, payload);
+      else await apiPost("/seller/products", payload);
 
       await queryClient.invalidateQueries({ queryKey: ["seller-products", store.id] });
       toast.success(product ? "Product updated" : "Product published");
@@ -140,6 +139,24 @@ export function ProductForm({ product }: { product?: SellerProduct }) {
           placeholder="Enter price"
           required
         />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="p-original-price">Original Price (৳, optional)</Label>
+        <Input
+          id="p-original-price"
+          type="number"
+          min={0}
+          step="1"
+          value={originalPrice}
+          onChange={(e) => setOriginalPrice(e.target.value)}
+          placeholder="Only for a discount"
+          aria-describedby="p-original-price-hint"
+        />
+        <p id="p-original-price-hint" className="text-[11px] text-muted-foreground">
+          Set the price before the discount to show this listing in Offers. Must be higher than the
+          price above.
+        </p>
       </div>
 
       <div className="space-y-1.5">

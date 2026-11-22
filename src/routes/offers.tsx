@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
 import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
+import { EmptyState } from "@/components/common/StateBlocks";
+import { useLiveProducts } from "@/lib/liveCatalog";
 import { ProductGrid } from "@/components/commerce/ProductGrid";
 import { getProductsByTag } from "@/data/marketplace";
 
@@ -18,7 +20,11 @@ export const Route = createFileRoute("/offers")({
 });
 
 function OffersPage() {
-  const offers = getProductsByTag("offer");
+  const { data: live = [] } = useLiveProducts();
+  const offers = [
+    ...live.filter((p) => p.originalPrice !== undefined && p.originalPrice > p.price),
+    ...getProductsByTag("offer"),
+  ];
   return (
     <SiteLayout>
       <div className="container-page py-8">
@@ -29,7 +35,14 @@ function OffersPage() {
           {offers.length} discounted listings, updated every semester week.
         </p>
         <div className="mt-8">
-          <ProductGrid products={offers} />
+          {offers.length === 0 ? (
+            <EmptyState
+              title="No offers right now"
+              description="Discounted listings from campus sellers will appear here."
+            />
+          ) : (
+            <ProductGrid products={offers} />
+          )}
         </div>
       </div>
     </SiteLayout>

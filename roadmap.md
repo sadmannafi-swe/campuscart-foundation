@@ -1,10 +1,8 @@
-- [x] Add purchase-verified review storage and enforce delivered-only, buyer-only, one-review-per-product-per-order rules.
-- [x] Add review submission to buyer order items and reviews/averages to product details.
-- [x] Pass 11 review-rule tests and verify public product reviews and signed-out order gating.
-- [ ] Verify signed-in submission and public readback: blocked because session minting found no account matching the requesting user; requires preview sign-in or an explicitly approved account.
-- [x] Buyer–seller product chat (conversations, messages, seller inbox, unread badges)
-- [x] Production hardening: listing/store ownership checks, admin-only moderation fields, forged-chat and notification-tampering fixes
-- [x] Forward-only order status lifecycle; buyers can cancel pending orders
-- [x] Admin console locked behind admin role (/admin; /ccadmingo redirects)
-- [x] Seller new-order e-mails via Gmail API with queued retries (email_outbox + /api/cron/order-emails)
-- [ ] Configure Gmail secrets on Vercel and verify a real order e-mail end to end
+- [x] Purchase-verified reviews (delivered-only, buyer-only, one per product per order)
+- [x] Buyer–seller product chat with unread badges
+- [x] Seller new-order e-mails via Gmail with queued retries
+- [x] Migrated to MERN: MongoDB + Express + React + Node, Better Auth, Cloudinary
+- [x] API tests against real MongoDB; browser end-to-end flow (register → approve → list → order)
+- [ ] Configure MongoDB Atlas, Cloudinary, Gmail and secrets on Vercel; remove the old Supabase integration
+- [ ] Add brand logo files to public/brand
+- [ ] Decide whether to keep the sample catalogue (src/data/marketplace.ts) next to real listings

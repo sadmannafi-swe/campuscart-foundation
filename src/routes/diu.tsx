@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Store as StoreIcon, Zap } from "lucide-react";
 import heroImage from "@/assets/hero-campus.jpg";
 import { SiteLayout } from "@/components/layout/SiteLayout";
@@ -9,8 +9,10 @@ import { ProductGrid } from "@/components/commerce/ProductGrid";
 import { StoreCard } from "@/components/commerce/StoreCard";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useFeaturedLiveStores, useLiveProducts } from "@/lib/liveCatalog";
-import { products, getFeaturedStores, getProductsByTag, getTopRatedStores } from "@/data/marketplace";
+import { EmptyState } from "@/components/common/StateBlocks";
+import { useFeaturedLiveStores, useLiveProducts, useLiveStores } from "@/lib/liveCatalog";
+import { products, getFeaturedStores, getProductsByTag } from "@/data/marketplace";
+import { setMarketplace } from "@/lib/marketplace";
 
 
 export const Route = createFileRoute("/diu")({
@@ -40,10 +42,18 @@ const tabs = [
 
 function HomePage() {
   const [activeTab, setActiveTab] = useState<(typeof tabs)[number]["id"]>("recommended");
-  const flashDeals = getProductsByTag("offer").slice(0, 6);
-  const { data: allLive = [] } = useLiveProducts();
+  // Entering the DIU marketplace selects it for catalogue, chat and checkout.
+  useEffect(() => setMarketplace("diu"), []);
+  const { data: allLive = [], isLoading: loadingLive } = useLiveProducts();
   // only this marketplace's seller listings
   const live = allLive.filter((p) => p.universitySlug === "diu");
+  const liveDeals = live.filter((p) => p.originalPrice !== undefined && p.originalPrice > p.price);
+  const flashDeals = [...liveDeals, ...getProductsByTag("offer")].slice(0, 6);
+  const { stores: diuStores } = useLiveStores();
+  const topRatedStores = [...diuStores]
+    .sort((a, b) => b.rating - a.rating || b.productCount - a.productCount)
+    .slice(0, 4);
+  const sampleFeatured = getFeaturedStores();
   const { data: featuredStores = [] } = useFeaturedLiveStores("diu");
   const featuredLive = live.filter((p) => p.featuredIn === "diu");
   const recommended = [...featuredLive, ...live.filter((p) => p.featuredIn !== "diu"), ...[...products].sort((a, b) => b.rating - a.rating)];
@@ -86,7 +96,12 @@ function HomePage() {
               </Link>
             </div>
             <ul className="space-y-1.5">
-              {getTopRatedStores().map((store) => (
+              {topRatedStores.length === 0 && (
+                <li className="px-1 py-1.5 text-xs text-muted-foreground">
+                  Verified campus stores will appear here.
+                </li>
+              )}
+              {topRatedStores.map((store) => (
                 <li key={store.id}>
                   <Link
                     to="/stores/$storeSlug"
@@ -114,6 +129,7 @@ function HomePage() {
       </section>
 
       {/* Daily flash deals */}
+      {flashDeals.length > 0 && (
       <section className="container-page pt-6">
         <SectionHeader
           title="Daily Flash Deals"
@@ -130,6 +146,7 @@ function HomePage() {
         </div>
         <ProductRail products={flashDeals} />
       </section>
+      )}
 
       {/* Featured stores */}
       <section className="container-page pt-6">
@@ -151,7 +168,12 @@ function HomePage() {
               </span>
             </Link>
           ))}
-          {getFeaturedStores().map((store) => (
+          {featuredStores.length === 0 && sampleFeatured.length === 0 && (
+            <p className="py-2 text-sm text-muted-foreground">
+              Featured campus stores will appear here soon.
+            </p>
+          )}
+          {sampleFeatured.map((store) => (
             <StoreCard key={store.id} store={store} className="w-64 shrink-0" />
           ))}
         </div>
@@ -177,7 +199,19 @@ function HomePage() {
             </button>
           ))}
         </div>
-        <ProductGrid products={tabProducts} />
+        {tabProducts.length === 0 && !loadingLive ? (
+          <EmptyState
+            title="No listings yet"
+            description="Products from verified DIU sellers will show up here as soon as they're published."
+            action={
+              <Button asChild size="sm">
+                <Link to="/sell">Start selling</Link>
+              </Button>
+            }
+          />
+        ) : (
+          <ProductGrid products={tabProducts} />
+        )}
       </section>
 
     </SiteLayout>

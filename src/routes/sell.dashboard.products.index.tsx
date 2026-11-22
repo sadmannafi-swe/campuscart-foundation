@@ -11,10 +11,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { supabase } from "@/integrations/supabase/client";
+import { apiDelete, apiPatch } from "@/lib/api";
 import { formatPrice } from "@/lib/format";
 import { useSellerAccount, useSellerProducts, useSignedUrl, type SellerProduct } from "@/lib/seller";
 import { cn } from "@/lib/utils";
+import { useImageFallback } from "@/lib/useImageFallback";
 
 export const Route = createFileRoute("/sell/dashboard/products/")({
   component: SellerProducts,
@@ -33,10 +34,10 @@ function SellerProducts() {
   const shown = filter === "all" ? products : filter === "active" ? active : inactive;
 
   async function toggleActive(product: SellerProduct) {
-    const { error } = await supabase
-      .from("seller_products")
-      .update({ is_active: !product.is_active })
-      .eq("id", product.id);
+    const error = await apiPatch(`/seller/products/${product.id}`, { is_active: !product.is_active }).then(
+      () => null,
+      (e: Error) => e,
+    );
     if (error) toast.error(error.message);
     else {
       toast.success(product.is_active ? "Product deactivated" : "Product activated");
@@ -45,7 +46,11 @@ function SellerProducts() {
   }
 
   async function remove(product: SellerProduct) {
-    const { error } = await supabase.from("seller_products").delete().eq("id", product.id);
+    if (!window.confirm(`Delete "${product.name}"? This cannot be undone.`)) return;
+    const error = await apiDelete(`/seller/products/${product.id}`).then(
+      () => null,
+      (e: Error) => e,
+    );
     if (error) toast.error(error.message);
     else {
       toast.success("Product deleted");
@@ -126,11 +131,12 @@ function ProductRow({
 }) {
   const images = (product.images as string[] | null) ?? [];
   const { data: url } = useSignedUrl(images[0] ?? null);
+  const img = useImageFallback(url);
   return (
     <div className="card-surface flex items-center gap-3 p-3">
       <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-muted">
-        {url ? (
-          <img src={url} alt="" className="size-full object-cover" />
+        {img.showImage && url ? (
+          <img src={url} alt="" className="size-full object-cover" onError={img.onError} />
         ) : (
           <Package className="size-5 text-muted-foreground" aria-hidden="true" />
         )}
