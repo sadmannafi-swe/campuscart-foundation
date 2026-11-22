@@ -20,6 +20,7 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     process.env["ADMIN_EMAILS"] = "admin@diu.edu.bd";
     process.env["CRON_SECRET"] = "cron-secret-for-tests-123";
     delete process.env["GMAIL_CLIENT_ID"];
+    process.env["MONGODB_URI"] ??= MONGO;
     client = new MongoClient(MONGO!);
     await client.connect();
     const db = await import("./lib/db");

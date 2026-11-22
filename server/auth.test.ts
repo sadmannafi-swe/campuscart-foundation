@@ -39,6 +39,7 @@ describe.skipIf(!MONGO)("Auth, privacy and authorization", () => {
       }
       return realFetch(url, init);
     });
+    process.env["MONGODB_URI"] ??= MONGO;
     client = new MongoClient(MONGO!);
     await client.connect();
     const db = await import("./lib/db");

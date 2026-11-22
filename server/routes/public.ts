@@ -1,6 +1,5 @@
 import { Router } from "express";
 import type { PublicProduct, PublicReview, PublicStore } from "../../shared/types";
-import { UNIVERSITIES } from "../../shared/universities";
 import { col, toApi, type StoreDoc } from "../lib/db";
 import { notFound } from "../lib/http";
 
@@ -17,10 +16,6 @@ const publicStore = (s: StoreDoc): PublicStore => ({
   featured_university_slug: s.featured_university_slug,
   approved_at: s.approved_at?.toISOString() ?? null,
   created_at: s.created_at.toISOString(),
-});
-
-publicRouter.get("/universities", (_req, res) => {
-  res.set("cache-control", "public, max-age=300").json(UNIVERSITIES);
 });
 
 /** Active listings of approved stores, newest first, with rating aggregates. */

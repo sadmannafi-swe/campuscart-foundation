@@ -6,6 +6,7 @@ import { getCloudinaryConfig } from "./lib/cloudinary";
 import { ensureIndexes, getDb } from "./lib/db";
 import { getGmailConfig } from "./lib/gmail";
 import { errorHandler } from "./lib/http";
+import { UNIVERSITIES } from "../shared/universities";
 import { processEmailOutbox } from "./lib/outbox";
 import { accountRouter } from "./routes/account";
 import { adminRouter } from "./routes/admin";
@@ -61,9 +62,17 @@ export function createApp() {
     });
   });
 
-  app.use("/api", async (_req: Request, _res: Response, next: NextFunction) => {
+  // Static data — no database needed.
+  app.get("/api/universities", (_req, res) => {
+    res.set("cache-control", "public, max-age=300").json(UNIVERSITIES);
+  });
+
+  app.use("/api", async (_req: Request, res: Response, next: NextFunction) => {
+    if (!process.env["MONGODB_URI"]) {
+      return res.status(503).json({ error: "Service is not configured yet (database missing)." });
+    }
     await ensureIndexes();
-    next();
+    return next();
   });
 
   // Better Auth must see the raw body, so it is mounted before express.json().
