@@ -86,6 +86,9 @@ Also remove any old Supabase integration from the Vercel project (*Settings →
 Integrations / Storage*): a paused integration makes every deploy fail with
 "Resource provisioning failed".
 
+After deploying, open `/api/health` — it reports `db`, `cloudinary`, `gmail`,
+`cron` and `admins` as configured / not configured (never the values).
+
 ### 5. First admin
 Sign up on the site with an e-mail listed in `ADMIN_EMAILS`, confirm it (or set
 `emailVerified: true` on your user in Atlas), then open `/admin` — the admin role
