@@ -125,6 +125,53 @@ export type Database = {
           },
         ]
       }
+      email_outbox: {
+        Row: {
+          attempts: number
+          created_at: string
+          id: string
+          kind: string
+          last_error: string | null
+          locked_at: string | null
+          order_id: string | null
+          sent_at: string | null
+          status: string
+          to_email: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          kind: string
+          last_error?: string | null
+          locked_at?: string | null
+          order_id?: string | null
+          sent_at?: string | null
+          status?: string
+          to_email: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          last_error?: string | null
+          locked_at?: string | null
+          order_id?: string | null
+          sent_at?: string | null
+          status?: string
+          to_email?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_outbox_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string
@@ -497,6 +544,8 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          notification_email: string | null
+          order_email_enabled: boolean
           phone: string
           status: Database["public"]["Enums"]["store_status"]
           university_slug: string
@@ -511,6 +560,8 @@ export type Database = {
           email: string
           full_name: string
           id?: string
+          notification_email?: string | null
+          order_email_enabled?: boolean
           phone: string
           status?: Database["public"]["Enums"]["store_status"]
           university_slug: string
@@ -525,6 +576,8 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          notification_email?: string | null
+          order_email_enabled?: boolean
           phone?: string
           status?: Database["public"]["Enums"]["store_status"]
           university_slug?: string
@@ -691,6 +744,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cancel_my_order: { Args: { _order_id: string }; Returns: undefined }
+      claim_email_outbox: {
+        Args: { _limit?: number; _order_ids?: string[] }
+        Returns: Database["public"]["Tables"]["email_outbox"]["Row"][]
+      }
       get_product_reviews: {
         Args: { _product_id: string }
         Returns: {
@@ -710,6 +768,10 @@ export type Database = {
       }
       mark_chat_read: { Args: { _conversation_id: string }; Returns: undefined }
       open_product_chat: { Args: { _product_id: string }; Returns: string }
+      order_status_rank: {
+        Args: { _s: Database["public"]["Enums"]["order_status"] }
+        Returns: number
+      }
       place_order: {
         Args: {
           _address: string

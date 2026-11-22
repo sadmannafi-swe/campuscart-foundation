@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { Tables } from "@/integrations/supabase/types";
+import { requireAdmin } from "@/lib/admin-middleware";
 
 export interface AdminApplication {
   store: Tables<"stores">;
@@ -11,8 +12,15 @@ export interface AdminApplication {
   universityName: string | null;
 }
 
-/** Unauthenticated review console data (secret-path admin area). */
-export const listApplications = createServerFn({ method: "GET" }).handler(
+/** Lets the console decide whether to render (also bootstraps ADMIN_EMAILS admins). */
+export const checkAdminAccess = createServerFn({ method: "GET" })
+  .middleware([requireAdmin])
+  .handler(async () => ({ isAdmin: true as const }));
+
+/** Admin-only: every store application with seller identity for review. */
+export const listApplications = createServerFn({ method: "GET" })
+  .middleware([requireAdmin])
+  .handler(
   async (): Promise<AdminApplication[]> => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
@@ -64,6 +72,7 @@ const updateSchema = z.object({
 });
 
 export const updateApplicationStatus = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
   .inputValidator((data: unknown) => updateSchema.parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -105,7 +114,9 @@ export interface AdminOrder {
 }
 
 /** All orders (buyer, seller, store, product, university, amounts) plus per-store summary. */
-export const listOrderData = createServerFn({ method: "GET" }).handler(async () => {
+export const listOrderData = createServerFn({ method: "GET" })
+  .middleware([requireAdmin])
+  .handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin
     .from("orders")
@@ -129,7 +140,9 @@ export const listOrderData = createServerFn({ method: "GET" }).handler(async () 
 });
 
 /** Active products of approved stores, for admin featuring. */
-export const listFeaturableProducts = createServerFn({ method: "GET" }).handler(async () => {
+export const listFeaturableProducts = createServerFn({ method: "GET" })
+  .middleware([requireAdmin])
+  .handler(async () => {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin
     .from("seller_products")
@@ -149,6 +162,7 @@ const featureSchema = z.object({
 
 /** Feature (in one university marketplace) or unfeature an approved store/product. */
 export const setFeatured = createServerFn({ method: "POST" })
+  .middleware([requireAdmin])
   .inputValidator((data: unknown) => featureSchema.parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

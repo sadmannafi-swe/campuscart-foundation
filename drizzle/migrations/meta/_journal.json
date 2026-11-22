@@ -29,6 +29,13 @@
       "when": 1792293551364,
       "tag": "0003_buyer_seller_product_chat",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795372800000,
+      "tag": "0004_production_hardening_and_order_emails",
+      "breakpoints": true
     }
   ]
 }

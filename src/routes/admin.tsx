@@ -1,45 +1,45 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, EyeOff, Loader2, ShieldCheck, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
 import {
-  storeStatusMeta,
-  useUniversities,
-  type Seller,
-  type Store,
-  type StoreStatus,
-} from "@/lib/seller";
+  checkAdminAccess,
+  listApplications,
+  listOrderData,
+  listFeaturableProducts,
+  setFeatured,
+  updateApplicationStatus,
+  type AdminApplication,
+} from "@/lib/adminReview.functions";
+import { storeStatusMeta, useUniversities, type StoreStatus } from "@/lib/seller";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth";
+import { formatPrice } from "@/lib/format";
+import { orderStatusMeta, shortOrderId } from "@/lib/orders";
+import type { AdminOrder, StoreOrderSummary } from "@/lib/adminReview.functions";
 
 export const Route = createFileRoute("/admin")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Seller Applications — CampusCart Admin" },
+      { title: "CampusCart Admin Console" },
       {
         name: "description",
-        content: "Review, approve, reject or unpublish CampusCart seller stores.",
+        content: "CampusCart administrator console.",
       },
-      { property: "og:title", content: "Seller Applications — CampusCart Admin" },
+      { property: "og:title", content: "CampusCart Admin Console" },
       {
         property: "og:description",
-        content: "Internal review console for CampusCart seller and store applications.",
+        content: "CampusCart administrator console.",
       },
-      { name: "robots", content: "noindex" },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  component: AdminReview,
+  component: AdminPage,
 });
-
-interface Application {
-  store: Store;
-  seller: Seller | null;
-  studentId: string | null;
-}
 
 const tabs: Array<{ id: StoreStatus; label: string }> = [
   { id: "pending", label: "Pending" },
@@ -48,94 +48,17 @@ const tabs: Array<{ id: StoreStatus; label: string }> = [
   { id: "suspended", label: "Unpublished" },
 ];
 
-function useIsAdmin() {
+function AdminPage() {
   const { user, loading } = useAuth();
-  const query = useQuery({
-    queryKey: ["is-admin", user?.id],
+  const check = useServerFn(checkAdminAccess);
+  const access = useQuery({
+    queryKey: ["admin-access", user?.id],
     enabled: !!user,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user!.id)
-        .eq("role", "admin")
-        .maybeSingle();
-      if (error) throw error;
-      return !!data;
-    },
-  });
-  return { isAdmin: query.data === true, checking: loading || query.isLoading, user };
-}
-
-function useApplications() {
-  return useQuery({
-    queryKey: ["admin-applications"],
-    queryFn: async (): Promise<Application[]> => {
-      const { data: stores, error } = await supabase
-        .from("stores")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      const list = stores ?? [];
-      if (list.length === 0) return [];
-
-      const sellerIds = [...new Set(list.map((s) => s.seller_id))];
-      const { data: sellers } = await supabase.from("sellers").select("*").in("id", sellerIds);
-      const { data: ids } = await supabase
-        .from("seller_identity")
-        .select("seller_id, student_id")
-        .in("seller_id", sellerIds);
-
-      return list.map((store) => ({
-        store,
-        seller: sellers?.find((s) => s.id === store.seller_id) ?? null,
-        studentId: ids?.find((i) => i.seller_id === store.seller_id)?.student_id ?? null,
-      }));
-    },
-  });
-}
-
-function AdminReview() {
-  const { isAdmin, checking, user } = useIsAdmin();
-  const [tab, setTab] = useState<StoreStatus>("pending");
-  const { data: applications = [], isLoading } = useApplications();
-  const { data: universities = [] } = useUniversities();
-  const queryClient = useQueryClient();
-
-  const update = useMutation({
-    mutationFn: async ({
-      store,
-      status,
-      reason,
-    }: {
-      store: Store;
-      status: StoreStatus;
-      reason?: string | null;
-    }) => {
-      const { error } = await supabase
-        .from("stores")
-        .update({
-          status,
-          rejection_reason: status === "rejected" ? (reason ?? null) : null,
-          approved_at: status === "approved" ? new Date().toISOString() : null,
-        })
-        .eq("id", store.id);
-      if (error) throw error;
-      const { error: sellerError } = await supabase
-        .from("sellers")
-        .update({ status })
-        .eq("id", store.seller_id);
-      if (sellerError) throw sellerError;
-    },
-    onSuccess: () => {
-      toast.success("Application updated.");
-      void queryClient.invalidateQueries({ queryKey: ["admin-applications"] });
-    },
-    onError: (error) =>
-      toast.error(error instanceof Error ? error.message : "Could not update application."),
+    retry: false,
+    queryFn: () => check(),
   });
 
-  if (checking) {
+  if (loading || (user && access.isLoading)) {
     return (
       <div className="grid min-h-screen place-items-center">
         <Loader2 className="size-6 animate-spin text-primary" />
@@ -143,22 +66,76 @@ function AdminReview() {
     );
   }
 
-  if (!user || !isAdmin) {
+  if (!user || !access.data?.isAdmin) {
     return (
       <div className="grid min-h-screen place-items-center px-4">
         <div className="card-surface max-w-sm p-6 text-center">
           <ShieldCheck className="mx-auto size-10 text-primary" aria-hidden="true" />
           <h1 className="mt-3 text-base font-bold">Admin access only</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            This console is limited to CampusCart administrators.
+            {user
+              ? "Your account is not a CampusCart administrator."
+              : "Log in with your CampusCart administrator account to continue."}
           </p>
           <Button asChild className="mt-4 w-full">
-            <Link to="/">Back to CampusCart</Link>
+            {user ? <Link to="/">Back to CampusCart</Link> : <Link to="/auth" search={{ mode: "login" }}>Log in</Link>}
           </Button>
         </div>
       </div>
     );
   }
+
+  return <AdminConsole />;
+}
+
+function AdminConsole() {
+  const [tab, setTab] = useState<StoreStatus>("pending");
+  const fetchApplications = useServerFn(listApplications);
+  const setStatus = useServerFn(updateApplicationStatus);
+  const queryClient = useQueryClient();
+  const { data: universities = [] } = useUniversities();
+  const fetchOrders = useServerFn(listOrderData);
+  const fetchProducts = useServerFn(listFeaturableProducts);
+  const featureFn = useServerFn(setFeatured);
+  const { data: featProducts = [] } = useQuery({
+    queryKey: ["cc-admin-feat-products"],
+    queryFn: () => fetchProducts(),
+  });
+  const feature = useMutation({
+    mutationFn: (data: { kind: "store" | "product"; id: string; universitySlug: string | null }) =>
+      featureFn({ data }),
+    onSuccess: () => {
+      toast.success("Featured content updated.");
+      void queryClient.invalidateQueries({ queryKey: ["cc-admin-applications"] });
+      void queryClient.invalidateQueries({ queryKey: ["cc-admin-feat-products"] });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Could not update."),
+  });
+  const { data: orderData } = useQuery({
+    queryKey: ["cc-admin-orders"],
+    queryFn: () => fetchOrders(),
+    refetchInterval: 30000,
+  });
+
+  const { data: applications = [], isLoading } = useQuery({
+    queryKey: ["cc-admin-applications"],
+    queryFn: () => fetchApplications() as Promise<AdminApplication[]>,
+  });
+
+  const update = useMutation({
+    mutationFn: (data: {
+      storeId: string;
+      sellerId: string;
+      status: StoreStatus;
+      reason?: string | null;
+    }) => setStatus({ data }),
+    onSuccess: () => {
+      toast.success("Application updated.");
+      void queryClient.invalidateQueries({ queryKey: ["cc-admin-applications"] });
+    },
+    onError: (error) =>
+      toast.error(error instanceof Error ? error.message : "Could not update application."),
+  });
 
   const visible = applications.filter((a) => a.store.status === tab);
 
@@ -205,17 +182,26 @@ function AdminReview() {
         )}
 
         <ul className="mt-5 space-y-3">
-          {visible.map(({ store, seller, studentId }) => {
+          {visible.map(({ store, seller, studentId, studentIdImageUrl, logoUrl, universityName }) => {
             const uni = universities.find((u) => u.slug === store.university_slug);
             const meta = storeStatusMeta[store.status];
             return (
               <li key={store.id} className="card-surface p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold">{store.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {uni?.name ?? store.university_slug} · {store.category}
-                    </p>
+                  <div className="flex min-w-0 items-center gap-3">
+                    {logoUrl ? (
+                      <img src={logoUrl} alt={`${store.name} logo`} className="size-12 shrink-0 rounded-xl border border-border object-cover" />
+                    ) : (
+                      <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary-soft text-sm font-bold text-primary">
+                        {store.name.slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold">{store.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {universityName ?? uni?.name ?? store.university_slug} · {store.category}
+                      </p>
+                    </div>
                   </div>
                   <span
                     className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", meta.className)}
@@ -229,18 +215,60 @@ function AdminReview() {
                 <dl className="mt-3 grid gap-2 rounded-xl bg-muted/60 p-3 text-xs sm:grid-cols-2">
                   <Detail label="Seller" value={seller?.full_name ?? "—"} />
                   <Detail label="Email" value={seller?.email ?? "—"} />
-                  <Detail label="Phone" value={store.contact_number} />
+                  <Detail label="Phone" value={seller?.phone ?? "—"} />
+                  <Detail label="Store contact" value={store.contact_number} />
+                  <Detail label="University" value={universityName ?? uni?.name ?? store.university_slug} />
+                  <Detail
+                    label="Applied on"
+                    value={new Date(store.created_at).toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                  />
                   <Detail label="Student ID (admin only)" value={studentId ?? "—"} />
                   <Detail label="Department" value={seller?.department ?? "—"} />
                   <Detail label="Batch" value={seller?.batch ?? "—"} />
                 </dl>
+
+                {store.status === "approved" && (
+                  <FeatureBlock
+                    universities={universities}
+                    disabled={feature.isPending}
+                    onChange={(kind, id, universitySlug) => feature.mutate({ kind, id, universitySlug })}
+                    store={{ id: store.id, name: store.name, home: store.university_slug, featured: store.featured_university_slug }}
+                    products={featProducts.filter((p) => p.store_id === store.id)}
+                  />
+                )}
+
+                <StoreOrders
+                  summary={orderData?.summaries[store.id]}
+                  orders={orderData?.orders.filter((o) => o.order.store_id === store.id) ?? []}
+                />
+
+                {store.status === "rejected" && store.rejection_reason && (
+                  <p className="mt-2 text-xs text-destructive">Rejection reason: {store.rejection_reason}</p>
+                )}
+
+                <div className="mt-3">
+                  <p className="text-xs text-muted-foreground">Student ID photo (admin only)</p>
+                  {studentIdImageUrl ? (
+                    <a href={studentIdImageUrl} target="_blank" rel="noreferrer noopener">
+                      <img src={studentIdImageUrl} alt="Student ID" className="mt-1 max-h-48 rounded-xl border border-border object-contain" />
+                    </a>
+                  ) : (
+                    <p className="text-xs font-semibold">Not submitted</p>
+                  )}
+                </div>
 
                 <div className="mt-3 flex flex-wrap gap-2">
                   {store.status !== "approved" && (
                     <Button
                       size="sm"
                       disabled={update.isPending}
-                      onClick={() => update.mutate({ store, status: "approved" })}
+                      onClick={() =>
+                        update.mutate({
+                          storeId: store.id,
+                          sellerId: store.seller_id,
+                          status: "approved",
+                        })
+                      }
                     >
                       <CheckCircle2 className="mr-1.5 size-4" aria-hidden="true" />
                       Approve
@@ -254,7 +282,12 @@ function AdminReview() {
                       onClick={() => {
                         const reason = window.prompt("Reason for rejection (shown to the seller)");
                         if (reason === null) return;
-                        update.mutate({ store, status: "rejected", reason: reason.trim() || null });
+                        update.mutate({
+                          storeId: store.id,
+                          sellerId: store.seller_id,
+                          status: "rejected",
+                          reason: reason.trim() || null,
+                        });
                       }}
                     >
                       <XCircle className="mr-1.5 size-4" aria-hidden="true" />
@@ -266,10 +299,16 @@ function AdminReview() {
                       size="sm"
                       variant="outline"
                       disabled={update.isPending}
-                      onClick={() => update.mutate({ store, status: "suspended" })}
+                      onClick={() =>
+                        update.mutate({
+                          storeId: store.id,
+                          sellerId: store.seller_id,
+                          status: "suspended",
+                        })
+                      }
                     >
                       <EyeOff className="mr-1.5 size-4" aria-hidden="true" />
-                      Unpublish
+                      Unpublish / Suspend
                     </Button>
                   )}
                 </div>
@@ -277,6 +316,12 @@ function AdminReview() {
             );
           })}
         </ul>
+
+        <p className="mt-8 text-center text-xs text-muted-foreground">
+          <Link to="/" className="hover:text-primary">
+            ← Back to CampusCart
+          </Link>
+        </p>
       </div>
     </div>
   );
@@ -288,5 +333,87 @@ function Detail({ label, value }: { label: string; value: string }) {
       <dt className="text-muted-foreground">{label}</dt>
       <dd className="font-semibold text-foreground">{value}</dd>
     </div>
+  );
+}
+
+function StoreOrders({ summary, orders }: { summary?: StoreOrderSummary | undefined; orders: AdminOrder[] }) {
+  const s = summary ?? { total: 0, pending: 0, confirmed: 0, processing: 0, shipped: 0, delivered: 0, cancelled: 0, deliveredSales: 0 };
+  const cells: Array<[string, string | number]> = [
+    ["Total Orders", s.total], ["Pending", s.pending], ["Confirmed", s.confirmed], ["Processing", s.processing],
+    ["Shipped", s.shipped], ["Delivered", s.delivered], ["Cancelled", s.cancelled], ["Delivered Sales", formatPrice(s.deliveredSales)],
+  ];
+  return (
+    <details className="mt-3 rounded-xl border border-border p-3 text-xs">
+      <summary className="cursor-pointer font-semibold">Orders ({s.total}) · Delivered sales {formatPrice(s.deliveredSales)}</summary>
+      <dl className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {cells.map(([k, v]) => <Detail key={k} label={k} value={String(v)} />)}
+      </dl>
+      <p className="mt-1 text-[11px] text-muted-foreground">Delivered sales count product amounts only.</p>
+      {orders.length > 0 && (
+        <ul className="mt-2 divide-y divide-border">
+          {orders.map(({ order, items }) => (
+            <li key={order.id} className="py-2">
+              <div className="flex justify-between gap-2">
+                <span className="font-semibold">{shortOrderId(order.id)} · {order.customer_name} · {order.customer_phone}</span>
+                <span className={cn("rounded-full px-2 py-0.5 font-semibold", orderStatusMeta[order.status].className)}>{orderStatusMeta[order.status].label}</span>
+              </div>
+              <p className="text-muted-foreground">{items.map((i) => `${i.product_name} ×${i.quantity}`).join(", ")}</p>
+              <p className="text-muted-foreground">
+                {new Date(order.created_at).toLocaleDateString("en-GB")} · {order.university_slug.toUpperCase()} · Total {formatPrice(Number(order.subtotal))}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </details>
+  );
+}
+
+type FeatUni = { slug: string; short_name: string };
+type FeatItem = { id: string; name: string; home: string; featured: string | null };
+
+function FeatureRow({ kind, item, universities, disabled, onChange }: {
+  kind: "store" | "product"; item: FeatItem; universities: FeatUni[]; disabled: boolean;
+  onChange: (kind: "store" | "product", id: string, slug: string | null) => void;
+}) {
+  const [target, setTarget] = useState(item.featured ?? item.home);
+  return (
+    <div className="flex flex-wrap items-center gap-2 py-1.5">
+      <span className="min-w-0 flex-1 truncate font-semibold">
+        {kind === "store" ? "Store: " : ""}{item.name}
+        {item.featured && <span className="ml-1.5 rounded-full bg-accent-soft px-2 py-0.5 text-accent">Featured · {item.featured.toUpperCase()}</span>}
+      </span>
+      <select value={target} onChange={(e) => setTarget(e.target.value)} className="h-8 rounded-lg border border-border bg-background px-2" aria-label="Target marketplace">
+        {universities.map((u) => <option key={u.slug} value={u.slug}>{u.short_name}</option>)}
+      </select>
+      <Button size="sm" variant="outline" disabled={disabled} onClick={() => onChange(kind, item.id, target)}>
+        {item.featured ? "Update" : "Feature"}
+      </Button>
+      {item.featured && (
+        <Button size="sm" variant="ghost" disabled={disabled} onClick={() => onChange(kind, item.id, null)}>Unfeature</Button>
+      )}
+    </div>
+  );
+}
+
+function FeatureBlock({ store, products, universities, disabled, onChange }: {
+  store: FeatItem;
+  products: Array<{ id: string; name: string; university_slug: string; featured_university_slug: string | null }>;
+  universities: FeatUni[]; disabled: boolean;
+  onChange: (kind: "store" | "product", id: string, slug: string | null) => void;
+}) {
+  return (
+    <details className="mt-3 rounded-xl border border-border p-3 text-xs">
+      <summary className="cursor-pointer font-semibold">Featured content</summary>
+      <FeatureRow kind="store" item={store} universities={universities} disabled={disabled} onChange={onChange} />
+      {products.length === 0 ? (
+        <p className="py-1 text-muted-foreground">No active products.</p>
+      ) : (
+        products.map((p) => (
+          <FeatureRow key={p.id} kind="product" universities={universities} disabled={disabled} onChange={onChange}
+            item={{ id: p.id, name: p.name, home: p.university_slug, featured: p.featured_university_slug }} />
+        ))
+      )}
+    </details>
   );
 }
