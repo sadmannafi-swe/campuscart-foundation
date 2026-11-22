@@ -1,15 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
+import type {
+  Seller as SellerT,
+  SellerProduct as SellerProductT,
+  Store as StoreT,
+  StoreStatus as StoreStatusT,
+} from "@shared/types";
+import {
+  STORE_CATEGORIES,
+  PRODUCT_CONDITIONS,
+  UNIVERSITIES,
+  type University as UniversityT,
+} from "@shared/universities";
+import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 
-export type University = Tables<"universities">;
-export type Seller = Tables<"sellers">;
-export type Store = Tables<"stores">;
-export type SellerProduct = Tables<"seller_products">;
-export type StoreStatus = Store["status"];
-
-export const SELLER_MEDIA_BUCKET = "seller-media";
+export type University = UniversityT;
+export type Seller = SellerT;
+export type Store = StoreT;
+export type SellerProduct = SellerProductT;
+export type StoreStatus = StoreStatusT;
 
 export const storeStatusMeta: Record<
   StoreStatus,
@@ -25,33 +34,17 @@ export const storeStatusMeta: Record<
   suspended: { label: "Unpublished", className: "bg-muted text-muted-foreground", public: false },
 };
 
-export const storeCategories = [
-  "Textbooks & Notes",
-  "Electronics",
-  "Stationery",
-  "Campus Fashion",
-  "Food & Snacks",
-  "Hostel Essentials",
-  "Sports & Fitness",
-  "Student Services",
-] as const;
-
-export const productConditions = ["new", "like-new", "used"] as const;
+export const storeCategories = STORE_CATEGORIES;
+export const productConditions = PRODUCT_CONDITIONS;
 
 /** All university marketplaces — data driven, new campuses need no code change. */
 export function useUniversities() {
   return useQuery({
     queryKey: ["universities"],
-    queryFn: async (): Promise<University[]> => {
-      const { data, error } = await supabase
-        .from("universities")
-        .select("*")
-        .eq("is_active", true)
-        .order("sort_order");
-      if (error) throw error;
-      return data ?? [];
-    },
-    staleTime: 5 * 60 * 1000,
+    queryFn: async () =>
+      UNIVERSITIES.filter((u) => u.is_active).sort((a, b) => a.sort_order - b.sort_order),
+    staleTime: Infinity,
+    initialData: UNIVERSITIES,
   });
 }
 
@@ -65,23 +58,8 @@ export function useSellerAccount() {
   const query = useQuery({
     queryKey: ["seller-account", user?.id],
     enabled: !!user,
-    queryFn: async (): Promise<SellerContext> => {
-      const { data: seller, error } = await supabase
-        .from("sellers")
-        .select("*")
-        .eq("user_id", user!.id)
-        .maybeSingle();
-      if (error) throw error;
-      if (!seller) return { seller: null, store: null };
-      const { data: store } = await supabase
-        .from("stores")
-        .select("*")
-        .eq("seller_id", seller.id)
-        .maybeSingle();
-      return { seller, store: store ?? null };
-    },
+    queryFn: () => api<SellerContext>("/seller/account"),
   });
-
   return {
     ...query,
     authLoading: loading,
@@ -95,38 +73,11 @@ export function useSellerProducts(storeId: string | undefined) {
   return useQuery({
     queryKey: ["seller-products", storeId],
     enabled: !!storeId,
-    queryFn: async (): Promise<SellerProduct[]> => {
-      const { data, error } = await supabase
-        .from("seller_products")
-        .select("*")
-        .eq("store_id", storeId!)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return data ?? [];
-    },
+    queryFn: () => api<SellerProduct[]>("/seller/products"),
   });
 }
 
-export async function uploadSellerFile(userId: string, file: File, prefix: string) {
-  const ext = file.name.split(".").pop() ?? "jpg";
-  const path = `${userId}/${prefix}-${Date.now()}.${ext}`;
-  const { error } = await supabase.storage
-    .from(SELLER_MEDIA_BUCKET)
-    .upload(path, file, { upsert: true });
-  if (error) throw error;
-  return path;
-}
-
+/** Images are stored as public Cloudinary URLs; kept as a hook so call sites stay unchanged. */
 export function useSignedUrl(path: string | null | undefined) {
-  return useQuery({
-    queryKey: ["seller-media", path],
-    enabled: !!path,
-    staleTime: 30 * 60 * 1000,
-    queryFn: async (): Promise<string | null> => {
-      const { data } = await supabase.storage
-        .from(SELLER_MEDIA_BUCKET)
-        .createSignedUrl(path!, 60 * 60);
-      return data?.signedUrl ?? null;
-    },
-  });
+  return { data: path ?? null };
 }

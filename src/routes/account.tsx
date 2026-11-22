@@ -7,8 +7,8 @@ import { BackButton } from "@/components/common/BackButton";
 import { EmptyState } from "@/components/common/StateBlocks";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
+import { thumbUrl } from "@/lib/uploads";
 import { useUnreadChatCounts } from "@/lib/chat";
 import { cn } from "@/lib/utils";
 
@@ -34,32 +34,11 @@ const quickLinks = [
 function AccountPage() {
   const { user, profile, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const [studentId, setStudentId] = useState<string | null>(null);
+  const studentId = profile?.student_id ?? null;
   const [showStudentId, setShowStudentId] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const avatarUrl = thumbUrl(profile?.avatar_path, 200);
   const { data: unreadCounts } = useUnreadChatCounts(user?.id);
   const unreadTotal = unreadCounts ? Object.values(unreadCounts).reduce((sum, n) => sum + n, 0) : 0;
-
-  useEffect(() => {
-    if (!user) return;
-    void supabase
-      .from("student_identity")
-      .select("student_id")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => setStudentId((data?.student_id as string | undefined) ?? null));
-  }, [user]);
-
-  useEffect(() => {
-    if (!profile?.avatar_path) {
-      setAvatarUrl(null);
-      return;
-    }
-    void supabase.storage
-      .from("avatars")
-      .createSignedUrl(profile.avatar_path, 3600)
-      .then(({ data }) => setAvatarUrl(data?.signedUrl ?? null));
-  }, [profile?.avatar_path]);
 
   if (loading) {
     return (

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ChevronRight, Store } from "lucide-react";
-import mainLogo from "@/assets/campuscart-main-logo.png.asset.json";
+import { brandAssets } from "@/lib/brand";
+import { BrandImage } from "@/components/brand/BrandImage";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { campuses } from "@/data/campuses";
@@ -29,8 +30,9 @@ function CampusSelectorPage() {
     <div className="flex min-h-screen flex-col bg-muted/40">
       <div className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-6 sm:py-10">
         <div className="flex flex-col items-center text-center">
-          <img
-            src={mainLogo.url}
+          <BrandImage
+            fallback="CampusCart"
+            src={brandAssets.mainLogo}
             alt="CampusCart — Buy, Sell, Connect. Your Campus Marketplace."
             className="h-28 w-auto object-contain sm:h-32"
             width={512}
@@ -94,7 +96,8 @@ function CampusCard({ campus }: { campus: (typeof campuses)[number] }) {
   const content = (
     <>
       <span className="grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-white">
-        <img
+        <BrandImage
+          fallback={campus.shortName}
           src={campus.logo}
           alt={`${campus.name} logo`}
           className="size-full object-contain p-0.5"

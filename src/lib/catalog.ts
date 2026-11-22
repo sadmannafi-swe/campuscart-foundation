@@ -38,10 +38,7 @@ export interface CatalogQuery {
 /** Pure catalogue logic, kept out of UI components so it can move server-side later. */
 export function filterProducts(source: Product[], query: CatalogQuery): Product[] {
   const term = query.q?.trim().toLowerCase();
-  const selectedCats = [
-    ...(query.cats ?? []),
-    ...(query.category ? [query.category] : []),
-  ];
+  const selectedCats = [...(query.cats ?? []), ...(query.category ? [query.category] : [])];
 
   let list = source.filter((product) => {
     if (selectedCats.length > 0 && !selectedCats.includes(product.categorySlug)) return false;
@@ -49,7 +46,8 @@ export function filterProducts(source: Product[], query: CatalogQuery): Product[
       return false;
     if (query.min !== undefined && product.price < query.min) return false;
     if (query.max !== undefined && product.price > query.max) return false;
-    if (query.rating !== undefined && query.rating > 0 && product.rating < query.rating) return false;
+    if (query.rating !== undefined && query.rating > 0 && product.rating < query.rating)
+      return false;
     if (query.instock && !product.inStock) return false;
     if (!term) return true;
     const store = getStoreById(product.storeId);

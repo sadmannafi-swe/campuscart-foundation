@@ -15,7 +15,6 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CategoriesRouteImport } from './routes/categories'
-import { Route as CcadmingoRouteImport } from './routes/ccadmingo'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DiuRouteImport } from './routes/diu'
@@ -36,7 +35,6 @@ import { Route as SellRegisterRouteImport } from './routes/sell.register'
 import { Route as SellStatusRouteImport } from './routes/sell.status'
 import { Route as StoresIndexRouteImport } from './routes/stores.index'
 import { Route as StoresStoreSlugRouteImport } from './routes/stores.$storeSlug'
-import { Route as ApiCronOrderEmailsRouteImport } from './routes/api/cron/order-emails'
 import { Route as SellDashboardIndexRouteImport } from './routes/sell.dashboard.index'
 import { Route as SellDashboardEarningsRouteImport } from './routes/sell.dashboard.earnings'
 import { Route as SellDashboardHelpRouteImport } from './routes/sell.dashboard.help'
@@ -79,11 +77,6 @@ const CartRoute = CartRouteImport.update({
 const CategoriesRoute = CategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CcadmingoRoute = CcadmingoRouteImport.update({
-  id: '/ccadmingo',
-  path: '/ccadmingo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -186,11 +179,6 @@ const StoresStoreSlugRoute = StoresStoreSlugRouteImport.update({
   path: '/stores/$storeSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiCronOrderEmailsRoute = ApiCronOrderEmailsRouteImport.update({
-  id: '/api/cron/order-emails',
-  path: '/api/cron/order-emails',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const SellDashboardIndexRoute = SellDashboardIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -269,7 +257,6 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
-  '/ccadmingo': typeof CcadmingoRoute
   '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
@@ -290,7 +277,6 @@ export interface FileRoutesByFullPath {
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
-  '/api/cron/order-emails': typeof ApiCronOrderEmailsRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
@@ -312,7 +298,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
-  '/ccadmingo': typeof CcadmingoRoute
   '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
@@ -332,7 +317,6 @@ export interface FileRoutesByTo {
   '/products': typeof ProductsIndexRoute
   '/sell': typeof SellIndexRoute
   '/stores': typeof StoresIndexRoute
-  '/api/cron/order-emails': typeof ApiCronOrderEmailsRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
@@ -355,7 +339,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
-  '/ccadmingo': typeof CcadmingoRoute
   '/chat': typeof ChatRoute
   '/checkout': typeof CheckoutRoute
   '/diu': typeof DiuRoute
@@ -376,7 +359,6 @@ export interface FileRoutesById {
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
-  '/api/cron/order-emails': typeof ApiCronOrderEmailsRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
@@ -400,7 +382,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
-    | '/ccadmingo'
     | '/chat'
     | '/checkout'
     | '/diu'
@@ -421,7 +402,6 @@ export interface FileRouteTypes {
     | '/products/'
     | '/sell/'
     | '/stores/'
-    | '/api/cron/order-emails'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
     | '/sell/dashboard/messages'
@@ -443,7 +423,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
-    | '/ccadmingo'
     | '/chat'
     | '/checkout'
     | '/diu'
@@ -463,7 +442,6 @@ export interface FileRouteTypes {
     | '/products'
     | '/sell'
     | '/stores'
-    | '/api/cron/order-emails'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
     | '/sell/dashboard/messages'
@@ -485,7 +463,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/categories'
-    | '/ccadmingo'
     | '/chat'
     | '/checkout'
     | '/diu'
@@ -506,7 +483,6 @@ export interface FileRouteTypes {
     | '/products/'
     | '/sell/'
     | '/stores/'
-    | '/api/cron/order-emails'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
     | '/sell/dashboard/messages'
@@ -529,7 +505,6 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
-  CcadmingoRoute: typeof CcadmingoRoute
   ChatRoute: typeof ChatRoute
   CheckoutRoute: typeof CheckoutRoute
   DiuRoute: typeof DiuRoute
@@ -550,7 +525,6 @@ export interface RootRouteChildren {
   ProductsIndexRoute: typeof ProductsIndexRoute
   SellIndexRoute: typeof SellIndexRoute
   StoresIndexRoute: typeof StoresIndexRoute
-  ApiCronOrderEmailsRoute: typeof ApiCronOrderEmailsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -595,13 +569,6 @@ declare module '@tanstack/react-router' {
       path: '/categories'
       fullPath: '/categories'
       preLoaderRoute: typeof CategoriesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ccadmingo': {
-      id: '/ccadmingo'
-      path: '/ccadmingo'
-      fullPath: '/ccadmingo'
-      preLoaderRoute: typeof CcadmingoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -744,13 +711,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoresStoreSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/cron/order-emails': {
-      id: '/api/cron/order-emails'
-      path: '/api/cron/order-emails'
-      fullPath: '/api/cron/order-emails'
-      preLoaderRoute: typeof ApiCronOrderEmailsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/sell/dashboard/': {
       id: '/sell/dashboard/'
       path: '/'
@@ -889,7 +849,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
-  CcadmingoRoute: CcadmingoRoute,
   ChatRoute: ChatRoute,
   CheckoutRoute: CheckoutRoute,
   DiuRoute: DiuRoute,
@@ -910,18 +869,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsIndexRoute: ProductsIndexRoute,
   SellIndexRoute: SellIndexRoute,
   StoresIndexRoute: StoresIndexRoute,
-  ApiCronOrderEmailsRoute: ApiCronOrderEmailsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

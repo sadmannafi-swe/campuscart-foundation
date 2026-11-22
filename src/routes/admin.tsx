@@ -1,28 +1,27 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, EyeOff, Loader2, ShieldCheck, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  checkAdminAccess,
-  listApplications,
-  listOrderData,
-  listFeaturableProducts,
-  setFeatured,
-  updateApplicationStatus,
-  type AdminApplication,
-} from "@/lib/adminReview.functions";
+import type { AdminApplication, AdminOrder, StoreOrderSummary } from "@shared/types";
+import { api, apiPost } from "@/lib/api";
 import { storeStatusMeta, useUniversities, type StoreStatus } from "@/lib/seller";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { formatPrice } from "@/lib/format";
 import { orderStatusMeta, shortOrderId } from "@/lib/orders";
-import type { AdminOrder, StoreOrderSummary } from "@/lib/adminReview.functions";
+
+interface FeaturableProduct {
+  id: string;
+  name: string;
+  price: number;
+  store_id: string;
+  university_slug: string;
+  featured_university_slug: string | null;
+}
 
 export const Route = createFileRoute("/admin")({
-  ssr: false,
   head: () => ({
     meta: [
       { title: "CampusCart Admin Console" },
@@ -50,12 +49,11 @@ const tabs: Array<{ id: StoreStatus; label: string }> = [
 
 function AdminPage() {
   const { user, loading } = useAuth();
-  const check = useServerFn(checkAdminAccess);
   const access = useQuery({
     queryKey: ["admin-access", user?.id],
     enabled: !!user,
     retry: false,
-    queryFn: () => check(),
+    queryFn: () => api<{ isAdmin: boolean }>("/admin/access"),
   });
 
   if (loading || (user && access.isLoading)) {
@@ -90,20 +88,15 @@ function AdminPage() {
 
 function AdminConsole() {
   const [tab, setTab] = useState<StoreStatus>("pending");
-  const fetchApplications = useServerFn(listApplications);
-  const setStatus = useServerFn(updateApplicationStatus);
   const queryClient = useQueryClient();
   const { data: universities = [] } = useUniversities();
-  const fetchOrders = useServerFn(listOrderData);
-  const fetchProducts = useServerFn(listFeaturableProducts);
-  const featureFn = useServerFn(setFeatured);
   const { data: featProducts = [] } = useQuery({
     queryKey: ["cc-admin-feat-products"],
-    queryFn: () => fetchProducts(),
+    queryFn: () => api<FeaturableProduct[]>("/admin/featurable-products"),
   });
   const feature = useMutation({
     mutationFn: (data: { kind: "store" | "product"; id: string; universitySlug: string | null }) =>
-      featureFn({ data }),
+      apiPost("/admin/feature", data),
     onSuccess: () => {
       toast.success("Featured content updated.");
       void queryClient.invalidateQueries({ queryKey: ["cc-admin-applications"] });
@@ -113,13 +106,14 @@ function AdminConsole() {
   });
   const { data: orderData } = useQuery({
     queryKey: ["cc-admin-orders"],
-    queryFn: () => fetchOrders(),
+    queryFn: () =>
+      api<{ orders: AdminOrder[]; summaries: Record<string, StoreOrderSummary> }>("/admin/orders"),
     refetchInterval: 30000,
   });
 
   const { data: applications = [], isLoading } = useQuery({
     queryKey: ["cc-admin-applications"],
-    queryFn: () => fetchApplications() as Promise<AdminApplication[]>,
+    queryFn: () => api<AdminApplication[]>("/admin/applications"),
   });
 
   const update = useMutation({
@@ -128,10 +122,11 @@ function AdminConsole() {
       sellerId: string;
       status: StoreStatus;
       reason?: string | null;
-    }) => setStatus({ data }),
+    }) => apiPost(`/admin/stores/${data.storeId}/status`, { status: data.status, reason: data.reason ?? null }),
     onSuccess: () => {
       toast.success("Application updated.");
       void queryClient.invalidateQueries({ queryKey: ["cc-admin-applications"] });
+      void queryClient.invalidateQueries({ queryKey: ["cc-admin-feat-products"] });
     },
     onError: (error) =>
       toast.error(error instanceof Error ? error.message : "Could not update application."),

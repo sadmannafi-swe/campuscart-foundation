@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Minus, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
@@ -11,12 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { supabase } from "@/integrations/supabase/client";
+import { apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { cart, productToCartItem, useCart, type CartItem } from "@/lib/cart";
 import { useCatalogProducts } from "@/lib/liveCatalog";
 import { formatPrice } from "@/lib/format";
-import { dispatchOrderEmails } from "@/lib/orderEmails.functions";
 
 interface CheckoutSearch {
   buy?: string | undefined;
@@ -48,7 +46,6 @@ function CheckoutPage() {
   const { products, isLoading: productsLoading } = useCatalogProducts();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const sendOrderEmails = useServerFn(dispatchOrderEmails);
 
   // Buy Now: a single product held only on this page — never added to the cart.
   const buyProduct = buy ? products.find((p) => p.slug === buy) : undefined;
@@ -88,21 +85,15 @@ function CheckoutPage() {
     }
     setBusy(true);
     try {
-      const { data, error } = await supabase.rpc("place_order", {
-        _items: orderable.map((i) => ({ product_id: i.productId, quantity: i.quantity })),
-        _name: name.trim(),
-        _phone: phone.trim(),
-        _address: address.trim(),
-        _note: note.trim(),
+      // The server prices the order, splits it per store and e-mails each seller.
+      const { ids: orderIds } = await apiPost<{ ids: string[] }>("/orders", {
+        items: orderable.map((i) => ({ product_id: i.productId, quantity: i.quantity })),
+        name: name.trim(),
+        phone: phone.trim(),
+        address: address.trim(),
+        note: note.trim(),
       });
-      if (error) throw error;
-      const orderIds = data ?? [];
-      // Notify sellers by e-mail in the background; failures stay queued for the cron retry.
-      if (orderIds.length > 0) {
-        sendOrderEmails({ data: { orderIds } }).catch((err: unknown) =>
-          console.warn("Order e-mail dispatch deferred", err),
-        );
-      }
+      void queryClient.invalidateQueries({ queryKey: ["notifications"] });
       if (!buy) cart.removeMany(orderable.map((i) => i.productId));
       await queryClient.invalidateQueries({ queryKey: ["buyer-orders"] });
       toast.success("Order placed");

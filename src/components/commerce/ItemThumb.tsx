@@ -1,9 +1,9 @@
 import { Package } from "lucide-react";
-import { useSignedUrl } from "@/lib/seller";
+import { thumbUrl } from "@/lib/uploads";
 import { cn } from "@/lib/utils";
 
 export function ItemThumb({ path, alt, className }: { path?: string | null | undefined; alt: string; className?: string }) {
-  const { data: url } = useSignedUrl(path ?? null);
+  const url = thumbUrl(path, 200);
   return (
     <span
       className={cn(

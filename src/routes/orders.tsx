@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Package } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { apiPost } from "@/lib/api";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
 import { ItemThumb } from "@/components/commerce/ItemThumb";
@@ -38,8 +38,7 @@ function OrdersPage() {
   const queryClient = useQueryClient();
   const cancel = useMutation({
     mutationFn: async (orderId: string) => {
-      const { error } = await supabase.rpc("cancel_my_order", { _order_id: orderId });
-      if (error) throw error;
+      await apiPost(`/orders/${orderId}/cancel`);
     },
     onSuccess: () => {
       toast.success("Order cancelled");

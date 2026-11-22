@@ -1,18 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import type { Tables } from "@/integrations/supabase/types";
+import {
+  canMoveOrder,
+  ORDER_STATUSES,
+  type Order as OrderT,
+  type OrderStatus as OrderStatusT,
+} from "@shared/types";
+import { api } from "@/lib/api";
 
-export type Order = Tables<"orders"> & { order_items: Tables<"order_items">[] };
-export type OrderStatus = Tables<"orders">["status"];
+export type Order = OrderT;
+export type OrderStatus = OrderStatusT;
 
-export const orderStatuses: OrderStatus[] = [
-  "pending",
-  "confirmed",
-  "processing",
-  "shipped",
-  "delivered",
-  "cancelled",
-];
+export const orderStatuses: OrderStatus[] = ORDER_STATUSES;
 
 export const orderStatusMeta: Record<OrderStatus, { label: string; className: string }> = {
   pending: { label: "Pending", className: "bg-warning/15 text-warning-foreground" },
@@ -23,11 +21,9 @@ export const orderStatusMeta: Record<OrderStatus, { label: string; className: st
   cancelled: { label: "Cancelled", className: "bg-destructive/10 text-destructive" },
 };
 
-/** Mirrors update_order_status(): forward-only, delivered/cancelled are final. */
+/** Forward-only: delivered/cancelled are final (mirrors the server rule). */
 export function allowedOrderStatuses(current: OrderStatus): OrderStatus[] {
-  if (current === "delivered" || current === "cancelled") return [current];
-  const rank = orderStatuses.indexOf(current);
-  return orderStatuses.filter((s) => s === "cancelled" || orderStatuses.indexOf(s) >= rank);
+  return orderStatuses.filter((s) => canMoveOrder(current, s));
 }
 
 export const isFinalOrderStatus = (s: OrderStatus) => s === "delivered" || s === "cancelled";
@@ -39,16 +35,7 @@ export function useBuyerOrders(userId: string | undefined) {
     queryKey: ["buyer-orders", userId],
     enabled: !!userId,
     refetchInterval: 15000,
-    refetchOnWindowFocus: true,
-    queryFn: async (): Promise<Order[]> => {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*, order_items(*)")
-        .eq("buyer_id", userId!)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as Order[];
-    },
+    queryFn: () => api<Order[]>("/orders"),
   });
 }
 
@@ -57,15 +44,6 @@ export function useSellerOrders(userId: string | undefined) {
     queryKey: ["seller-orders", userId],
     enabled: !!userId,
     refetchInterval: 15000,
-    refetchOnWindowFocus: true,
-    queryFn: async (): Promise<Order[]> => {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*, order_items(*)")
-        .eq("seller_user_id", userId!)
-        .order("created_at", { ascending: false });
-      if (error) throw error;
-      return (data ?? []) as Order[];
-    },
+    queryFn: () => api<Order[]>("/seller/orders"),
   });
 }

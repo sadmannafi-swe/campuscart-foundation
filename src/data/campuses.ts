@@ -1,10 +1,4 @@
-import diuLogo from "@/assets/uni-diu.png.asset.json";
-import nsuLogo from "@/assets/uni-nsu.png.asset.json";
-import bracLogo from "@/assets/uni-brac.png.asset.json";
-import duLogo from "@/assets/uni-du.jpg.asset.json";
-import ewuLogo from "@/assets/uni-ewu.jpg.asset.json";
-import mainLogo from "@/assets/campuscart-main-logo.png.asset.json";
-
+import { brandAssets } from "@/lib/brand";
 export interface Campus {
   /** URL slug used by /campus/$campusSlug (DIU has its own live route). */
   slug: string;
@@ -26,7 +20,7 @@ export const campuses: Campus[] = [
     shortName: "ALL",
     tagline: "Every campus, one marketplace",
     status: "coming-soon",
-    logo: mainLogo.url,
+    logo: brandAssets.mainLogo,
   },
   {
     slug: "diu",
@@ -35,7 +29,7 @@ export const campuses: Campus[] = [
     tagline: "Daffodil International University",
     status: "live",
     path: "/diu",
-    logo: diuLogo.url,
+    logo: brandAssets.diu,
   },
   {
     slug: "nsu",
@@ -43,7 +37,7 @@ export const campuses: Campus[] = [
     shortName: "NSU",
     tagline: "North South University",
     status: "coming-soon",
-    logo: nsuLogo.url,
+    logo: brandAssets.nsu,
   },
   {
     slug: "brac",
@@ -51,7 +45,7 @@ export const campuses: Campus[] = [
     shortName: "BRAC",
     tagline: "BRAC University",
     status: "coming-soon",
-    logo: bracLogo.url,
+    logo: brandAssets.brac,
   },
   {
     slug: "du",
@@ -59,7 +53,7 @@ export const campuses: Campus[] = [
     shortName: "DU",
     tagline: "University of Dhaka",
     status: "coming-soon",
-    logo: duLogo.url,
+    logo: brandAssets.du,
   },
   {
     slug: "ewu",
@@ -67,7 +61,7 @@ export const campuses: Campus[] = [
     shortName: "EWU",
     tagline: "East West University",
     status: "coming-soon",
-    logo: ewuLogo.url,
+    logo: brandAssets.ewu,
   },
 ];
 

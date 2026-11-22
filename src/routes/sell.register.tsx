@@ -24,9 +24,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { authClient, authErrorMessage } from "@/lib/authClient";
+import { apiPost } from "@/lib/api";
+import { uploadImage } from "@/lib/uploads";
 import { useAuth } from "@/lib/auth";
-import { storeCategories, uploadSellerFile, useSellerAccount, useUniversities } from "@/lib/seller";
+import { storeCategories, useSellerAccount, useUniversities } from "@/lib/seller";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/sell/register")({
@@ -250,73 +252,54 @@ function AccountStep({
     }
     setBusy(true);
     try {
-      let userId = existingUserId;
-
-      if (!userId) {
-        const { data, error } = await supabase.auth.signUp({
+      if (!existingUserId) {
+        if (password.length < 8) throw new Error("Password must be at least 8 characters.");
+        const { data, error } = await authClient.signUp.email({
           email: email.trim(),
           password,
-          options: {
-            emailRedirectTo: window.location.origin,
-            data: {
-              full_name: fullName.trim(),
-              phone: phone.trim(),
-              student_id: studentId.trim(),
-              department,
-              batch,
-            },
-          },
+          name: fullName.trim(),
+          phone: phone.trim(),
+          studentId: studentId.trim(),
+          department,
+          batch,
+          callbackURL: "/sell/register",
         });
-        if (error) throw error;
-        if (!data.session) {
-          toast.success("Account created. Confirm your email, then log in as a seller.");
+        if (error) throw new Error(authErrorMessage(error));
+        if (!data?.token) {
+          toast.success("Account created. Confirm your e-mail, then log in as a seller to continue.");
           setBusy(false);
           return;
         }
-        userId = data.user!.id;
       }
 
-      let avatarPath: string | null = null;
+      let avatarUrl: string | null = null;
       if (photo) {
         try {
-          avatarPath = await uploadSellerFile(userId, photo, "profile");
-        } catch {
-          avatarPath = null;
+          avatarUrl = await uploadImage(photo, "avatar");
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Profile photo upload failed.");
         }
       }
 
-      const { data: seller, error: sellerError } = await supabase
-        .from("sellers")
-        .insert({
-          user_id: userId,
-          university_slug: universitySlug,
-          full_name: fullName.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
-          department,
-          batch,
-          avatar_path: avatarPath,
-        })
-        .select("id")
-        .single();
-      if (sellerError) throw sellerError;
-
-      let idImagePath: string | null = null;
+      let idImage: string | null = null;
       if (idPhoto) {
         try {
-          idImagePath = await uploadSellerFile(userId, idPhoto, "student-id");
-        } catch {
-          idImagePath = null;
+          idImage = await uploadImage(idPhoto, "student-id");
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Student ID photo upload failed.");
         }
       }
 
-      const { error: idError } = await supabase.from("seller_identity").insert({
-        seller_id: seller.id,
-        user_id: userId,
+      await apiPost("/seller/account", {
+        university_slug: universitySlug,
+        full_name: fullName.trim(),
+        phone: phone.trim(),
+        department,
+        batch,
         student_id: studentId.trim(),
-        student_id_image_path: idImagePath,
+        avatar_url: avatarUrl,
+        student_id_image: idImage,
       });
-      if (idError) throw idError;
 
       toast.success("Seller account created. Now set up your store.");
       await onDone();
@@ -532,25 +515,21 @@ function StoreStep({
     e.preventDefault();
     setBusy(true);
     try {
-      let logoPath: string | null = null;
+      let logoUrl: string | null = null;
       if (logo) {
         try {
-          logoPath = await uploadSellerFile(userId, logo, "store-logo");
-        } catch {
-          logoPath = null;
+          logoUrl = await uploadImage(logo, "store-logo");
+        } catch (err) {
+          toast.error(err instanceof Error ? err.message : "Logo upload failed.");
         }
       }
-      const { error } = await supabase.from("stores").insert({
-        seller_id: sellerId,
-        user_id: userId,
-        university_slug: universitySlug,
+      await apiPost("/seller/store", {
         name: name.trim(),
         description: description.trim(),
         category,
         contact_number: contact.trim(),
-        logo_path: logoPath,
+        logo_url: logoUrl,
       });
-      if (error) throw error;
       toast.success("Store submitted for review.");
       onDone();
     } catch (error) {

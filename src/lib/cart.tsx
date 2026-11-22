@@ -96,7 +96,9 @@ export const cart = {
     load();
     save(
       items.map((i) =>
-        i.productId === productId ? { ...i, quantity: Math.max(1, Math.min(MAX_QTY, quantity)) } : i,
+        i.productId === productId
+          ? { ...i, quantity: Math.max(1, Math.min(MAX_QTY, quantity)) }
+          : i,
       ),
     );
   },

@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { supabase } from "@/integrations/supabase/client";
+import { authClient } from "@/lib/authClient";
 import { useSellerAccount, useSignedUrl } from "@/lib/seller";
 import { useAuth } from "@/lib/auth";
 import { useNotifications } from "@/lib/notifications";
@@ -78,7 +78,7 @@ export function SellerShell({ children, title }: { children: ReactNode; title: s
   async function signOut() {
     await queryClient.cancelQueries();
     queryClient.clear();
-    await supabase.auth.signOut();
+    await authClient.signOut();
     void navigate({ to: "/sell/login", replace: true });
   }
 

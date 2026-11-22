@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
+import { authClient, authErrorMessage } from "@/lib/authClient";
+import { apiPatch } from "@/lib/api";
+import { uploadImage } from "@/lib/uploads";
 import { useAuth } from "@/lib/auth";
 
 type AuthMode = "login" | "signup";
@@ -135,13 +137,10 @@ function LoginForm() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
+    const { error } = await authClient.signIn.email({ email: email.trim(), password });
     setBusy(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(authErrorMessage(error));
       return;
     }
     toast.success("Welcome back!");
@@ -153,11 +152,12 @@ function LoginForm() {
       toast.error("Enter your email first, then tap 'Forgot password'.");
       return;
     }
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+    const { error } = await authClient.requestPasswordReset({
+      email: email.trim(),
       redirectTo: `${window.location.origin}/reset-password`,
     });
-    if (error) toast.error(error.message);
-    else toast.success("Password reset link sent to your email.");
+    if (error) toast.error(authErrorMessage(error));
+    else toast.success("If an account exists for this e-mail, a reset link is on its way.");
   }
 
   return (
@@ -225,45 +225,44 @@ function SignupForm() {
     e.preventDefault();
     setBusy(true);
 
-    const { data, error } = await supabase.auth.signUp({
+    if (password.length < 8) {
+      setBusy(false);
+      toast.error("Password must be at least 8 characters.");
+      return;
+    }
+    const { data, error } = await authClient.signUp.email({
       email: email.trim(),
       password,
-      options: {
-        emailRedirectTo: window.location.origin,
-        data: {
-          full_name: fullName.trim(),
-          phone: phone.trim(),
-          student_id: studentId.trim(),
-          department: department.trim(),
-          batch: batch.trim(),
-        },
-      },
+      name: fullName.trim(),
+      phone: phone.trim(),
+      studentId: studentId.trim(),
+      department: department.trim(),
+      batch: batch.trim(),
+      callbackURL: "/account",
     });
 
     if (error) {
       setBusy(false);
-      toast.error(error.message);
+      toast.error(authErrorMessage(error));
       return;
     }
 
-    const userId = data.user?.id;
-    if (avatar && userId && data.session) {
-      const ext = avatar.name.split(".").pop() ?? "jpg";
-      const path = `${userId}/avatar.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(path, avatar, { upsert: true });
-      if (!uploadError) {
-        await supabase.from("profiles").update({ avatar_path: path }).eq("id", userId);
+    if (!data?.token) {
+      setBusy(false);
+      toast.success("Account created. Check your e-mail to confirm it, then log in.");
+      return;
+    }
+
+    if (avatar) {
+      try {
+        const url = await uploadImage(avatar, "avatar");
+        await apiPatch("/me", { avatar_url: url });
+      } catch {
+        toast.message("Account created — your profile photo couldn't be uploaded.");
       }
     }
 
     setBusy(false);
-
-    if (!data.session) {
-      toast.success("Account created. Check your email to confirm, then log in.");
-      return;
-    }
     toast.success("Welcome to CampusCart!");
     void navigate({ to: "/account" });
   }

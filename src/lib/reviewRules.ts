@@ -1,11 +1,23 @@
-export function canWriteReview({ status, buyerId, userId, productId, reviewed }: {
+export function canWriteReview({
+  status,
+  buyerId,
+  userId,
+  productId,
+  reviewed,
+}: {
   status: string;
   buyerId: string;
   userId: string | undefined;
   productId: string | null;
   reviewed: boolean;
 }) {
-  return status === "delivered" && Boolean(userId) && buyerId === userId && Boolean(productId) && !reviewed;
+  return (
+    status === "delivered" &&
+    Boolean(userId) &&
+    buyerId === userId &&
+    Boolean(productId) &&
+    !reviewed
+  );
 }
 
 export function validReviewRating(rating: number) {
@@ -13,5 +25,7 @@ export function validReviewRating(rating: number) {
 }
 
 export function averageReviewRating(reviews: { rating: number }[]) {
-  return reviews.length ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : 0;
+  return reviews.length
+    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+    : 0;
 }

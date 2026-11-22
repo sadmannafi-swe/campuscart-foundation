@@ -14,14 +14,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { apiPatch, apiPost } from "@/lib/api";
+import { uploadImage } from "@/lib/uploads";
 import { categories } from "@/data/marketplace";
-import {
-  productConditions,
-  uploadSellerFile,
-  useSellerAccount,
-  type SellerProduct,
-} from "@/lib/seller";
+import { productConditions, useSellerAccount, type SellerProduct } from "@/lib/seller";
 
 export function ProductForm({ product }: { product?: SellerProduct }) {
   const { store } = useSellerAccount();
@@ -44,30 +40,25 @@ export function ProductForm({ product }: { product?: SellerProduct }) {
       const uploaded: string[] = [];
       for (const file of files.slice(0, 3)) {
         try {
-          uploaded.push(await uploadSellerFile(store.user_id, file, "product"));
-        } catch {
-          /* ignore a failed image, keep the product */
+          uploaded.push(await uploadImage(file, "product"));
+        } catch (err) {
+          toast.error(`${file.name}: ${err instanceof Error ? err.message : "upload failed"}`);
         }
       }
-      const existing = ((product?.images as string[] | null) ?? []).concat(uploaded);
+      const images = (product?.images ?? []).concat(uploaded).slice(0, 6);
 
       const payload = {
-        store_id: store.id,
-        user_id: store.user_id,
-        university_slug: store.university_slug,
         name: name.trim(),
         category,
         price: Number(price),
         condition,
         description: description.trim(),
-        images: existing,
+        images,
         in_stock: inStock,
       };
 
-      const { error } = product
-        ? await supabase.from("seller_products").update(payload).eq("id", product.id)
-        : await supabase.from("seller_products").insert(payload);
-      if (error) throw error;
+      if (product) await apiPatch(`/seller/products/${product.id}`, payload);
+      else await apiPost("/seller/products", payload);
 
       await queryClient.invalidateQueries({ queryKey: ["seller-products", store.id] });
       toast.success(product ? "Product updated" : "Product published");

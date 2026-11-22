@@ -1,1 +1,0 @@
-CREATE POLICY "Seller media readable by everyone" ON storage.objects FOR SELECT TO anon USING (bucket_id = 'seller-media');
