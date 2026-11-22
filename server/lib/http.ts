@@ -93,13 +93,63 @@ export function parse<T extends ZodTypeAny>(schema: T, value: unknown): z.infer<
   return schema.parse(value);
 }
 
+const FIELD_LABELS: Record<string, string> = {
+  student_id: "Student ID",
+  logo_url: "Logo",
+  contact_number: "Contact number",
+  original_price: "Original price",
+  product_id: "Product",
+};
+
+function fieldLabel(path: (string | number)[]): string {
+  const key = [...path].reverse().find((p): p is string => typeof p === "string");
+  if (!key) return "This field";
+  if (FIELD_LABELS[key]) return FIELD_LABELS[key];
+  const words = key.replace(/_/g, " ").trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/**
+ * Turn the first validation issue into a sentence a user can act on, e.g.
+ * "Description must be at least 10 characters." Messages written explicitly
+ * in a schema (`.min(1, "Message cannot be empty")`) are passed through.
+ */
+export function zodMessage(err: ZodError): string {
+  const issue = err.issues[0];
+  if (!issue) return "Invalid input.";
+  const label = fieldLabel(issue.path);
+  switch (issue.code) {
+    case "too_small":
+      if (issue.type === "string") {
+        if (!/^String must contain/.test(issue.message)) return issue.message;
+        return Number(issue.minimum) <= 1
+          ? `${label} is required.`
+          : `${label} must be at least ${issue.minimum} characters.`;
+      }
+      if (issue.type === "number" && /^Number must be/.test(issue.message))
+        return `${label} must be at least ${issue.minimum}.`;
+      return issue.message;
+    case "too_big":
+      if (issue.type === "string" && /^String must contain/.test(issue.message))
+        return `${label} must be at most ${issue.maximum} characters.`;
+      if (issue.type === "number" && /^Number must be/.test(issue.message))
+        return `${label} must be at most ${issue.maximum}.`;
+      return issue.message;
+    case "invalid_type":
+      return issue.received === "undefined" || issue.received === "null"
+        ? `${label} is required.`
+        : `${label} is invalid.`;
+    default:
+      return /^(Invalid|Required|Expected)/.test(issue.message)
+        ? `${label} is invalid.`
+        : issue.message;
+  }
+}
+
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
   if (err instanceof HttpError) return res.status(err.status).json({ error: err.message });
   if (err instanceof ZodError) {
-    const first = err.issues[0];
-    return res.status(400).json({
-      error: first ? `${first.path.join(".") || "input"}: ${first.message}` : "Invalid input",
-    });
+    return res.status(400).json({ error: zodMessage(err) });
   }
   if (
     err &&

@@ -64,6 +64,9 @@ const departments = [
   "Other",
 ];
 
+/** Must match the API's store schema (server/routes/seller.ts). */
+const STORE_DESC_MIN = 10;
+
 const batches = Array.from({ length: 12 }, (_, i) => `Batch ${65 - i}`);
 
 type Step = "university" | "account" | "store";
@@ -269,7 +272,9 @@ function AccountStep({
         });
         if (error) throw new Error(authErrorMessage(error));
         if (!data?.token) {
-          toast.success("Account created. Confirm your e-mail, then log in as a seller to continue.");
+          toast.success(
+            "Account created. Confirm your e-mail, then log in as a seller to continue.",
+          );
           setBusy(false);
           return;
         }
@@ -342,7 +347,9 @@ function AccountStep({
             autoComplete="email"
             readOnly={accountEmail !== null}
             aria-readonly={accountEmail !== null}
-            className={cn(accountEmail !== null && "cursor-not-allowed bg-muted text-muted-foreground")}
+            className={cn(
+              accountEmail !== null && "cursor-not-allowed bg-muted text-muted-foreground",
+            )}
             required
           />
           <p className="mt-1 text-[11px] text-muted-foreground">
@@ -522,17 +529,31 @@ function StoreStep({
   const [category, setCategory] = useState("");
   const [contact, setContact] = useState("");
   const [busy, setBusy] = useState(false);
+  // Keep the uploaded logo so a retry after a validation error doesn't upload it again.
+  const [uploadedLogo, setUploadedLogo] = useState<{ file: File; url: string } | null>(null);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    // Check the form before uploading anything (the API enforces the same rules).
+    if (name.trim().length < 2)
+      return void toast.error("Store name must be at least 2 characters.");
+    if (description.trim().length < STORE_DESC_MIN)
+      return void toast.error(`Store description must be at least ${STORE_DESC_MIN} characters.`);
+    if (!category) return void toast.error("Select a store category.");
+    if (contact.trim().length < 6) return void toast.error("Enter a valid contact number.");
     setBusy(true);
     try {
       let logoUrl: string | null = null;
       if (logo) {
-        try {
-          logoUrl = await uploadImage(logo, "store-logo");
-        } catch (err) {
-          toast.error(err instanceof Error ? err.message : "Logo upload failed.");
+        if (uploadedLogo?.file === logo) {
+          logoUrl = uploadedLogo.url;
+        } else {
+          try {
+            logoUrl = await uploadImage(logo, "store-logo");
+            setUploadedLogo({ file: logo, url: logoUrl });
+          } catch (err) {
+            toast.error(err instanceof Error ? err.message : "Logo upload failed.");
+          }
         }
       }
       await apiPost("/seller/store", {
@@ -595,11 +616,24 @@ function StoreStep({
             id="store-desc"
             value={description}
             onChange={(e) => setDescription(e.target.value.slice(0, 200))}
-            placeholder="Tell us about your store"
+            placeholder="What do you sell? e.g. Home-cooked lunch boxes delivered on campus"
             rows={4}
             required
+            aria-describedby="store-desc-hint"
           />
-          <p className="text-right text-[11px] text-muted-foreground">{description.length}/200</p>
+          <div className="flex justify-between text-[11px] text-muted-foreground">
+            <span
+              id="store-desc-hint"
+              className={
+                description.length > 0 && description.trim().length < STORE_DESC_MIN
+                  ? "text-destructive"
+                  : undefined
+              }
+            >
+              At least {STORE_DESC_MIN} characters
+            </span>
+            <span>{description.length}/200</span>
+          </div>
         </div>
 
         <div className="space-y-1.5">
