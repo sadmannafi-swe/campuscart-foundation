@@ -1,0 +1,35 @@
+{
+  "voice": "am_michael",
+  "lines": [
+    {
+      "i": 1,
+      "seconds": 5.08,
+      "text": "University life comes with endless needs. Meet Campus Cart."
+    },
+    {
+      "i": 2,
+      "seconds": 6.3,
+      "text": "Discover products, explore stores, and shop smarter within your university community."
+    },
+    {
+      "i": 3,
+      "seconds": 5.03,
+      "text": "Find affordable products, or give your old items a new life."
+    },
+    {
+      "i": 4,
+      "seconds": 3.88,
+      "text": "Connect with blood donors, and people who need help."
+    },
+    {
+      "i": 5,
+      "seconds": 3.83,
+      "text": "Discover rooms, apartments, and the right roommates."
+    },
+    {
+      "i": 6,
+      "seconds": 8.1,
+      "text": "Four useful services. One connected campus community. Your campus. Your community. Your Campus Cart."
+    }
+  ]
+}

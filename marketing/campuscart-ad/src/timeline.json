@@ -1,0 +1,250 @@
+{
+ "fps": 30,
+ "durationInFrames": 1350,
+ "vo": [
+  {
+   "file": "audio/vo/line1.wav",
+   "from": 0
+  },
+  {
+   "file": "audio/vo/line2.wav",
+   "from": 165
+  },
+  {
+   "file": "audio/vo/line3.wav",
+   "from": 462
+  },
+  {
+   "file": "audio/vo/line4.wav",
+   "from": 675
+  },
+  {
+   "file": "audio/vo/line5.wav",
+   "from": 885
+  },
+  {
+   "file": "audio/vo/line6.wav",
+   "from": 1086
+  }
+ ],
+ "shots": [
+  {
+   "page": "01-diu",
+   "from": 150,
+   "enter": "none",
+   "scroll": [
+    [
+     190,
+     0
+    ],
+    [
+     228,
+     760
+    ]
+   ]
+  },
+  {
+   "page": "03-product",
+   "from": 248,
+   "enter": "push",
+   "scroll": [
+    [
+     282,
+     0
+    ],
+    [
+     318,
+     330
+    ]
+   ]
+  },
+  {
+   "page": "01-diu",
+   "from": 337,
+   "enter": "back",
+   "scroll": [
+    [
+     352,
+     760
+    ],
+    [
+     395,
+     1990
+    ]
+   ]
+  },
+  {
+   "page": "04-preowned",
+   "from": 460,
+   "enter": "push",
+   "scroll": [
+    [
+     488,
+     0
+    ],
+    [
+     522,
+     640
+    ],
+    [
+     540,
+     640
+    ],
+    [
+     562,
+     820
+    ]
+   ]
+  },
+  {
+   "page": "05-preowned-detail",
+   "from": 576,
+   "enter": "push",
+   "scroll": [
+    [
+     602,
+     0
+    ],
+    [
+     640,
+     140
+    ]
+   ]
+  },
+  {
+   "page": "12-menu",
+   "from": 668,
+   "enter": "fade",
+   "scroll": []
+  },
+  {
+   "page": "06-blood",
+   "from": 702,
+   "enter": "push",
+   "scroll": [
+    [
+     724,
+     0
+    ],
+    [
+     764,
+     330
+    ]
+   ]
+  },
+  {
+   "page": "07-blood-donors",
+   "from": 796,
+   "enter": "fade",
+   "scroll": [
+    [
+     806,
+     330
+    ],
+    [
+     848,
+     520
+    ]
+   ]
+  },
+  {
+   "page": "12-menu",
+   "from": 868,
+   "enter": "fade",
+   "scroll": []
+  },
+  {
+   "page": "10-basha",
+   "from": 884,
+   "enter": "push",
+   "scroll": [
+    [
+     904,
+     0
+    ],
+    [
+     948,
+     1250
+    ]
+   ]
+  },
+  {
+   "page": "11-basha-detail",
+   "from": 984,
+   "enter": "push",
+   "scroll": [
+    [
+     1004,
+     0
+    ],
+    [
+     1050,
+     560
+    ]
+   ]
+  }
+ ],
+ "taps": [
+  {
+   "f": 242,
+   "x": 92,
+   "y": 300
+  },
+  {
+   "f": 456,
+   "x": 228,
+   "y": 815
+  },
+  {
+   "f": 572,
+   "x": 290,
+   "y": 430
+  },
+  {
+   "f": 664,
+   "x": 343,
+   "y": 28
+  },
+  {
+   "f": 698,
+   "x": 150,
+   "y": 447
+  },
+  {
+   "f": 792,
+   "x": 285,
+   "y": 177
+  },
+  {
+   "f": 864,
+   "x": 343,
+   "y": 28
+  },
+  {
+   "f": 880,
+   "x": 160,
+   "y": 507
+  },
+  {
+   "f": 980,
+   "x": 195,
+   "y": 400
+  }
+ ],
+ "whooshes": [
+  136,
+  248,
+  337,
+  460,
+  576,
+  702,
+  884,
+  984,
+  1078,
+  1206
+ ],
+ "logoHits": [
+  100,
+  1218
+ ]
+}

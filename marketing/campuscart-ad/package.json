@@ -1,0 +1,21 @@
+{
+  "name": "campuscart-ad",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts CampusCartAd out/video-silent.mp4 --browser-executable=/opt/pw-browsers/chromium",
+    "thumb": "remotion still src/index.ts Thumbnail out/thumbnail.png --browser-executable=/opt/pw-browsers/chromium"
+  },
+  "dependencies": {
+    "@fontsource/bricolage-grotesque": "^5.2.5",
+    "@fontsource/inter": "^5.2.5",
+    "@remotion/cli": "^4.0.546",
+    "@remotion/fonts": "^4.0.546",
+    "@types/react": "^19.1.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "remotion": "^4.0.546",
+    "typescript": "^5.8.3"
+  }
+}
