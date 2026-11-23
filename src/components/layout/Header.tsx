@@ -37,7 +37,10 @@ export function Header() {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md supports-backdrop-filter:bg-background/75">
+    <header
+      style={{ viewTransitionName: "site-header" }}
+      className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md supports-backdrop-filter:bg-background/75"
+    >
       <div className="container-page">
         <div className="grid h-14 grid-cols-[auto_1fr_auto] items-center gap-3 lg:h-16 lg:gap-6">
           <Logo size="sm" className="lg:h-10" />
