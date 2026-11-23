@@ -1,0 +1,43 @@
+{
+  "fps": 30,
+  "durationInFrames": 1350,
+  "vo": [
+    { "file": "audio/vo-bn/line1.wav", "from": 9, "text": "ক্যাম্পাস জীবনের প্রতিদিনের প্রয়োজন, এবার এক প্ল্যাটফর্মেই।" },
+    { "file": "audio/vo-bn/line2.wav", "from": 160, "text": "CampusCart-এ ক্রেতারা খুঁজে পাবেন পছন্দের পণ্য, আর বিক্রেতারা পাবেন নিজেদের ব্যবসা তুলে ধরার একটি নতুন সুযোগ।" },
+    { "file": "audio/vo-bn/line3.wav", "from": 520, "text": "ব্যবহৃত পণ্য কেনাবেচাও হবে আরও সহজ।" },
+    { "file": "audio/vo-bn/line4.wav", "from": 700, "text": "রক্তদাতা ও প্রয়োজনীয় মানুষের মধ্যে তৈরি হবে সহজ যোগাযোগ।" },
+    { "file": "audio/vo-bn/line5.wav", "from": 880, "text": "ঘর, বাসা কিংবা রুমমেট খুঁজতেও থাকবে BashaLagbe।" },
+    { "file": "audio/vo-bn/line6.wav", "from": 1066, "text": "কেনাকাটা থেকে প্রয়োজনীয় সেবা—সবকিছুতেই আপনার ক্যাম্পাসের পাশে CampusCart।" }
+  ],
+  "shots": [
+    { "page": "01-diu", "from": 150, "enter": "none", "scroll": [[185, 0], [220, 760]] },
+    { "page": "03-product", "from": 242, "enter": "push", "scroll": [[262, 0], [292, 330]] },
+    { "page": "20-store", "from": 318, "enter": "push", "scroll": [[336, 0], [372, 920]] },
+    { "page": "22-seller-products", "from": 392, "enter": "fade", "scroll": [] },
+    { "page": "23-seller-new-product", "from": 434, "enter": "push", "scroll": [] },
+    { "page": "04-preowned", "from": 512, "enter": "fade", "scroll": [[530, 0], [560, 640], [575, 640], [598, 820]] },
+    { "page": "05-preowned-detail", "from": 612, "enter": "push", "scroll": [[630, 0], [668, 140]] },
+    { "page": "12-menu", "from": 690, "enter": "fade", "scroll": [] },
+    { "page": "06-blood", "from": 712, "enter": "push", "scroll": [[730, 0], [765, 330]] },
+    { "page": "07-blood-donors", "from": 794, "enter": "fade", "scroll": [[805, 330], [845, 520]] },
+    { "page": "12-menu", "from": 868, "enter": "fade", "scroll": [] },
+    { "page": "10-basha", "from": 884, "enter": "push", "scroll": [[900, 0], [945, 1250]] },
+    { "page": "11-basha-detail", "from": 976, "enter": "push", "scroll": [[995, 0], [1040, 560]] }
+  ],
+  "taps": [
+    { "f": 236, "x": 92, "y": 300 },
+    { "f": 312, "x": 130, "y": 402 },
+    { "f": 428, "x": 312, "y": 87 },
+    { "f": 606, "x": 290, "y": 430 },
+    { "f": 686, "x": 343, "y": 28 },
+    { "f": 708, "x": 150, "y": 447 },
+    { "f": 790, "x": 285, "y": 177 },
+    { "f": 864, "x": 343, "y": 28 },
+    { "f": 880, "x": 160, "y": 507 },
+    { "f": 970, "x": 195, "y": 400 }
+  ],
+  "whooshes": [60, 102, 146, 242, 318, 392, 434, 512, 612, 712, 884, 976, 1052],
+  "swipes": [146, 512, 1052, 1176],
+  "logoHits": [112, 1196],
+  "pops": [1072, 1080, 1088, 1096, 1240]
+}

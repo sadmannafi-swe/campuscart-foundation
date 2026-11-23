@@ -8,7 +8,9 @@
     "thumb": "remotion still src/index.ts Thumbnail out/thumbnail.png --browser-executable=/opt/pw-browsers/chromium"
   },
   "dependencies": {
+    "@fontsource/anek-bangla": "^5.2.6",
     "@fontsource/bricolage-grotesque": "^5.2.5",
+    "@fontsource/hind-siliguri": "^5.2.6",
     "@fontsource/inter": "^5.2.5",
     "@remotion/cli": "^4.0.546",
     "@remotion/fonts": "^4.0.546",

@@ -108,5 +108,48 @@
       "h": 57.5
     },
     "height": 2461
+  },
+  "20-store": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 2453
+  },
+  "21-seller-dashboard": {
+    "header": {
+      "y": 0,
+      "h": 56
+    },
+    "nav": null,
+    "height": 844
+  },
+  "22-seller-products": {
+    "header": {
+      "y": 0,
+      "h": 56
+    },
+    "nav": null,
+    "height": 844
+  },
+  "23-seller-new-product": {
+    "header": {
+      "y": 0,
+      "h": 56
+    },
+    "nav": null,
+    "height": 1042
+  },
+  "24-seller-store": {
+    "header": {
+      "y": 0,
+      "h": 56
+    },
+    "nav": null,
+    "height": 958
   }
 }
