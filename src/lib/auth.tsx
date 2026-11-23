@@ -49,7 +49,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       profile: profileQuery.data ?? null,
       loading: session.isPending,
       refreshProfile: async () => {
-        await queryClient.invalidateQueries({ queryKey: ["profile"] });
+        // Profile edits touch the user, the seller account and public store data.
+        await Promise.all([queryClient.invalidateQueries(), session.refetch()]);
       },
       signOut: async () => {
         await authClient.signOut();

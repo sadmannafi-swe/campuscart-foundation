@@ -641,4 +641,126 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     expect(after.original_price ?? null).toBeNull();
     expect(after.price).toBe(600);
   });
+
+  it("lets buyers edit their own profile and keeps the Student ID fixed", async () => {
+    const buyerId = await userIdOf(buyer);
+    const ok = await patch(buyer, "/api/me", {
+      full_name: "Buyer Changed",
+      phone: "01799999999",
+      department: "EEE",
+      batch: "61st (evening)",
+      avatar_id: `campuscart/avatar/${buyerId}/me`,
+      student_id: "000-00-0000", // not editable: ignored
+      email: "spoof@evil.example", // not editable: ignored
+      role: "admin", // not editable: ignored
+    });
+    expect(ok.status, JSON.stringify(ok.body)).toBe(200);
+    const meRes = (await buyer.get("/api/me")).body;
+    expect(meRes).toMatchObject({
+      full_name: "Buyer Changed",
+      phone: "01799999999",
+      department: "EEE",
+      batch: "61st (evening)",
+      email: "buyer@diu.edu.bd",
+      student_id: "221-15-9999",
+      role: "user",
+    });
+    expect(meRes.avatar_path).toContain("/authenticated/");
+    // the session reflects the new name too
+    expect((await buyer.get("/api/auth/get-session")).body.user.name).toBe("Buyer Changed");
+
+    // someone else's photo is refused; removing the photo works
+    expect(
+      (await patch(buyer, "/api/me", { avatar_id: `campuscart/avatar/${sellerAId}/x` })).status,
+    ).toBe(400);
+    expect((await patch(buyer, "/api/me", { avatar_id: null })).status).toBe(200);
+    expect((await buyer.get("/api/me")).body.avatar_path).toBeNull();
+
+    // a buyer without a seller account can't use the seller endpoint
+    expect((await patch(buyer, "/api/seller/account", { batch: "62nd" })).status).toBe(404);
+    expect(
+      (await request(app).patch("/api/me").set("origin", ORIGIN).send({ batch: "x" })).status,
+    ).toBe(401);
+  });
+
+  it("lets sellers edit personal details and store details, only their own", async () => {
+    const sellerC = await signUp("c@diu.edu.bd", "Seller C");
+    const sellerCId = await userIdOf(sellerC);
+    const storeC = await makeSellerWithStore(sellerC, sellerCId, "Store C");
+    expect(
+      (await post(adminAgent, `/api/admin/stores/${storeC}/status`, { status: "approved" })).status,
+    ).toBe(200);
+
+    // personal details: saved on the seller account and mirrored on the user profile
+    const r = await patch(sellerC, "/api/seller/account", {
+      full_name: "Seller C Renamed",
+      phone: "01822222222",
+      department: "SWE",
+      batch: "63rd",
+      avatar_id: `campuscart/avatar/${sellerCId}/face`,
+      university_slug: "nsu", // fixed: ignored
+      student_id: "999-99-9999", // fixed: ignored
+      email: "spoof@evil.example", // fixed: ignored
+    });
+    expect(r.status, JSON.stringify(r.body)).toBe(200);
+    const acc = (await sellerC.get("/api/seller/account")).body;
+    expect(acc.seller).toMatchObject({
+      full_name: "Seller C Renamed",
+      phone: "01822222222",
+      department: "SWE",
+      batch: "63rd",
+      university_slug: "diu",
+      email: "c@diu.edu.bd",
+      avatar_path: `campuscart/avatar/${sellerCId}/face`,
+    });
+    expect((await sellerC.get("/api/seller/identity")).body.student_id).toBe("221-15-0001");
+    expect((await sellerC.get("/api/me")).body).toMatchObject({
+      full_name: "Seller C Renamed",
+      batch: "63rd",
+    });
+    // invalid values are refused
+    expect((await patch(sellerC, "/api/seller/account", { batch: "  " })).status).toBe(400);
+    expect(
+      (
+        await patch(sellerC, "/api/seller/account", {
+          avatar_id: `campuscart/avatar/${sellerAId}/x`,
+        })
+      ).status,
+    ).toBe(400);
+
+    // editing from the buyer profile updates the seller account as well
+    expect((await patch(sellerC, "/api/me", { batch: "63rd (day)" })).status).toBe(200);
+    expect((await sellerC.get("/api/seller/account")).body.seller.batch).toBe("63rd (day)");
+
+    // store details: name, description, contact and logo
+    const logo = `${CLOUD}/campuscart/store-logo/${sellerCId}/logo.png`;
+    const s = await patch(sellerC, "/api/seller/store", {
+      name: "Store C Prime",
+      description: "Notes and calculators for first years",
+      contact_number: "01833333333",
+      logo_url: logo,
+      category: "Food", // admin-managed: ignored
+      status: "approved", // admin-managed: ignored
+    });
+    expect(s.status, JSON.stringify(s.body)).toBe(200);
+    const pub = (await request(app).get(`/api/stores/${storeC}?university=diu`)).body;
+    expect(pub).toMatchObject({
+      name: "Store C Prime",
+      description: "Notes and calculators for first years",
+      category: "Electronics",
+    });
+    expect(
+      (
+        await patch(sellerC, "/api/seller/store", {
+          logo_url: `${CLOUD}/campuscart/store-logo/${sellerAId}/logo.png`,
+        })
+      ).status,
+    ).toBe(400);
+    expect((await patch(sellerC, "/api/seller/store", { name: "x" })).status).toBe(400);
+
+    // another seller's edits only ever touch their own store
+    const before = (await request(app).get(`/api/stores/${storeC}?university=diu`)).body.name;
+    await patch(sellerA, "/api/seller/store", { name: "Hijacked" });
+    expect((await request(app).get(`/api/stores/${storeC}?university=diu`)).body.name).toBe(before);
+  });
 });

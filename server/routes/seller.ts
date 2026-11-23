@@ -12,6 +12,7 @@ import { assertOwnImageUrl, assertOwnPrivateId } from "../lib/cloudinary";
 import { col, toApi, type ProductDoc, type SellerDoc, type StoreDoc } from "../lib/db";
 import { badRequest, HttpError, me, newId, notFound, parse, requireUser } from "../lib/http";
 import { notifyStatusChange } from "../lib/notify";
+import { savePersonalDetails } from "../lib/profile";
 import { orderToApi } from "./orders";
 
 export const sellerRouter = Router();
@@ -81,6 +82,30 @@ sellerRouter.post("/account", async (req, res) => {
   res.status(201).json(toApi(seller));
 });
 
+/** The seller edits their own personal details; university, e-mail and student ID stay fixed. */
+sellerRouter.patch("/account", async (req, res) => {
+  const u = me(req);
+  if (!(await sellerOf(u.id))) throw notFound("Seller account not found");
+  const body = parse(
+    z.object({
+      full_name: z.string().trim().min(2).max(80).optional(),
+      phone: z.string().trim().min(6).max(20).optional(),
+      department: z.string().trim().min(1).max(60).optional(),
+      batch: z.string().trim().min(1).max(20).optional(),
+      avatar_id: z.string().max(300).nullable().optional(),
+    }),
+    req.body,
+  );
+  await savePersonalDetails(u.id, {
+    ...body,
+    avatar_id:
+      body.avatar_id === undefined || body.avatar_id === null
+        ? body.avatar_id
+        : assertOwnPrivateId(body.avatar_id, u.id, "avatar"),
+  });
+  res.json({ ok: true });
+});
+
 const storeSchema = z.object({
   name: z.string().trim().min(2).max(60),
   description: z.string().trim().min(10).max(200),
@@ -122,12 +147,13 @@ sellerRouter.post("/store", async (req, res) => {
   res.status(201).json(toApi(store));
 });
 
-/** Sellers may edit description, contact and logo; name/category/university are admin-managed. */
+/** Sellers may edit name, description, contact and logo; category/university are admin-managed. */
 sellerRouter.patch("/store", async (req, res) => {
   const u = me(req);
   const store = await requireStore(u.id);
   const body = parse(
     z.object({
+      name: z.string().trim().min(2).max(60).optional(),
       description: z.string().trim().min(1).max(200).optional(),
       contact_number: z.string().trim().min(6).max(20).optional(),
       logo_url: z.string().url().nullable().optional(),
@@ -135,6 +161,7 @@ sellerRouter.patch("/store", async (req, res) => {
     req.body,
   );
   const set: Partial<StoreDoc> = { updated_at: new Date() };
+  if (body.name !== undefined) set.name = body.name;
   if (body.description !== undefined) set.description = body.description;
   if (body.contact_number !== undefined) set.contact_number = body.contact_number;
   if (body.logo_url !== undefined)
