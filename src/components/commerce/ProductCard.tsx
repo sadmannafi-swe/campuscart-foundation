@@ -10,7 +10,7 @@ import { categories } from "@/data/marketplace";
 import { cn } from "@/lib/utils";
 import { useImageFallback } from "@/lib/useImageFallback";
 import { cart } from "@/lib/cart";
-import { flyToCart } from "@/lib/motion";
+import { flyToCart, useTilt } from "@/lib/motion";
 
 /** Each category gets one quiet tint, so a photo-less listing still reads at a glance. */
 const categoryTint: Record<string, string> = {
@@ -31,15 +31,22 @@ export function ProductCard({ product, className }: { product: Product; classNam
   const img = useImageFallback(product.image);
   const [saved, setSaved] = useState(false);
   const addRef = useRef<HTMLButtonElement>(null);
+  const tilt = useTilt<HTMLElement>(5);
   const quickAdd = product.inStock && !(product.variants && product.variants.length > 0);
 
   return (
     <article
+      ref={tilt}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-[16px] border border-border bg-surface transition-[transform,box-shadow,border-color] duration-300 ease-[var(--ease-bloom)] hover:-translate-y-1 hover:border-foreground/15 hover:shadow-[var(--shadow-card-hover)]",
+        "group relative flex flex-col overflow-hidden rounded-[16px] border border-border bg-surface transition-[transform,box-shadow,border-color] duration-300 ease-[var(--ease-bloom)] [transform:perspective(900px)_rotateX(var(--rx,0deg))_rotateY(var(--ry,0deg))] hover:[transform:perspective(900px)_rotateX(var(--rx,0deg))_rotateY(var(--ry,0deg))_translateY(-4px)] hover:border-foreground/15 hover:shadow-[var(--shadow-card-hover)]",
         className,
       )}
     >
+      {/* soft sheen that follows the pointer while the card tilts */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[1] opacity-0 transition-opacity duration-300 [background:radial-gradient(240px_circle_at_var(--gx,50%)_var(--gy,50%),rgb(255_255_255/0.22),transparent_60%)] group-hover:opacity-100"
+      />
       <div
         className={cn(
           "relative grid aspect-4/3 place-items-center overflow-hidden",

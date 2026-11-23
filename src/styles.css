@@ -388,6 +388,48 @@
   transform: none;
 }
 
+/* Page transitions (View Transitions API): the page fades and rises, the header stays put. */
+::view-transition-old(root) {
+  animation: cc-vt-out 220ms var(--ease-bloom) both;
+}
+::view-transition-new(root) {
+  animation: cc-vt-in 420ms var(--ease-bloom) both;
+}
+@keyframes cc-vt-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+@keyframes cc-vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* Graduation caps tossed after an order is placed. */
+@keyframes cc-toss {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotateX(0) rotateZ(0) scale(0.6);
+  }
+  10% {
+    opacity: 1;
+  }
+  45% {
+    transform: translate3d(var(--tx), var(--peak), 0) rotateX(25deg) rotateZ(var(--spin)) scale(1.1);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(var(--tx) * 1.3), 80px, 0) rotateX(-20deg)
+      rotateZ(calc(var(--spin) * 1.6)) scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -404,6 +446,11 @@
   }
 
   [data-marquee] {
+    animation: none !important;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
     animation: none !important;
   }
 }

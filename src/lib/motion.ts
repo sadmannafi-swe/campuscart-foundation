@@ -77,5 +77,78 @@ export function flyToCart(from: Element | null) {
   anim.onfinish = () => {
     dot.remove();
     bump();
+    petalBurst(target);
   };
+}
+
+/**
+ * Pointer-driven 3D tilt for cards. Sets --rx/--ry (degrees) and --gx/--gy (sheen
+ * position, %) on the element. Only for mouse/trackpad users without reduced motion.
+ */
+export function useTilt<T extends HTMLElement>(max = 6) {
+  const ref = useRef<T | null>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || prefersReducedMotion() || !window.matchMedia("(pointer: fine)").matches) return;
+    let frame = 0;
+    const move = (e: PointerEvent) => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width;
+      const y = (e.clientY - r.top) / r.height;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        el.style.setProperty("--ry", `${((x - 0.5) * max * 2).toFixed(2)}deg`);
+        el.style.setProperty("--rx", `${((0.5 - y) * max * 2).toFixed(2)}deg`);
+        el.style.setProperty("--gx", `${(x * 100).toFixed(1)}%`);
+        el.style.setProperty("--gy", `${(y * 100).toFixed(1)}%`);
+      });
+    };
+    const leave = () => {
+      cancelAnimationFrame(frame);
+      el.style.setProperty("--rx", "0deg");
+      el.style.setProperty("--ry", "0deg");
+    };
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerleave", leave);
+    return () => {
+      el.removeEventListener("pointermove", move);
+      el.removeEventListener("pointerleave", leave);
+      cancelAnimationFrame(frame);
+    };
+  }, [max]);
+  return ref;
+}
+
+/** A small burst of daffodil petals around an element (used when the cart receives an item). */
+export function petalBurst(target: Element, count = 8) {
+  if (typeof document === "undefined" || prefersReducedMotion()) return;
+  const r = target.getBoundingClientRect();
+  const cx = r.left + r.width / 2;
+  const cy = r.top + r.height / 2;
+  for (let i = 0; i < count; i++) {
+    const petal = document.createElement("span");
+    petal.setAttribute("aria-hidden", "true");
+    petal.style.cssText = `position:fixed;z-index:100;left:${cx - 4}px;top:${cy - 6}px;width:8px;height:12px;border-radius:50% 50% 50% 50% / 70% 70% 30% 30%;background:var(--color-bloom);pointer-events:none;`;
+    document.body.appendChild(petal);
+    const angle = (i / count) * Math.PI * 2;
+    const dist = 26 + (i % 3) * 8;
+    petal
+      .animate(
+        [
+          {
+            transform: `rotate(${(angle * 180) / Math.PI}deg) translateY(0) scale(0.4)`,
+            opacity: 1,
+          },
+          {
+            transform: `rotate(${(angle * 180) / Math.PI}deg) translateY(${-dist}px) scale(1)`,
+            opacity: 0,
+          },
+        ],
+        { duration: 620, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+      )
+      .finished.then(
+        () => petal.remove(),
+        () => petal.remove(),
+      );
+  }
 }

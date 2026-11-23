@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import { Facebook, Instagram, Linkedin } from "lucide-react";
 import { Wordmark } from "@/components/brand/BloomMark";
 import { BloomMark } from "@/components/brand/BloomMark";
 
@@ -28,7 +28,7 @@ const columns = [
 export function Footer() {
   return (
     <footer className="relative mt-16 overflow-hidden bg-ink text-ink-foreground">
-      <div className="container-page grid gap-8 py-8 md:grid-cols-2 lg:grid-cols-4">
+      <div className="container-page grid gap-8 py-10 sm:grid-cols-[minmax(0,1.4fr)_1fr_1fr]">
         <div className="space-y-4">
           <Wordmark campus="DIU" className="[&_span]:!text-ink-foreground" />
           <p className="max-w-xs text-sm text-ink-foreground/65">
@@ -64,24 +64,6 @@ export function Footer() {
             </ul>
           </div>
         ))}
-
-        <div>
-          <h3 className="text-sm font-semibold">Campus support</h3>
-          <ul className="mt-3 space-y-2.5 text-sm text-ink-foreground/65">
-            <li className="flex gap-2">
-              <MapPin className="mt-0.5 size-4 shrink-0 text-bloom" aria-hidden="true" />
-              Daffodil Smart City, Ashulia, Dhaka
-            </li>
-            <li className="flex gap-2">
-              <Mail className="mt-0.5 size-4 shrink-0 text-bloom" aria-hidden="true" />
-              support@diucampuscart.com
-            </li>
-            <li className="flex gap-2">
-              <Phone className="mt-0.5 size-4 shrink-0 text-bloom" aria-hidden="true" />
-              +880 1700 000 000
-            </li>
-          </ul>
-        </div>
       </div>
 
       <div className="border-t border-ink-foreground/10">

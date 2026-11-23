@@ -15,6 +15,7 @@ import { products, getFeaturedStores, getProductsByTag } from "@/data/marketplac
 import { setMarketplace } from "@/lib/marketplace";
 import { Reveal, RiseWords } from "@/components/motion/Reveal";
 import { BloomMark } from "@/components/brand/BloomMark";
+import { CategoryDesk } from "@/components/three/CategoryDesk";
 import { useCountUp } from "@/lib/motion";
 import { formatPrice } from "@/lib/format";
 import { categories } from "@/data/categories";
@@ -213,6 +214,9 @@ function HomePage() {
           <ProductRail products={flashDeals} />
         </section>
       )}
+
+      {/* Shop by category on a 3D study desk */}
+      <CategoryDesk />
 
       {/* Featured stores */}
       <section className="container-page pt-12">

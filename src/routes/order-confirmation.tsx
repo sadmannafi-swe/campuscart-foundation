@@ -3,6 +3,7 @@ import { CheckCircle2 } from "lucide-react";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { Button } from "@/components/ui/button";
 import { shortOrderId } from "@/lib/orders";
+import { CapToss } from "@/components/motion/CapToss";
 
 export const Route = createFileRoute("/order-confirmation")({
   validateSearch: (s: Record<string, unknown>): { ids?: string | undefined } => ({
@@ -25,12 +26,13 @@ function OrderConfirmation() {
   const list = (ids ?? "").split(",").filter(Boolean);
   return (
     <SiteLayout>
+      <CapToss />
       <div className="container-page grid place-items-center py-12">
         <div className="card-surface w-full max-w-md p-6 text-center">
-          <span className="mx-auto grid size-16 place-items-center rounded-full bg-accent-soft text-accent">
+          <span className="mx-auto grid size-16 place-items-center rounded-full bg-accent-soft text-accent animate-bump">
             <CheckCircle2 className="size-8" aria-hidden="true" />
           </span>
-          <h1 className="mt-4 text-xl font-semibold">Order placed!</h1>
+          <h1 className="mt-4 text-xl font-semibold">Order placed</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             The seller has received your order and will confirm it soon.
           </p>
