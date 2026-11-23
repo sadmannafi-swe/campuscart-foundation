@@ -9,15 +9,15 @@ Live: <https://campuscart-foundation.vercel.app/>
 
 ## Stack (MERN)
 
-| Layer | Technology |
-| --- | --- |
-| **M**ongoDB | MongoDB Atlas, official `mongodb` driver, transactions for checkout |
-| **E**xpress | Express 5 API in `server/`, deployed as one Vercel Node.js function at `/api/*` |
-| **R**eact | React 19 SPA, TanStack Router (file routes in `src/routes`), TanStack Query, Tailwind v4 + shadcn/Radix |
-| **N**ode | Node 22 |
-| Auth | [Better Auth](https://better-auth.com) — e-mail/password, sessions in MongoDB, admin roles, password reset, optional e-mail verification |
-| Images | Cloudinary (signed direct uploads; student ID photos are private) |
-| E-mail | Gmail API (seller new-order e-mails, password reset, verification) |
+| Layer       | Technology                                                                                                                               |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **M**ongoDB | MongoDB Atlas, official `mongodb` driver, transactions for checkout                                                                      |
+| **E**xpress | Express 5 API in `server/`, deployed as one Vercel Node.js function at `/api/*`                                                          |
+| **R**eact   | React 19 SPA, TanStack Router (file routes in `src/routes`), TanStack Query, Tailwind v4 + shadcn/Radix                                  |
+| **N**ode    | Node 22                                                                                                                                  |
+| Auth        | [Better Auth](https://better-auth.com) — e-mail/password, sessions in MongoDB, admin roles, password reset, optional e-mail verification |
+| Images      | Cloudinary (signed direct uploads; student ID photos are private)                                                                        |
+| E-mail      | Gmail API (seller new-order e-mails, password reset, verification)                                                                       |
 
 ```
 server/          Express API
@@ -32,11 +32,11 @@ scripts/         dev runner, Vercel build output, make-admin
 
 ## Features
 
-| Area | What it does |
-| --- | --- |
-| Buyers | Browse/search/filter products and stores, cart, Buy Now, checkout (cash on delivery/pickup), order tracking, cancel while pending, wishlist, purchase-verified reviews, chat with the seller, order notifications (bell + `/notifications`) |
-| Sellers | Register with university + student ID, store approval flow, products with photos, orders (forward-only status), earnings, reviews, messages, **e-mail for every new order** |
-| Admins | `/admin`: approve / reject / unpublish stores, view seller identity (incl. private student ID photo), all orders per store, feature stores/products per university |
+| Area    | What it does                                                                                                                                                                                                                                |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Buyers  | Browse/search/filter products and stores, cart, Buy Now, checkout (cash on delivery/pickup), order tracking, cancel while pending, wishlist, purchase-verified reviews, chat with the seller, order notifications (bell + `/notifications`) |
+| Sellers | Register with university + student ID, store approval flow, products with photos, orders (forward-only status), earnings, reviews, messages, **e-mail for every new order**                                                                 |
+| Admins  | `/admin`: approve / reject / unpublish stores, view seller identity (incl. private student ID photo), all orders per store, feature stores/products per university                                                                          |
 
 Business rules are enforced by the API, never the UI: prices come from the
 database, one order per store inside a MongoDB transaction, you can't order from
@@ -50,48 +50,68 @@ request must come from the site's own origin.
 Step-by-step guide with exact screens: [docs/SETUP.md](docs/SETUP.md).
 
 ### 1. MongoDB Atlas (free)
+
 1. Create an account at <https://www.mongodb.com/cloud/atlas>, create a free **M0** cluster.
-2. *Database Access* → add a database user with a strong password.
-3. *Network Access* → add `0.0.0.0/0` (Vercel functions use changing IPs).
-4. *Connect → Drivers* → copy the connection string → this is `MONGODB_URI`.
+2. _Database Access_ → add a database user with a strong password.
+3. _Network Access_ → add `0.0.0.0/0` (Vercel functions use changing IPs).
+4. _Connect → Drivers_ → copy the connection string → this is `MONGODB_URI`.
 
 ### 2. Cloudinary (free)
-Create an account at <https://cloudinary.com>, open *Dashboard → API Keys* and copy
+
+Create an account at <https://cloudinary.com>, open _Dashboard → API Keys_ and copy
 the **API environment variable** (`cloudinary://KEY:SECRET@CLOUD`) → `CLOUDINARY_URL`.
 
 ### 3. Gmail sender (for order e-mails)
+
 1. <https://console.cloud.google.com/> → new project → enable **Gmail API**.
-2. *OAuth consent screen*: External, add yourself as test user, then **Publish app**
+2. _OAuth consent screen_: External, add yourself as test user, then **Publish app**
    (in "Testing" mode refresh tokens expire after 7 days).
-3. *Credentials → OAuth client ID → Web application*, redirect URI
+3. _Credentials → OAuth client ID → Web application_, redirect URI
    `https://developers.google.com/oauthplayground`.
-4. <https://developers.google.com/oauthplayground> → ⚙ *Use your own OAuth credentials* →
-   authorise `https://www.googleapis.com/auth/gmail.send` → *Exchange authorization code* →
+4. <https://developers.google.com/oauthplayground> → ⚙ _Use your own OAuth credentials_ →
+   authorise `https://www.googleapis.com/auth/gmail.send` → _Exchange authorization code_ →
    copy the **refresh token**.
 
 ### 4. Vercel → Project → Settings → Environment Variables
 
-| Variable | Value |
-| --- | --- |
-| `MONGODB_URI` | Atlas connection string |
-| `MONGODB_DB` | `campuscart` (optional) |
-| `BETTER_AUTH_SECRET` | optional — random 32+ chars; if unset it is derived from `MONGODB_URI` |
-| `SITE_URL` | `https://campuscart-foundation.vercel.app` (already set) |
-| `CLOUDINARY_URL` | from step 2 |
-| `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN` | from step 3 |
-| `GMAIL_SENDER` | the Gmail address that authorised the token |
-| `ADMIN_EMAILS` | your e-mail (comma-separated for several admins) |
-| `CRON_SECRET` | optional — random 16+ chars; enables the daily e-mail retry job |
-| `REQUIRE_EMAIL_VERIFICATION` | `true` to require confirmed e-mails (needs Gmail) |
+| Variable                                                        | Value                                                                  |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `MONGODB_URI`                                                   | Atlas connection string                                                |
+| `MONGODB_DB`                                                    | `campuscart` (optional)                                                |
+| `BETTER_AUTH_SECRET`                                            | optional — random 32+ chars; if unset it is derived from `MONGODB_URI` |
+| `SITE_URL`                                                      | `https://campuscart-foundation.vercel.app` (already set)               |
+| `CLOUDINARY_URL`                                                | from step 2                                                            |
+| `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN` | from step 3                                                            |
+| `GMAIL_SENDER`                                                  | the Gmail address that authorised the token                            |
+| `ADMIN_EMAILS`                                                  | your e-mail (comma-separated for several admins)                       |
+| `CRON_SECRET`                                                   | optional — random 16+ chars; enables the daily e-mail retry job        |
+| `REQUIRE_EMAIL_VERIFICATION`                                    | `true` to require confirmed e-mails (needs Gmail)                      |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`                      | optional — turns on "Continue with Google" (see below)                 |
 
-Also remove any old Supabase integration from the Vercel project (*Settings →
-Integrations / Storage*): a paused integration makes every deploy fail with
+Also remove any old Supabase integration from the Vercel project (_Settings →
+Integrations / Storage_): a paused integration makes every deploy fail with
 "Resource provisioning failed".
 
 After deploying, open `/api/health` — it reports `db`, `cloudinary`, `gmail`,
 `cron` and `admins` as configured / not configured (never the values).
 
-### 5. First admin
+### 5. Google sign-in (optional)
+
+1. <https://console.cloud.google.com/> → your project → _APIs & Services → OAuth consent
+   screen_: External, app name "CampusCart", support e-mail, then **Publish app**.
+2. _Credentials → Create credentials → OAuth client ID → Web application_.
+   - Authorised JavaScript origin: `https://campuscart-foundation.vercel.app`
+   - Authorised redirect URI: `https://campuscart-foundation.vercel.app/api/auth/callback/google`
+3. Copy the client ID and secret into Vercel as `GOOGLE_CLIENT_ID` and
+   `GOOGLE_CLIENT_SECRET` (Production), then redeploy. The "Continue with Google"
+   button appears on the login pages once both are set; `/api/health` shows `google: true`.
+
+A Google sign-in joins an existing password account with the same e-mail only if that
+account's e-mail was already verified; otherwise the user is asked to log in with their
+password.
+
+### 6. First admin
+
 Sign up on the site with an e-mail listed in `ADMIN_EMAILS`, confirm it (or set
 `emailVerified: true` on your user in Atlas), then open `/admin` — the admin role
 is granted automatically. Alternatively run locally:

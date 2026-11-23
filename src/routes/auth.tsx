@@ -12,12 +12,15 @@ import { authClient, authErrorMessage } from "@/lib/authClient";
 import { apiPatch } from "@/lib/api";
 import { uploadImage } from "@/lib/uploads";
 import { useAuth } from "@/lib/auth";
+import { GoogleSignInButton, googleErrorMessage } from "@/components/auth/GoogleSignInButton";
 
 type AuthMode = "login" | "signup";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { mode: AuthMode } => ({
+  validateSearch: (search: Record<string, unknown>): { mode: AuthMode; error?: string } => ({
     mode: search["mode"] === "signup" ? "signup" : "login",
+    // Set by Better Auth when Google sign-in fails and sends the user back here.
+    ...(typeof search["error"] === "string" ? { error: search["error"].slice(0, 60) } : {}),
   }),
   head: () => ({
     meta: [
@@ -38,7 +41,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const { mode } = useSearch({ from: "/auth" });
+  const { mode, error: googleError } = useSearch({ from: "/auth" });
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<AuthMode>(mode);
@@ -46,6 +49,11 @@ function AuthPage() {
   useEffect(() => {
     if (!loading && user) void navigate({ to: "/account", replace: true });
   }, [loading, user, navigate]);
+
+  useEffect(() => {
+    const message = googleErrorMessage(googleError);
+    if (message) toast.error(message, { id: "google-sign-in" });
+  }, [googleError]);
 
   return (
     <SiteLayout>
@@ -60,6 +68,11 @@ function AuthPage() {
           </div>
 
           <div className="card-surface p-4 sm:p-6">
+            <GoogleSignInButton
+              callbackURL="/account"
+              errorCallbackURL={`/auth?mode=${tab}`}
+              className="mb-5"
+            />
             <Tabs value={tab} onValueChange={(v) => setTab(v as AuthMode)}>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Log in</TabsTrigger>
