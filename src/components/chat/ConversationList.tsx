@@ -4,6 +4,13 @@ import { formatPrice } from "@/lib/format";
 import type { ChatConversation } from "@/lib/chat";
 import { cn } from "@/lib/utils";
 
+const kindLabel = {
+  preowned: { text: "Pre-Owned", tone: "bg-preowned-soft text-preowned" },
+  blood_request: { text: "Blood request", tone: "bg-blood-soft text-blood" },
+  donor: { text: "Blood donor", tone: "bg-blood-soft text-blood" },
+  basha: { text: "BashaLagbe", tone: "bg-basha-soft text-basha" },
+} as const;
+
 export function ConversationList({
   conversations,
   unread,
@@ -62,8 +69,20 @@ export function ConversationList({
               </span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-center justify-between gap-2">
-                  <span className="truncate text-sm font-semibold">
-                    {accent === "buyer" ? c.product_name : c.buyer_name}
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    {c.kind && c.kind !== "product" && (
+                      <span
+                        className={cn(
+                          "shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-semibold",
+                          kindLabel[c.kind].tone,
+                        )}
+                      >
+                        {kindLabel[c.kind].text}
+                      </span>
+                    )}
+                    <span className="truncate text-sm font-semibold">
+                      {accent === "buyer" ? c.product_name : c.buyer_name}
+                    </span>
                   </span>
                   <span className="shrink-0 text-[11px] text-muted-foreground">
                     {new Date(when).toLocaleDateString([], { month: "short", day: "numeric" })}
@@ -72,7 +91,9 @@ export function ConversationList({
                 <span className="flex items-center justify-between gap-2">
                   <span className="truncate text-xs text-muted-foreground">
                     {c.last_message_preview ||
-                      `${c.product_name} · ${formatPrice(Number(c.product_price))}`}
+                      (c.kind && c.kind !== "product"
+                        ? (c.context_subtitle ?? "")
+                        : `${c.product_name} · ${formatPrice(Number(c.product_price))}`)}
                   </span>
                   {count > 0 && (
                     <span

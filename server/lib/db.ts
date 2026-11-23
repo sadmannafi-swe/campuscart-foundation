@@ -1,4 +1,21 @@
 import { MongoClient, type Collection, type Db, type Document } from "mongodb";
+import type {
+  BashaFacilities,
+  BashaRoommate,
+  BashaStatus,
+  BashaType,
+  BloodGroup,
+  BloodRequestStatus,
+  ChatKind,
+  ContactPreference,
+  DonorAvailability,
+  Moderation,
+  PreOwnedCondition,
+  PreOwnedStatus,
+  ReportReason,
+  ReportStatus,
+  ReportTarget,
+} from "../../shared/types";
 
 /**
  * One MongoClient per process. On Vercel the module is reused across warm
@@ -173,6 +190,10 @@ export interface ConversationDoc {
   last_message_at: Date | null;
   last_message_preview: string;
   created_at: Date;
+  /** Missing on older rows = Marketplace product. Other kinds keep `product_id` = "<kind>:<id>". */
+  kind?: ChatKind;
+  context_id?: string | null;
+  context_subtitle?: string | null;
 }
 
 export interface MessageDoc {
@@ -198,6 +219,100 @@ export interface EmailJobDoc {
   created_at: Date;
 }
 
+// ---- Campus modules ----------------------------------------------------------
+// Each record points at its owner (Better Auth user id) and university; owner names
+// are read from the user collection when needed instead of being copied here.
+
+export interface PreOwnedDoc {
+  _id: string;
+  owner_id: string;
+  university_slug: string;
+  title: string;
+  description: string;
+  category: string;
+  price: number;
+  original_price: number | null;
+  condition: PreOwnedCondition;
+  images: string[];
+  location: string;
+  status: PreOwnedStatus;
+  moderation: Moderation;
+  sold_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface BloodRequestDoc {
+  _id: string;
+  owner_id: string;
+  university_slug: string;
+  patient_name: string | null;
+  blood_group: BloodGroup;
+  hospital_name: string;
+  hospital_location: string;
+  needed_on: Date;
+  donors_needed: number;
+  contact_preference: ContactPreference;
+  contact_phone: string | null;
+  description: string;
+  status: BloodRequestStatus;
+  moderation: Moderation;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface DonorProfileDoc {
+  _id: string;
+  owner_id: string;
+  university_slug: string;
+  name: string;
+  blood_group: BloodGroup;
+  department: string;
+  batch: string;
+  location: string;
+  contact_preference: ContactPreference;
+  contact_phone: string | null;
+  availability: DonorAvailability;
+  moderation: Moderation;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface BashaDoc {
+  _id: string;
+  owner_id: string;
+  university_slug: string;
+  title: string;
+  type: BashaType;
+  rent: number;
+  advance: number | null;
+  available_from: Date;
+  area: string;
+  address: string;
+  address_public: boolean;
+  map_url: string | null;
+  images: string[];
+  description: string;
+  facilities: BashaFacilities;
+  roommate: BashaRoommate | null;
+  status: BashaStatus;
+  moderation: Moderation;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ReportDoc {
+  _id: string;
+  target_type: ReportTarget;
+  target_id: string;
+  reporter_id: string;
+  reason: ReportReason;
+  details: string;
+  status: ReportStatus;
+  reviewed_at: Date | null;
+  created_at: Date;
+}
+
 export const col = {
   sellers: () => getDb().collection<SellerDoc>("sellers"),
   sellerIdentities: () => getDb().collection<SellerIdentityDoc>("seller_identities"),
@@ -210,7 +325,132 @@ export const col = {
   messages: () => getDb().collection<MessageDoc>("messages"),
   emailOutbox: () => getDb().collection<EmailJobDoc>("email_outbox"),
   users: () => getDb().collection<Document>("user"),
+  preowned: () => getDb().collection<PreOwnedDoc>("preowned_listings"),
+  bloodRequests: () => getDb().collection<BloodRequestDoc>("blood_requests"),
+  donors: () => getDb().collection<DonorProfileDoc>("donor_profiles"),
+  basha: () => getDb().collection<BashaDoc>("bashalagbe_listings"),
+  reports: () => getDb().collection<ReportDoc>("reports"),
 };
+
+// ---- Schema validation for the module collections ------------------------------
+// The API validates every write with zod first; these MongoDB validators are a
+// second line so a bad write from anywhere else can't corrupt the data.
+
+const str = { bsonType: "string" };
+const date = { bsonType: "date" };
+const num = { bsonType: ["double", "int", "long", "decimal"] };
+const moderation = { enum: ["visible", "hidden"] };
+const base = ["_id", "owner_id", "university_slug", "moderation", "created_at", "updated_at"];
+
+const validators: Record<string, Document> = {
+  preowned_listings: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: [...base, "title", "price", "condition", "images", "status", "location"],
+      properties: {
+        owner_id: str,
+        university_slug: str,
+        title: { bsonType: "string", minLength: 3, maxLength: 120 },
+        price: { ...num, minimum: 0 },
+        condition: { enum: ["like-new", "good", "fair", "used"] },
+        images: { bsonType: "array", maxItems: 8, items: str },
+        status: { enum: ["available", "sold"] },
+        moderation,
+        created_at: date,
+        updated_at: date,
+      },
+    },
+  },
+  blood_requests: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: [...base, "blood_group", "hospital_name", "needed_on", "donors_needed", "status"],
+      properties: {
+        owner_id: str,
+        blood_group: { enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
+        needed_on: date,
+        donors_needed: { ...num, minimum: 1 },
+        contact_preference: { enum: ["messages", "phone"] },
+        status: { enum: ["active", "fulfilled", "cancelled"] },
+        moderation,
+        created_at: date,
+        updated_at: date,
+      },
+    },
+  },
+  donor_profiles: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: [...base, "name", "blood_group", "availability"],
+      properties: {
+        owner_id: str,
+        blood_group: { enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
+        contact_preference: { enum: ["messages", "phone"] },
+        availability: { enum: ["available", "unavailable"] },
+        moderation,
+        created_at: date,
+        updated_at: date,
+      },
+    },
+  },
+  bashalagbe_listings: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: [...base, "title", "type", "rent", "available_from", "area", "status", "images"],
+      properties: {
+        owner_id: str,
+        type: { enum: ["single_room", "shared_room", "apartment"] },
+        rent: { ...num, minimum: 0 },
+        available_from: date,
+        images: { bsonType: "array", maxItems: 10, items: str },
+        status: { enum: ["available", "rented", "unavailable"] },
+        moderation,
+        created_at: date,
+        updated_at: date,
+      },
+    },
+  },
+  reports: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: [
+        "_id",
+        "target_type",
+        "target_id",
+        "reporter_id",
+        "reason",
+        "status",
+        "created_at",
+      ],
+      properties: {
+        target_type: { enum: ["preowned", "blood_request", "donor", "basha"] },
+        status: { enum: ["open", "reviewed", "dismissed"] },
+        created_at: date,
+      },
+    },
+  },
+};
+
+async function ensureValidators() {
+  const database = getDb();
+  const existing = new Set(
+    (await database.listCollections({}, { nameOnly: true }).toArray()).map((c) => c.name),
+  );
+  await Promise.all(
+    Object.entries(validators).map(async ([name, validator]) => {
+      if (existing.has(name)) {
+        await database.command({ collMod: name, validator, validationLevel: "moderate" });
+      } else {
+        try {
+          await database.createCollection(name, { validator, validationLevel: "moderate" });
+        } catch (err) {
+          // Another instance created it first.
+          if ((err as { code?: number }).code !== 48) throw err;
+        }
+      }
+    }),
+  );
+}
 
 /** Create indexes once per process (idempotent on the server). */
 export function ensureIndexes(): Promise<void> {
@@ -231,6 +471,23 @@ export function ensureIndexes(): Promise<void> {
       col.messages().createIndex({ conversation_id: 1, created_at: 1 }),
       col.emailOutbox().createIndex({ kind: 1, order_id: 1 }, { unique: true }),
       col.emailOutbox().createIndex({ status: 1, created_at: 1 }),
+    ]);
+    await ensureValidators();
+    await Promise.all([
+      col.preowned().createIndex({ university_slug: 1, moderation: 1, status: 1, created_at: -1 }),
+      col.preowned().createIndex({ owner_id: 1, created_at: -1 }),
+      col
+        .bloodRequests()
+        .createIndex({ university_slug: 1, moderation: 1, status: 1, created_at: -1 }),
+      col.bloodRequests().createIndex({ owner_id: 1, created_at: -1 }),
+      col.donors().createIndex({ owner_id: 1 }, { unique: true }),
+      col
+        .donors()
+        .createIndex({ university_slug: 1, moderation: 1, availability: 1, blood_group: 1 }),
+      col.basha().createIndex({ university_slug: 1, moderation: 1, status: 1, created_at: -1 }),
+      col.basha().createIndex({ owner_id: 1, created_at: -1 }),
+      col.reports().createIndex({ reporter_id: 1, target_type: 1, target_id: 1 }, { unique: true }),
+      col.reports().createIndex({ status: 1, created_at: -1 }),
     ]);
   })().catch((err) => {
     indexesReady = undefined;

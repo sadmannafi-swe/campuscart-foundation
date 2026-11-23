@@ -2,13 +2,17 @@ import { useState, type FormEvent } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Bell,
+  Droplet,
   Heart,
+  HeartHandshake,
+  Home,
   Loader2,
   LogOut,
   MessageCircle,
   Package,
   Pencil,
   ShieldCheck,
+  ShoppingBag,
   ShoppingCart,
   User,
 } from "lucide-react";
@@ -39,6 +43,34 @@ export const Route = createFileRoute("/account")({
   }),
   component: AccountPage,
 });
+
+/** The user's own Pre-Owned, Blood Donation and BashaLagbe posts. */
+const campusLinks = [
+  {
+    label: "My Pre-Owned Listings",
+    to: "/account/preowned" as const,
+    icon: ShoppingBag,
+    tone: "bg-preowned-soft text-preowned",
+  },
+  {
+    label: "My Blood Requests",
+    to: "/account/blood" as const,
+    icon: Droplet,
+    tone: "bg-blood-soft text-blood",
+  },
+  {
+    label: "My Donor Profile",
+    to: "/blood/donor" as const,
+    icon: HeartHandshake,
+    tone: "bg-blood-soft text-blood",
+  },
+  {
+    label: "My BashaLagbe Listings",
+    to: "/account/basha" as const,
+    icon: Home,
+    tone: "bg-basha-soft text-basha",
+  },
+];
 
 const quickLinks = [
   { label: "Orders", to: "/orders" as const, icon: Package },
@@ -206,6 +238,24 @@ function AccountPage() {
                     className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors hover:bg-muted"
                   >
                     <Icon className="size-4 text-primary" aria-hidden="true" />
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="card-surface p-4">
+              <p className="text-xs font-semibold text-muted-foreground">My campus posts</p>
+              <div className="mt-3 space-y-1">
+                {campusLinks.map(({ label, to, icon: Icon, tone }) => (
+                  <Link
+                    key={label}
+                    to={to}
+                    className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                  >
+                    <span className={cn("grid size-7 place-items-center rounded-[8px]", tone)}>
+                      <Icon className="size-4" aria-hidden="true" />
+                    </span>
                     {label}
                   </Link>
                 ))}

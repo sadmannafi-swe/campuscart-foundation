@@ -1,14 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { Home, LayoutGrid, MessageCircle, Package, ShoppingCart, User } from "lucide-react";
+import { Home, MessageCircle, Package, ShoppingBag, ShoppingCart, User } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useUnreadChatCounts } from "@/lib/chat";
 
+/** Exactly six items. Pre-Owned took the place of Categories (still in the header menu). */
 const items = [
   { label: "Home", to: "/diu" as const, icon: Home },
-  { label: "Categories", to: "/categories" as const, icon: LayoutGrid },
-  { label: "Chat", to: "/chat" as const, icon: MessageCircle },
-  { label: "Cart", to: "/cart" as const, icon: ShoppingCart },
   { label: "Orders", to: "/orders" as const, icon: Package },
+  { label: "Messages", to: "/chat" as const, icon: MessageCircle },
+  { label: "Pre-Owned", to: "/preowned" as const, icon: ShoppingBag },
+  { label: "Cart", to: "/cart" as const, icon: ShoppingCart },
   { label: "Profile", to: "/account" as const, icon: User },
 ];
 
@@ -20,7 +21,7 @@ export function MobileBottomNav() {
   return (
     <nav
       aria-label="Mobile navigation"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
     >
       <ul className="grid grid-cols-6">
         {items.map(({ label, to, icon: Icon }) => (
@@ -38,7 +39,7 @@ export function MobileBottomNav() {
               />
               <span className="relative" {...(label === "Cart" ? { "data-cart-target": "" } : {})}>
                 <Icon className="size-5" strokeWidth={1.75} aria-hidden="true" />
-                {label === "Chat" && unreadTotal > 0 && (
+                {label === "Messages" && unreadTotal > 0 && (
                   <span className="absolute -right-1.5 -top-1 grid min-w-4 place-items-center rounded-full bg-bloom px-1 text-[10px] font-semibold leading-4 text-bloom-foreground">
                     {unreadTotal > 9 ? "9+" : unreadTotal}
                   </span>

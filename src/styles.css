@@ -21,6 +21,12 @@
   --color-bloom-soft: var(--bloom-soft);
   --color-bloom-ink: var(--bloom-ink);
   --color-ink: var(--ink);
+  --color-preowned: var(--preowned);
+  --color-preowned-soft: var(--preowned-soft);
+  --color-blood: var(--blood);
+  --color-blood-soft: var(--blood-soft);
+  --color-basha: var(--basha);
+  --color-basha-soft: var(--basha-soft);
   --color-ink-foreground: var(--ink-foreground);
 
   --radius-sm: calc(var(--radius) - 4px);
@@ -115,6 +121,14 @@
 
   --success: oklch(0.56 0.13 152);
   --success-foreground: oklch(0.985 0.01 150);
+
+  /* campus modules: one accent each */
+  --preowned: oklch(0.52 0.13 152);
+  --preowned-soft: oklch(0.945 0.04 150);
+  --blood: oklch(0.53 0.2 25);
+  --blood-soft: oklch(0.95 0.03 25);
+  --basha: oklch(0.5 0.14 252);
+  --basha-soft: oklch(0.945 0.03 252);
   --warning: oklch(0.66 0.14 70);
   --warning-foreground: oklch(0.24 0.05 70);
 
@@ -167,6 +181,12 @@
   --accent-soft: oklch(0.3 0.05 152);
   --success: oklch(0.7 0.14 152);
   --success-foreground: oklch(0.18 0.04 152);
+  --preowned: oklch(0.72 0.14 152);
+  --preowned-soft: oklch(0.3 0.05 152);
+  --blood: oklch(0.7 0.17 25);
+  --blood-soft: oklch(0.3 0.06 25);
+  --basha: oklch(0.72 0.12 252);
+  --basha-soft: oklch(0.3 0.05 252);
   --warning: oklch(0.8 0.14 76);
   --warning-foreground: oklch(0.22 0.05 76);
   --destructive: oklch(0.66 0.19 30);

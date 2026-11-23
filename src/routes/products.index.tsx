@@ -37,6 +37,7 @@ import {
 } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { SearchScopeTabs, ScopedResults } from "@/components/modules/SearchScope";
 
 interface ProductSearch {
   q?: string | undefined;
@@ -48,6 +49,8 @@ interface ProductSearch {
   rating?: number | undefined;
   instock?: boolean | undefined;
   sort?: SortKey | undefined;
+  /** Search scope: Marketplace (default), Pre-Owned only, or both. */
+  scope?: "preowned" | "all" | undefined;
 }
 
 const toStringArray = (value: unknown): string[] | undefined => {
@@ -77,6 +80,8 @@ export const Route = createFileRoute("/products/")({
     sort: sortOptions.some((o) => o.value === search["sort"])
       ? (search["sort"] as SortKey)
       : undefined,
+    scope:
+      search["scope"] === "preowned" || search["scope"] === "all" ? search["scope"] : undefined,
   }),
   head: () => ({
     meta: [
@@ -161,7 +166,9 @@ function ProductsPage() {
       }),
     });
 
-  const resetFilters = () => navigate({ search: (prev) => ({ q: prev.q, sort: prev.sort }) });
+  const resetFilters = () =>
+    navigate({ search: (prev) => ({ q: prev.q, sort: prev.sort, scope: prev.scope }) });
+  const scope = search.q ? (search.scope ?? "marketplace") : "marketplace";
 
   const filters = (
     <FilterPanel
@@ -206,9 +213,11 @@ function ProductsPage() {
                   ? activeCategory.name
                   : "All products"}
             </h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {results.length} {results.length === 1 ? "listing" : "listings"} found
-            </p>
+            {scope === "marketplace" && (
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                {results.length} {results.length === 1 ? "listing" : "listings"} found
+              </p>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -254,123 +263,141 @@ function ProductsPage() {
           </div>
         </div>
 
-        {(matchingStores.length > 0 || matchingCategories.length > 0) && (
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-muted-foreground">Also matching:</span>
-            {matchingCategories.map((category) => (
-              <button
-                key={category.id}
-                type="button"
-                onClick={() => toggleCategory(category.slug)}
-                className="cursor-pointer rounded-full border border-border px-2.5 py-1 text-xs font-semibold transition-colors hover:bg-primary-soft hover:text-primary"
-              >
-                {category.name}
-              </button>
-            ))}
-            {matchingStores.map((store) => (
-              <Link
-                key={store.id}
-                to="/stores/$storeSlug"
-                params={{ storeSlug: store.slug }}
-                className="rounded-full border border-border px-2.5 py-1 text-xs font-semibold transition-colors hover:bg-primary-soft hover:text-primary"
-              >
-                {store.name}
-              </Link>
-            ))}
-          </div>
+        {search.q && (
+          <SearchScopeTabs
+            value={scope}
+            onChange={(next) =>
+              void navigate({
+                search: (prev) => ({ ...prev, scope: next === "marketplace" ? undefined : next }),
+                replace: true,
+              })
+            }
+          />
         )}
 
-        {activeCount > 0 && (
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {selectedCats.map((slug) => (
-              <Badge key={slug} variant="secondary" className="gap-1 py-1">
-                {categories.find((c) => c.slug === slug)?.name ?? slug}
-                <button
-                  type="button"
-                  aria-label="Remove category filter"
-                  onClick={() => toggleCategory(slug)}
-                  className="cursor-pointer"
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            ))}
-            {selectedStores.map((id) => (
-              <Badge key={id} variant="secondary" className="gap-1 py-1">
-                {stores.find((s) => s.id === id)?.name ?? id}
-                <button
-                  type="button"
-                  aria-label="Remove store filter"
-                  onClick={() => toggleStore(id)}
-                  className="cursor-pointer"
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            ))}
-            {search.rating ? (
-              <Badge variant="secondary" className="py-1">
-                {search.rating}★ & above
-              </Badge>
-            ) : null}
-            {search.instock ? (
-              <Badge variant="secondary" className="py-1">
-                In stock only
-              </Badge>
-            ) : null}
-            {(search.min !== undefined || search.max !== undefined) && (
-              <Badge variant="secondary" className="py-1">
-                {formatPrice(search.min ?? PRICE_MIN)} — {formatPrice(search.max ?? PRICE_MAX)}
-              </Badge>
-            )}
-            <Button variant="ghost" size="sm" onClick={resetFilters}>
-              Clear all
-            </Button>
-          </div>
-        )}
-
-        <div className="mt-5 grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]">
-          <aside className="hidden lg:block">
-            <div className="card-surface sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-sm font-semibold">Filter</h2>
-                {activeCount > 0 && (
+        {scope !== "marketplace" ? (
+          <ScopedResults q={search.q ?? ""} scope={scope} />
+        ) : (
+          <>
+            {(matchingStores.length > 0 || matchingCategories.length > 0) && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold text-muted-foreground">Also matching:</span>
+                {matchingCategories.map((category) => (
                   <button
+                    key={category.id}
                     type="button"
-                    onClick={resetFilters}
-                    className="cursor-pointer text-xs font-semibold text-primary hover:underline"
+                    onClick={() => toggleCategory(category.slug)}
+                    className="cursor-pointer rounded-full border border-border px-2.5 py-1 text-xs font-semibold transition-colors hover:bg-primary-soft hover:text-primary"
                   >
-                    Reset
+                    {category.name}
                   </button>
+                ))}
+                {matchingStores.map((store) => (
+                  <Link
+                    key={store.id}
+                    to="/stores/$storeSlug"
+                    params={{ storeSlug: store.slug }}
+                    className="rounded-full border border-border px-2.5 py-1 text-xs font-semibold transition-colors hover:bg-primary-soft hover:text-primary"
+                  >
+                    {store.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {activeCount > 0 && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {selectedCats.map((slug) => (
+                  <Badge key={slug} variant="secondary" className="gap-1 py-1">
+                    {categories.find((c) => c.slug === slug)?.name ?? slug}
+                    <button
+                      type="button"
+                      aria-label="Remove category filter"
+                      onClick={() => toggleCategory(slug)}
+                      className="cursor-pointer"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                ))}
+                {selectedStores.map((id) => (
+                  <Badge key={id} variant="secondary" className="gap-1 py-1">
+                    {stores.find((s) => s.id === id)?.name ?? id}
+                    <button
+                      type="button"
+                      aria-label="Remove store filter"
+                      onClick={() => toggleStore(id)}
+                      className="cursor-pointer"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                ))}
+                {search.rating ? (
+                  <Badge variant="secondary" className="py-1">
+                    {search.rating}★ & above
+                  </Badge>
+                ) : null}
+                {search.instock ? (
+                  <Badge variant="secondary" className="py-1">
+                    In stock only
+                  </Badge>
+                ) : null}
+                {(search.min !== undefined || search.max !== undefined) && (
+                  <Badge variant="secondary" className="py-1">
+                    {formatPrice(search.min ?? PRICE_MIN)} — {formatPrice(search.max ?? PRICE_MAX)}
+                  </Badge>
+                )}
+                <Button variant="ghost" size="sm" onClick={resetFilters}>
+                  Clear all
+                </Button>
+              </div>
+            )}
+
+            <div className="mt-5 grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]">
+              <aside className="hidden lg:block">
+                <div className="card-surface sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h2 className="text-sm font-semibold">Filter</h2>
+                    {activeCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={resetFilters}
+                        className="cursor-pointer text-xs font-semibold text-primary hover:underline"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                  {filters}
+                </div>
+              </aside>
+
+              <div className="min-w-0">
+                {results.length === 0 ? (
+                  <EmptyState
+                    title="No products found"
+                    description="Nothing matched this search and filter combination."
+                    action={
+                      <div className="flex flex-wrap justify-center gap-2">
+                        <Button variant="outline" onClick={resetFilters}>
+                          Clear filters
+                        </Button>
+                        <Button asChild>
+                          <Link to="/products" search={{}}>
+                            Try another search
+                          </Link>
+                        </Button>
+                      </div>
+                    }
+                  />
+                ) : (
+                  <ProductGrid products={results} />
                 )}
               </div>
-              {filters}
             </div>
-          </aside>
-
-          <div className="min-w-0">
-            {results.length === 0 ? (
-              <EmptyState
-                title="No products found"
-                description="Nothing matched this search and filter combination."
-                action={
-                  <div className="flex flex-wrap justify-center gap-2">
-                    <Button variant="outline" onClick={resetFilters}>
-                      Clear filters
-                    </Button>
-                    <Button asChild>
-                      <Link to="/products" search={{}}>
-                        Try another search
-                      </Link>
-                    </Button>
-                  </div>
-                }
-              />
-            ) : (
-              <ProductGrid products={results} />
-            )}
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </SiteLayout>
   );

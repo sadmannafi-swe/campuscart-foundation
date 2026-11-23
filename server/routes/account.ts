@@ -60,7 +60,9 @@ accountRouter.get("/me/reviews", async (req, res) => {
 
 accountRouter.post("/uploads/sign", (req, res) => {
   const { kind } = parse(
-    z.object({ kind: z.enum(["product", "store-logo", "avatar", "student-id"]) }),
+    z.object({
+      kind: z.enum(["product", "store-logo", "avatar", "student-id", "preowned", "basha"]),
+    }),
     req.body,
   );
   res.json(signUpload(kind as UploadKind, me(req).id));

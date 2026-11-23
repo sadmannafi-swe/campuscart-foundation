@@ -796,4 +796,406 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     }
     expect((await request(app).get("/api/auth-providers")).body).toEqual({ google: false });
   });
+
+  // ---- Campus modules ---------------------------------------------------------
+
+  describe("campus modules", () => {
+    let alice: Agent, bob: Agent;
+    let aliceId: string, bobId: string;
+    const img = (kind: string, uid: string, name = "a.jpg") =>
+      `${CLOUD}/campuscart/${kind}/${uid}/${name}`;
+    const del = (a: Agent, url: string) => a.delete(url).set("origin", ORIGIN);
+
+    it("sets up two students", async () => {
+      alice = await signUp("alice@diu.edu.bd", "Alice Rahman", { studentId: "221-15-1111" });
+      bob = await signUp("bob@diu.edu.bd", "Bob Karim");
+      aliceId = await userIdOf(alice);
+      bobId = await userIdOf(bob);
+    });
+
+    let calc: string;
+    it("Pre-Owned: owners create, edit, sell and delete; others can't", async () => {
+      const body = {
+        university_slug: "diu",
+        title: "Casio FX-991 calculator",
+        description: "Used for two semesters, works perfectly.",
+        category: "Electronics",
+        price: 900,
+        original_price: 1600,
+        condition: "good",
+        images: [img("preowned", aliceId)],
+        location: "Hall 2",
+      };
+      expect(
+        (await request(app).post("/api/preowned").set("origin", ORIGIN).send(body)).status,
+      ).toBe(401);
+      expect(
+        (await post(alice, "/api/preowned", { ...body, images: [img("preowned", bobId)] })).status,
+      ).toBe(400); // someone else's upload folder
+      expect((await post(alice, "/api/preowned", { ...body, original_price: 500 })).status).toBe(
+        400,
+      );
+      const r = await post(alice, "/api/preowned", body);
+      expect(r.status, JSON.stringify(r.body)).toBe(201);
+      calc = r.body.id;
+      expect(r.body).toMatchObject({ status: "available", is_owner: true, owner_id: aliceId });
+
+      // public view hides the owner's user id and contact details
+      const pub = (await request(app).get(`/api/preowned/${calc}`)).body;
+      expect(pub).toMatchObject({ title: body.title, owner_id: "", is_owner: false });
+      expect(pub.owner).toMatchObject({ id: "", name: "Alice Rahman" });
+      expect(JSON.stringify(pub)).not.toMatch(/alice@diu|221-15-1111|01700000000/);
+
+      // others can't change or delete it
+      expect((await patch(bob, `/api/preowned/${calc}`, { price: 1 })).status).toBe(403);
+      expect((await patch(bob, `/api/preowned/${calc}/status`, { status: "sold" })).status).toBe(
+        403,
+      );
+      expect((await del(bob, `/api/preowned/${calc}`)).status).toBe(403);
+
+      // filters and sort
+      const list = (q: string) => request(app).get(`/api/preowned?university=diu${q}`);
+      expect((await list("&q=casio")).body.map((l: { id: string }) => l.id)).toContain(calc);
+      expect((await list("&q=bicycle")).body).toHaveLength(0);
+      expect((await list("&min=1000")).body).toHaveLength(0);
+      expect((await list("&condition=good&location=hall")).body).toHaveLength(1);
+      expect((await list("&q=(")).status).toBe(200); // user text never becomes a regex
+
+      expect((await patch(alice, `/api/preowned/${calc}`, { price: 850 })).status).toBe(200);
+      expect((await patch(alice, `/api/preowned/${calc}/status`, { status: "sold" })).status).toBe(
+        200,
+      );
+      expect((await list("")).body).toHaveLength(0);
+      expect((await list("&status=sold")).body).toHaveLength(1);
+      expect(
+        (await patch(alice, `/api/preowned/${calc}/status`, { status: "available" })).status,
+      ).toBe(200);
+      expect((await alice.get("/api/preowned/mine")).body[0]).toMatchObject({
+        id: calc,
+        price: 850,
+      });
+    });
+
+    it("Pre-Owned never appears in the Marketplace; search scopes are enforced by the API", async () => {
+      const products = (await request(app).get("/api/products?university=diu")).body as Array<{
+        id: string;
+      }>;
+      expect(products.some((p) => p.id === calc)).toBe(false);
+      const s = async (scope?: string) =>
+        (
+          await request(app).get(
+            `/api/search?university=diu&q=casio${scope ? `&scope=${scope}` : ""}`,
+          )
+        ).body;
+      expect(await s()).toMatchObject({ scope: "marketplace", preowned: [] });
+      const pre = await s("preowned");
+      expect(pre.marketplace).toEqual([]);
+      expect(pre.preowned.map((l: { id: string }) => l.id)).toEqual([calc]);
+      const all = await s("all");
+      expect(all.preowned).toHaveLength(1);
+      // a Marketplace product shows under "marketplace" in "all", never under "preowned"
+      const prodName = products[0] ? (products[0] as unknown as { name: string }).name : null;
+      if (prodName) {
+        const both = (
+          await request(app).get(
+            `/api/search?university=diu&scope=all&q=${encodeURIComponent(prodName.slice(0, 6))}`,
+          )
+        ).body;
+        expect(both.marketplace.length).toBeGreaterThan(0);
+        expect(both.preowned.some((l: { title: string }) => l.title === prodName)).toBe(false);
+      }
+      // other universities don't see DIU listings
+      expect((await request(app).get("/api/preowned?university=nsu")).body).toHaveLength(0);
+    });
+
+    it("Pre-Owned messaging is tied to the listing and follows chat rules", async () => {
+      expect(
+        (await post(alice, "/api/chat/open-context", { kind: "preowned", id: calc })).status,
+      ).toBe(400);
+      const open = await post(bob, "/api/chat/open-context", { kind: "preowned", id: calc });
+      expect(open.status, JSON.stringify(open.body)).toBe(201);
+      const again = await post(bob, "/api/chat/open-context", { kind: "preowned", id: calc });
+      expect(again.body.id).toBe(open.body.id); // no duplicate conversation
+      const conv = (await bob.get(`/api/chat/conversations/${open.body.id}`)).body;
+      expect(conv).toMatchObject({
+        kind: "preowned",
+        context_id: calc,
+        product_name: "Casio FX-991 calculator",
+        product_price: 850,
+        owner_name: "Alice Rahman",
+      });
+      // the owner can't message first, then can reply once the buyer has
+      expect(
+        (await post(alice, `/api/chat/conversations/${open.body.id}/messages`, { body: "hi" }))
+          .status,
+      ).toBe(409);
+      expect(
+        (
+          await post(bob, `/api/chat/conversations/${open.body.id}/messages`, {
+            body: "Is it still available?",
+          })
+        ).status,
+      ).toBe(201);
+      const aliceInbox = (await alice.get("/api/chat/conversations?role=buyer")).body as Array<{
+        id: string;
+      }>;
+      expect(aliceInbox.map((c) => c.id)).toContain(open.body.id);
+      const aliceSellerInbox = (await alice.get("/api/chat/conversations?role=seller"))
+        .body as Array<{ id: string }>;
+      expect(aliceSellerInbox.map((c) => c.id)).not.toContain(open.body.id);
+      expect(
+        (await post(alice, `/api/chat/conversations/${open.body.id}/messages`, { body: "Yes" }))
+          .status,
+      ).toBe(201);
+      // strangers can't read it
+      expect((await sellerA.get(`/api/chat/conversations/${open.body.id}/messages`)).status).toBe(
+        403,
+      );
+    });
+
+    let reqId: string;
+    it("Blood requests: create, filter, status, ownership and private contact", async () => {
+      const base = {
+        university_slug: "diu",
+        blood_group: "B+",
+        hospital_name: "Dhaka Medical College Hospital",
+        hospital_location: "Bakshibazar, Dhaka",
+        needed_on: "2026-12-05",
+        donors_needed: 2,
+        description: "Surgery on Friday morning.",
+      };
+      expect(
+        (await post(alice, "/api/blood/requests", { ...base, contact_preference: "phone" })).status,
+      ).toBe(400); // phone chosen but no number given
+      const r = await post(alice, "/api/blood/requests", {
+        ...base,
+        contact_preference: "messages",
+        contact_phone: "01711111111",
+      });
+      expect(r.status, JSON.stringify(r.body)).toBe(201);
+      reqId = r.body.id;
+      expect(r.body.contact_phone).toBeNull(); // not shared unless chosen
+      const list = (q: string) => request(app).get(`/api/blood/requests?university=diu${q}`);
+      expect((await list("&blood_group=B%2B")).body).toHaveLength(1);
+      expect((await list("&blood_group=O-")).body).toHaveLength(0);
+      expect((await list("&location=bakshi")).body).toHaveLength(1);
+      expect(
+        (await patch(bob, `/api/blood/requests/${reqId}/status`, { status: "fulfilled" })).status,
+      ).toBe(403);
+      expect((await del(bob, `/api/blood/requests/${reqId}`)).status).toBe(403);
+      expect(
+        (await patch(alice, `/api/blood/requests/${reqId}`, { donors_needed: 3 })).status,
+      ).toBe(200);
+      const open = await post(bob, "/api/chat/open-context", { kind: "blood_request", id: reqId });
+      expect(open.status).toBe(201);
+      expect((await bob.get(`/api/chat/conversations/${open.body.id}`)).body).toMatchObject({
+        kind: "blood_request",
+        product_name: "B+ blood needed",
+      });
+      expect(
+        (await patch(alice, `/api/blood/requests/${reqId}/status`, { status: "fulfilled" })).status,
+      ).toBe(200);
+      expect((await list("")).body).toHaveLength(0);
+      expect((await list("&status=fulfilled")).body).toHaveLength(1);
+      expect((await alice.get("/api/blood/requests/mine")).body).toHaveLength(1);
+    });
+
+    let donorId: string;
+    it("Donor profiles: one per user, availability, privacy", async () => {
+      const r = await bob.put("/api/blood/donors/me").set("origin", ORIGIN).send({
+        university_slug: "diu",
+        name: "Bob K.",
+        blood_group: "O-",
+        department: "CSE",
+        batch: "61st",
+        location: "Ashulia",
+        contact_preference: "phone",
+        contact_phone: "01822222222",
+      });
+      expect(r.status, JSON.stringify(r.body)).toBe(200);
+      donorId = r.body.id;
+      const pub = (await request(app).get("/api/blood/donors?university=diu&blood_group=O-")).body;
+      expect(pub).toHaveLength(1);
+      expect(pub[0]).toMatchObject({ name: "Bob K.", contact_phone: "01822222222", owner_id: "" });
+      expect(JSON.stringify(pub)).not.toMatch(/bob@diu/);
+      // second PUT updates the same profile
+      const r2 = await bob.put("/api/blood/donors/me").set("origin", ORIGIN).send({
+        university_slug: "diu",
+        name: "Bob K.",
+        blood_group: "O-",
+        location: "Ashulia",
+        contact_preference: "messages",
+        contact_phone: "01822222222",
+      });
+      expect(r2.body.id).toBe(donorId);
+      expect(r2.body.contact_phone).toBeNull();
+      expect(
+        (await patch(bob, "/api/blood/donors/me/availability", { availability: "unavailable" }))
+          .status,
+      ).toBe(200);
+      expect((await request(app).get("/api/blood/donors?university=diu")).body).toHaveLength(0);
+      expect(
+        (await request(app).get("/api/blood/donors?university=diu&availability=all")).body,
+      ).toHaveLength(1);
+      expect(
+        (await post(bob, "/api/chat/open-context", { kind: "donor", id: donorId })).status,
+      ).toBe(400);
+      await patch(bob, "/api/blood/donors/me/availability", { availability: "available" });
+      expect(
+        (await post(alice, "/api/chat/open-context", { kind: "donor", id: donorId })).status,
+      ).toBe(201);
+      // alice has no donor profile to change
+      expect(
+        (await patch(alice, "/api/blood/donors/me/availability", { availability: "available" }))
+          .status,
+      ).toBe(404);
+    });
+
+    let flat: string;
+    it("BashaLagbe: conditional fields, private address, filters and statuses", async () => {
+      const facilities = {
+        attached_bathroom: false,
+        bathroom_type: "private",
+        balcony: true,
+        kitchen: true,
+        kitchen_type: "shared",
+        furnished: false,
+        electricity: true,
+        water: true,
+        wifi: true,
+        gas: false,
+        other: "",
+        rules: "No smoking",
+      };
+      const base = {
+        university_slug: "diu",
+        title: "Bright 2-bed flat near Daffodil Smart City",
+        type: "apartment",
+        rent: 14000,
+        advance: 28000,
+        available_from: "2026-12-01",
+        area: "Ashulia",
+        address: "House 12, Road 3, Khagan",
+        address_public: false,
+        images: [img("basha", aliceId)],
+        description: "Two bedrooms, one bathroom, ten minutes' walk from campus.",
+        facilities,
+        roommate: { available_seats: 1, current_roommates: 2 },
+      };
+      expect(
+        (await post(alice, "/api/basha", { ...base, map_url: "https://evil.example/x" })).status,
+      ).toBe(400);
+      expect(
+        (await post(alice, "/api/basha", { ...base, type: "shared_room", roommate: null })).status,
+      ).toBe(400);
+      expect(
+        (
+          await post(alice, "/api/basha", {
+            ...base,
+            facilities: { ...facilities, attached_bathroom: true, bathroom_type: null },
+          })
+        ).status,
+      ).toBe(400);
+      const r = await post(alice, "/api/basha", {
+        ...base,
+        map_url: "https://maps.app.goo.gl/abc123",
+      });
+      expect(r.status, JSON.stringify(r.body)).toBe(201);
+      flat = r.body.id;
+      expect(r.body.roommate).toBeNull(); // not kept for full apartments
+      expect(r.body.facilities).toMatchObject({ bathroom_type: null, kitchen_type: "shared" });
+      expect(r.body.address).toBe(base.address); // owner sees it
+
+      const pub = (await request(app).get(`/api/basha/${flat}`)).body;
+      expect(pub.address).toBeNull(); // private address hidden from others
+      expect(pub.map_url).toBeNull();
+
+      const room = await post(alice, "/api/basha", {
+        ...base,
+        title: "Seat available in shared room",
+        type: "shared_room",
+        rent: 4000,
+        address_public: true,
+        roommate: { available_seats: 1, current_roommates: 2, gender_preference: "Male" },
+      });
+      expect(room.status).toBe(201);
+      expect(room.body.roommate).toMatchObject({ available_seats: 1, current_roommates: 2 });
+      expect((await request(app).get(`/api/basha/${room.body.id}`)).body.address).toBe(
+        base.address,
+      );
+
+      const list = (q: string) => request(app).get(`/api/basha?university=diu${q}`);
+      expect((await list("")).body).toHaveLength(2);
+      expect((await list("&type=apartment")).body).toHaveLength(1);
+      expect((await list("&max=5000")).body).toHaveLength(1);
+      expect((await list("&facilities=balcony,wifi")).body).toHaveLength(2);
+      expect((await list("&facilities=gas")).body).toHaveLength(0);
+      expect((await list("&available_by=2026-11-15")).body).toHaveLength(0);
+      const asc = (await list("&sort=rent_asc")).body as Array<{ rent: number }>;
+      expect(asc.map((l) => l.rent)).toEqual([4000, 14000]);
+
+      expect((await patch(bob, `/api/basha/${flat}`, { rent: 1 })).status).toBe(403);
+      expect((await patch(alice, `/api/basha/${flat}/status`, { status: "rented" })).status).toBe(
+        200,
+      );
+      expect((await list("")).body).toHaveLength(1);
+      expect(
+        (await post(bob, "/api/chat/open-context", { kind: "basha", id: room.body.id })).status,
+      ).toBe(201);
+      expect((await del(alice, `/api/basha/${room.body.id}`)).status).toBe(200);
+    });
+
+    it("reports and admin moderation", async () => {
+      const report = {
+        target_type: "preowned",
+        target_id: calc,
+        reason: "misleading",
+        details: "Wrong model",
+      };
+      expect((await post(alice, "/api/reports", report)).status).toBe(400); // own post
+      expect((await post(bob, "/api/reports", report)).status).toBe(201);
+      expect((await post(bob, "/api/reports", report)).status).toBe(409);
+      expect((await bob.get("/api/admin/reports")).status).toBe(403);
+
+      const reports = (await adminAgent.get("/api/admin/reports")).body;
+      expect(reports[0]).toMatchObject({
+        target_type: "preowned",
+        target_title: "Casio FX-991 calculator",
+        status: "open",
+      });
+      const rows = (await adminAgent.get("/api/admin/modules/preowned")).body;
+      expect(rows.find((r: { id: string }) => r.id === calc)).toMatchObject({
+        open_reports: 1,
+        owner_name: "Alice Rahman",
+      });
+
+      expect(
+        (
+          await post(adminAgent, `/api/admin/modules/preowned/${calc}/moderation`, {
+            moderation: "hidden",
+          })
+        ).status,
+      ).toBe(200);
+      expect((await request(app).get(`/api/preowned/${calc}`)).status).toBe(404);
+      expect((await request(app).get("/api/preowned?university=diu")).body).toHaveLength(0);
+      expect((await alice.get(`/api/preowned/${calc}`)).status).toBe(200); // owner still sees it
+      expect(
+        (await patch(adminAgent, `/api/admin/reports/${reports[0].id}`, { status: "reviewed" }))
+          .status,
+      ).toBe(200);
+
+      expect((await adminAgent.get("/api/admin/modules/blood_request")).body).toHaveLength(1);
+      expect((await adminAgent.get("/api/admin/modules/donor")).body).toHaveLength(1);
+      expect((await del(adminAgent, `/api/admin/modules/basha/${flat}`)).status).toBe(200);
+      expect((await request(app).get(`/api/basha/${flat}`)).status).toBe(404);
+      expect((await adminAgent.get("/api/admin/modules/nope")).status).toBe(400);
+    });
+
+    it("owners delete their own records", async () => {
+      expect((await del(alice, `/api/preowned/${calc}`)).status).toBe(200);
+      expect((await del(alice, `/api/blood/requests/${reqId}`)).status).toBe(200);
+      expect((await del(bob, "/api/blood/donors/me")).status).toBe(200);
+      expect((await bob.get("/api/blood/donors/me")).body).toBeNull();
+    });
+  });
 });
