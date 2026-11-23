@@ -5,6 +5,7 @@ import type { Profile, UploadKind } from "../../shared/types";
 import { assertOwnPrivateId, signedPrivateUrl, signUpload } from "../lib/cloudinary";
 import { col, toApi } from "../lib/db";
 import { me, parse, requireUser } from "../lib/http";
+import { savePersonalDetails } from "../lib/profile";
 
 export const accountRouter = Router();
 accountRouter.use(requireUser);
@@ -39,16 +40,13 @@ const profilePatch = z.object({
 accountRouter.patch("/me", async (req, res) => {
   const u = me(req);
   const body = parse(profilePatch, req.body);
-  const set: Record<string, unknown> = { updatedAt: new Date() };
-  if (body.full_name !== undefined) set["name"] = body.full_name;
-  if (body.phone !== undefined) set["phone"] = body.phone;
-  if (body.department !== undefined) set["department"] = body.department;
-  if (body.batch !== undefined) set["batch"] = body.batch;
-  if (body.avatar_id !== undefined) {
-    set["avatarId"] =
-      body.avatar_id === null ? null : assertOwnPrivateId(body.avatar_id, u.id, "avatar");
-  }
-  await col.users().updateOne({ _id: userKey(u.id) } as never, { $set: set });
+  await savePersonalDetails(u.id, {
+    ...body,
+    avatar_id:
+      body.avatar_id === undefined || body.avatar_id === null
+        ? body.avatar_id
+        : assertOwnPrivateId(body.avatar_id, u.id, "avatar"),
+  });
   res.json({ ok: true });
 });
 
