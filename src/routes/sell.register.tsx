@@ -143,7 +143,7 @@ function Stepper({ current }: { current: Step }) {
         <li key={s.id} className="flex flex-1 items-center gap-2">
           <span
             className={cn(
-              "grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-bold",
+              "grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold",
               i <= index ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
             )}
           >
@@ -177,7 +177,7 @@ function UniversityStep({
   return (
     <div>
       <div className="text-center">
-        <h1 className="text-xl font-extrabold">Select Your University</h1>
+        <h1 className="text-xl font-semibold">Select Your University</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Choose the university where you want to open your store
         </p>
@@ -197,7 +197,7 @@ function UniversityStep({
                 selected ? "border-primary bg-primary-soft/40" : "border-border",
               )}
             >
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-xs font-bold text-primary">
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-xs font-semibold text-primary">
                 {uni.short_name}
               </span>
               <span className="min-w-0 flex-1 text-sm font-semibold">
@@ -321,7 +321,7 @@ function AccountStep({
   return (
     <div>
       <div className="text-center">
-        <h1 className="text-xl font-extrabold">Create Seller Account</h1>
+        <h1 className="text-xl font-semibold">Create Seller Account</h1>
         <p className="mt-1 text-sm text-muted-foreground">Fill in your personal information</p>
       </div>
 
@@ -575,7 +575,7 @@ function StoreStep({
   return (
     <div>
       <div className="text-center">
-        <h1 className="text-xl font-extrabold">Store Information</h1>
+        <h1 className="text-xl font-semibold">Store Information</h1>
         <p className="mt-1 text-sm text-muted-foreground">Tell us about your store</p>
       </div>
 

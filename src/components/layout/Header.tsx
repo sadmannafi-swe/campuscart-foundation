@@ -24,7 +24,7 @@ const primaryLinks = [
   { label: "New Arrivals", to: "/new-arrivals" as const },
 ];
 
-const activeProps = { className: "text-primary" };
+const activeProps = { className: "text-foreground after:scale-x-100" };
 
 export function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -37,7 +37,7 @@ export function Header() {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur supports-backdrop-filter:bg-surface/80">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md supports-backdrop-filter:bg-background/75">
       <div className="container-page">
         <div className="grid h-14 grid-cols-[auto_1fr_auto] items-center gap-3 lg:h-16 lg:gap-6">
           <Logo size="sm" className="lg:h-10" />
@@ -49,7 +49,7 @@ export function Header() {
           <div className="flex items-center justify-end gap-1">
             <nav aria-label="Main" className="mr-2 hidden items-center gap-1 lg:flex">
               <DropdownMenu>
-                <DropdownMenuTrigger className="cursor-pointer rounded-md px-3 py-2 text-sm font-medium text-foreground transition-colors hover:text-primary">
+                <DropdownMenuTrigger className="cursor-pointer rounded-[10px] px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground data-[state=open]:text-foreground">
                   Categories
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-64">
@@ -60,9 +60,14 @@ export function Header() {
                         search={{ category: category.slug, q: undefined, sort: undefined }}
                         className="flex items-center gap-2"
                       >
-                        <CategoryIcon name={category.icon} className="size-4 text-primary" />
+                        <CategoryIcon
+                          name={category.icon}
+                          className="size-4 text-muted-foreground"
+                        />
                         <span className="flex-1">{category.name}</span>
-                        <span className="text-xs text-muted-foreground">{category.productCount}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {category.productCount}
+                        </span>
                       </Link>
                     </DropdownMenuItem>
                   ))}
@@ -73,7 +78,7 @@ export function Header() {
                   key={link.to}
                   to={link.to}
                   activeProps={activeProps}
-                  className="rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-primary"
+                  className="relative rounded-[10px] px-3 py-2 text-sm font-medium text-muted-foreground transition-colors after:absolute after:inset-x-3 after:-bottom-[13px] after:h-[3px] after:origin-left after:scale-x-0 after:rounded-full after:bg-bloom after:transition-transform after:duration-300 after:ease-[var(--ease-bloom)] hover:text-foreground hover:after:scale-x-100"
                 >
                   {link.label}
                 </Link>
@@ -84,7 +89,7 @@ export function Header() {
               <Link to="/chat" aria-label="Messages">
                 <MessageCircle />
                 {unreadTotal > 0 && (
-                  <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                  <span className="absolute right-1 top-1 grid min-w-[18px] h-[18px] px-1 place-items-center rounded-full bg-bloom text-[11px] font-semibold text-bloom-foreground">
                     {unreadTotal > 9 ? "9+" : unreadTotal}
                   </span>
                 )}
@@ -96,7 +101,7 @@ export function Header() {
                 <Link to="/notifications" aria-label="Notifications">
                   <Bell />
                   {unreadNotes > 0 && (
-                    <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                    <span className="absolute right-1 top-1 grid min-w-[18px] h-[18px] px-1 place-items-center rounded-full bg-bloom text-[11px] font-semibold text-bloom-foreground">
                       {unreadNotes > 9 ? "9+" : unreadNotes}
                     </span>
                   )}
@@ -121,10 +126,10 @@ export function Header() {
             </Button>
 
             <Button variant="ghost" size="icon" asChild className="relative">
-              <Link to="/cart" aria-label="Cart">
+              <Link to="/cart" aria-label="Cart" data-cart-target="">
                 <ShoppingCart />
                 {cartCount > 0 && (
-                  <span className="absolute right-1 top-1 grid size-4 place-items-center rounded-full bg-accent text-[10px] font-bold text-accent-foreground">
+                  <span className="absolute right-1 top-1 grid min-w-[18px] h-[18px] px-1 place-items-center rounded-full bg-bloom text-[11px] font-semibold text-bloom-foreground">
                     {cartCount > 9 ? "9+" : cartCount}
                   </span>
                 )}
@@ -133,7 +138,12 @@ export function Header() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="hidden lg:inline-flex" aria-label="Profile">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="hidden lg:inline-flex"
+                  aria-label="Profile"
+                >
                   <User />
                 </Button>
               </DropdownMenuTrigger>
@@ -192,23 +202,27 @@ export function Header() {
                   <SheetTitle className="text-left">Browse CampusCart</SheetTitle>
                 </SheetHeader>
                 <nav className="mt-6 space-y-1" aria-label="Mobile">
-                  {[{ label: "Home", to: "/diu" as const }, ...primaryLinks, { label: "Wishlist", to: "/wishlist" as const }, { label: "Orders", to: "/orders" as const }, { label: "Profile", to: "/account" as const }].map(
-                    (link) => (
-                      <Link
-                        key={link.to}
-                        to={link.to}
-                        className="block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
-                        activeProps={{ className: "bg-primary-soft text-primary" }}
-                      >
-                        {link.label}
-                      </Link>
-                    ),
-                  )}
+                  {[
+                    { label: "Home", to: "/diu" as const },
+                    ...primaryLinks,
+                    { label: "Wishlist", to: "/wishlist" as const },
+                    { label: "Orders", to: "/orders" as const },
+                    { label: "Profile", to: "/account" as const },
+                  ].map((link) => (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className="block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
+                      activeProps={{ className: "bg-bloom-soft text-foreground" }}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
                 </nav>
                 <div className="mt-2 px-3">
                   <Link
                     to="/sell"
-                    className="block rounded-lg px-3 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary-soft"
+                    className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground underline decoration-bloom decoration-2 underline-offset-4 transition-colors hover:bg-muted"
                   >
                     Sell on CampusCart
                   </Link>
@@ -216,16 +230,18 @@ export function Header() {
                 {!user && (
                   <div className="mt-4 grid gap-2 px-3">
                     <Button asChild size="sm">
-                      <Link to="/auth" search={{ mode: "login" }}>Log in</Link>
+                      <Link to="/auth" search={{ mode: "login" }}>
+                        Log in
+                      </Link>
                     </Button>
                     <Button asChild size="sm" variant="outline">
-                      <Link to="/auth" search={{ mode: "signup" }}>Create account</Link>
+                      <Link to="/auth" search={{ mode: "signup" }}>
+                        Create account
+                      </Link>
                     </Button>
                   </div>
                 )}
-                <p className="mt-6 px-3 text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                  Categories
-                </p>
+                <p className="mt-6 px-3 text-xs font-semibold text-muted-foreground">Categories</p>
                 <div className="mt-2 space-y-1">
                   {categories.map((category) => (
                     <Link
@@ -234,7 +250,7 @@ export function Header() {
                       search={{ category: category.slug, q: undefined, sort: undefined }}
                       className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-muted"
                     >
-                      <CategoryIcon name={category.icon} className="size-4 text-primary" />
+                      <CategoryIcon name={category.icon} className="size-4 text-muted-foreground" />
                       {category.name}
                     </Link>
                   ))}
@@ -252,7 +268,6 @@ export function Header() {
           />
         </div>
       </div>
-
     </header>
   );
 }

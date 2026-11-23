@@ -7,22 +7,16 @@ export function StoreCard({ store, className }: { store: Store; className?: stri
   return (
     <article
       className={cn(
-        "group relative flex items-center gap-3 rounded-xl border border-border bg-surface p-3 transition-shadow hover:shadow-[var(--shadow-card-hover)]",
+        "group relative flex items-center gap-3 rounded-[16px] border border-border bg-surface p-3 transition-[transform,box-shadow,border-color] duration-300 ease-[var(--ease-bloom)] hover:-translate-y-0.5 hover:border-foreground/15 hover:shadow-[var(--shadow-card-hover)]",
         className,
       )}
     >
-      <div
-        className={cn(
-          "grid size-11 shrink-0 place-items-center rounded-lg bg-gradient-to-br text-sm font-extrabold text-primary",
-          store.accentFrom,
-          store.accentTo,
-        )}
-      >
+      <div className="grid size-12 shrink-0 place-items-center rounded-[12px] bg-ink font-display text-sm font-semibold text-ink-foreground transition-colors duration-300 group-hover:bg-bloom group-hover:text-bloom-foreground">
         {store.initials}
       </div>
 
       <div className="min-w-0 flex-1">
-        <h3 className="flex min-w-0 items-center gap-1 text-[13px] font-bold">
+        <h3 className="flex min-w-0 items-center gap-1 text-sm font-medium">
           <Link
             to="/stores/$storeSlug"
             params={{ storeSlug: store.slug }}
@@ -32,16 +26,16 @@ export function StoreCard({ store, className }: { store: Store; className?: stri
             {store.name}
           </Link>
           {store.verified && (
-            <BadgeCheck className="size-3.5 shrink-0 text-accent" aria-label="Verified store" />
+            <BadgeCheck className="size-4 shrink-0 text-accent" aria-label="Verified store" />
           )}
         </h3>
-        <p className="truncate text-[11px] text-muted-foreground">
-          {store.categoryName} · {store.productCount} products
+        <p className="truncate text-xs text-muted-foreground">
+          {store.categoryName} · <span className="tabular-nums">{store.productCount}</span> products
         </p>
       </div>
 
-      <span className="shrink-0 text-[11px] font-semibold text-warning">
-        ★ {store.rating.toFixed(1)}
+      <span className="shrink-0 text-xs tabular-nums">
+        <span className="text-bloom-ink">★</span> {store.rating.toFixed(1)}
       </span>
     </article>
   );

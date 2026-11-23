@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { BrandImage } from "@/components/brand/BrandImage";
+import { Wordmark } from "@/components/brand/BloomMark";
 import { brandAssets } from "@/lib/brand";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +17,7 @@ export function Logo({ className, size = "md", asLink = true }: LogoProps) {
   const image = (
     <BrandImage
       fallback="CampusCart"
+      fallbackNode={<Wordmark campus="DIU" />}
       src={brandAssets.logo}
       alt="DIU CampusCart — Your Campus. Your Marketplace."
       className={cn("w-auto object-contain", sizes[size], className)}

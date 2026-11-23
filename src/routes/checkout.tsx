@@ -31,9 +31,15 @@ export const Route = createFileRoute("/checkout")({
   head: () => ({
     meta: [
       { title: "Checkout — CampusCart" },
-      { name: "description", content: "Confirm your delivery details and place your CampusCart order." },
+      {
+        name: "description",
+        content: "Confirm your delivery details and place your CampusCart order.",
+      },
       { property: "og:title", content: "Checkout — CampusCart" },
-      { property: "og:description", content: "Confirm your delivery details and place your order." },
+      {
+        property: "og:description",
+        content: "Confirm your delivery details and place your order.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -102,7 +108,11 @@ function CheckoutPage() {
       if (!buy) cart.removeMany(orderable.map((i) => i.productId));
       await queryClient.invalidateQueries({ queryKey: ["buyer-orders"] });
       toast.success("Order placed");
-      void navigate({ to: "/order-confirmation", search: { ids: orderIds.join(",") }, replace: true });
+      void navigate({
+        to: "/order-confirmation",
+        search: { ids: orderIds.join(",") },
+        replace: true,
+      });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not place the order.");
     } finally {
@@ -114,7 +124,7 @@ function CheckoutPage() {
     <SiteLayout>
       <div className="container-page py-6">
         <BackButton className="mb-3" />
-        <h1 className="text-2xl font-extrabold">Checkout</h1>
+        <h1 className="text-2xl font-semibold">Checkout</h1>
 
         {loading || (buy && productsLoading) ? (
           <div className="mt-10 grid place-items-center">
@@ -125,10 +135,14 @@ function CheckoutPage() {
             <p className="font-semibold">Log in to place your order</p>
             <div className="mt-4 flex justify-center gap-2">
               <Button asChild size="sm">
-                <Link to="/auth" search={{ mode: "login" }}>Log in</Link>
+                <Link to="/auth" search={{ mode: "login" }}>
+                  Log in
+                </Link>
               </Button>
               <Button asChild size="sm" variant="outline">
-                <Link to="/auth" search={{ mode: "signup" }}>Create account</Link>
+                <Link to="/auth" search={{ mode: "signup" }}>
+                  Create account
+                </Link>
               </Button>
             </div>
           </div>
@@ -136,14 +150,19 @@ function CheckoutPage() {
           <div className="card-surface mt-6 p-8 text-center">
             <p className="font-semibold">Nothing to check out</p>
             <Button asChild size="sm" className="mt-4">
-              <Link to="/products" search={{}}>Browse products</Link>
+              <Link to="/products" search={{}}>
+                Browse products
+              </Link>
             </Button>
           </div>
         ) : (
-          <form onSubmit={onSubmit} className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+          <form
+            onSubmit={onSubmit}
+            className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start"
+          >
             <div className="space-y-5">
               <section className="card-surface p-4">
-                <h2 className="text-base font-bold">Order items</h2>
+                <h2 className="text-base font-semibold">Order items</h2>
                 <ul className="mt-3 divide-y divide-border">
                   {items.map((item) => (
                     <li key={item.productId} className="flex gap-3 py-3">
@@ -161,18 +180,32 @@ function CheckoutPage() {
                           </p>
                         ) : null}
                         <div className="mt-2 flex items-center rounded-full border border-border w-fit">
-                          <button type="button" aria-label="Decrease quantity" onClick={() => setQty(item, item.quantity - 1)} className="grid size-8 place-items-center text-muted-foreground hover:text-primary">
+                          <button
+                            type="button"
+                            aria-label="Decrease quantity"
+                            onClick={() => setQty(item, item.quantity - 1)}
+                            className="grid size-8 place-items-center text-muted-foreground hover:text-primary"
+                          >
                             <Minus className="size-3.5" />
                           </button>
-                          <span className="w-7 text-center text-sm font-semibold">{item.quantity}</span>
-                          <button type="button" aria-label="Increase quantity" onClick={() => setQty(item, item.quantity + 1)} className="grid size-8 place-items-center text-muted-foreground hover:text-primary">
+                          <span className="w-7 text-center text-sm font-semibold">
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            aria-label="Increase quantity"
+                            onClick={() => setQty(item, item.quantity + 1)}
+                            className="grid size-8 place-items-center text-muted-foreground hover:text-primary"
+                          >
                             <Plus className="size-3.5" />
                           </button>
                         </div>
                       </div>
                       <div className="shrink-0 text-right text-sm">
-                        <p className="font-bold">{formatPrice(item.price * item.quantity)}</p>
-                        <p className="text-xs text-muted-foreground">{formatPrice(item.price)} each</p>
+                        <p className="font-semibold">{formatPrice(item.price * item.quantity)}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatPrice(item.price)} each
+                        </p>
                       </div>
                     </li>
                   ))}
@@ -180,44 +213,77 @@ function CheckoutPage() {
               </section>
 
               <section className="card-surface space-y-3 p-4">
-                <h2 className="text-base font-bold">Delivery information</h2>
+                <h2 className="text-base font-semibold">Delivery information</h2>
                 <div className="space-y-1.5">
                   <Label htmlFor="co-name">Full name</Label>
-                  <Input id="co-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} required />
+                  <Input
+                    id="co-name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    maxLength={80}
+                    required
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="co-phone">Phone number</Label>
-                  <Input id="co-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} maxLength={20} required />
+                  <Input
+                    id="co-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    maxLength={20}
+                    required
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="co-address">Delivery address / campus pickup point</Label>
-                  <Textarea id="co-address" value={address} onChange={(e) => setAddress(e.target.value.slice(0, 300))} rows={3} placeholder="Hall, room, building or pickup spot" required />
+                  <Textarea
+                    id="co-address"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value.slice(0, 300))}
+                    rows={3}
+                    placeholder="Hall, room, building or pickup spot"
+                    required
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="co-note">Note for the seller (optional)</Label>
-                  <Input id="co-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={300} />
+                  <Input
+                    id="co-note"
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    maxLength={300}
+                  />
                 </div>
               </section>
             </div>
 
             <aside className="card-surface space-y-2 p-4 text-sm">
-              <h2 className="text-base font-bold">Summary</h2>
+              <h2 className="text-base font-semibold">Summary</h2>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Product subtotal</span>
                 <span className="font-semibold">{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between border-t border-border pt-2 text-base">
-                <span className="font-bold">Final Total</span>
-                <span className="font-extrabold">{formatPrice(total)}</span>
+                <span className="font-semibold">Final Total</span>
+                <span className="font-semibold">{formatPrice(total)}</span>
               </div>
               {demo.length > 0 && orderable.length > 0 && (
-                <p className="text-xs text-muted-foreground">Items that can't be ordered here stay in your cart.</p>
+                <p className="text-xs text-muted-foreground">
+                  Items that can't be ordered here stay in your cart.
+                </p>
               )}
-              <Button type="submit" className="mt-2 w-full" disabled={busy || orderable.length === 0}>
+              <Button
+                type="submit"
+                className="mt-2 w-full"
+                disabled={busy || orderable.length === 0}
+              >
                 {busy && <Loader2 className="mr-2 size-4 animate-spin" />}
                 Place Order
               </Button>
-              <p className="text-center text-[11px] text-muted-foreground">Pay the seller on delivery or pickup.</p>
+              <p className="text-center text-[11px] text-muted-foreground">
+                Pay the seller on delivery or pickup.
+              </p>
             </aside>
           </form>
         )}

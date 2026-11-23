@@ -53,7 +53,7 @@ function AuthPage() {
         <BackButton className="mb-3" />
         <div className="mx-auto w-full max-w-md">
           <div className="mb-5 text-center">
-            <h1 className="text-2xl font-extrabold sm:text-3xl">Your CampusCart account</h1>
+            <h1 className="text-2xl font-semibold sm:text-3xl">Your CampusCart account</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               One student account for buying today — and selling second-hand later.
             </p>
@@ -384,7 +384,11 @@ function SignupForm() {
 
       <p className="text-center text-xs text-muted-foreground">
         Already registered?{" "}
-        <Link to="/auth" search={{ mode: "login" }} className="font-medium text-primary hover:underline">
+        <Link
+          to="/auth"
+          search={{ mode: "login" }}
+          className="font-medium text-primary hover:underline"
+        >
           Log in instead
         </Link>
       </p>

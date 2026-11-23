@@ -24,7 +24,7 @@ export function EmptyState({
         className,
       )}
     >
-      <span className="grid size-12 place-items-center rounded-full bg-primary-soft text-primary">
+      <span className="grid size-12 place-items-center rounded-full bg-bloom-soft text-bloom-ink">
         {icon ?? <PackageSearch className="size-6" aria-hidden="true" />}
       </span>
       <h3 className="text-base font-semibold">{title}</h3>

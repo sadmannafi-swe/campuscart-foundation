@@ -30,7 +30,7 @@ function BuyerInboxPage() {
     <SiteLayout>
       <div className="container-page py-8">
         <BackButton className="mb-3" />
-        <h1 className="text-xl font-bold sm:text-2xl">Messages</h1>
+        <h1 className="text-xl font-semibold sm:text-2xl">Messages</h1>
         <div className="card-surface mt-4 overflow-hidden">
           {loading || isLoading ? (
             <p className="px-6 py-14 text-center text-sm text-muted-foreground">Loading…</p>
@@ -40,7 +40,9 @@ function BuyerInboxPage() {
                 Log in to chat with sellers about their products.
               </p>
               <Button asChild>
-                <Link to="/auth" search={{ mode: "login" }}>Log in / Create account</Link>
+                <Link to="/auth" search={{ mode: "login" }}>
+                  Log in / Create account
+                </Link>
               </Button>
             </div>
           ) : (

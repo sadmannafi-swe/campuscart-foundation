@@ -45,10 +45,10 @@ function CampusComingSoon() {
 
       <main className="container-page flex flex-1 items-center justify-center py-12">
         <div className="max-w-md text-center">
-          <span className="inline-flex rounded-full bg-primary-soft px-3 py-1 text-[11px] font-bold text-primary">
+          <span className="inline-flex rounded-full bg-primary-soft px-3 py-1 text-[11px] font-semibold text-primary">
             Coming soon
           </span>
-          <h1 className="mt-3 text-2xl font-extrabold tracking-tight">{campus.name}</h1>
+          <h1 className="mt-3 text-2xl font-semibold tracking-tight">{campus.name}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             This campus marketplace is being set up. In the meantime you can explore the live DIU
             CampusCart marketplace.

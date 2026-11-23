@@ -1,21 +1,27 @@
-import { useState, type ImgHTMLAttributes } from "react";
+import { useState, type ImgHTMLAttributes, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /** <img> that swaps to a text badge when the file is missing, so layouts never show a broken icon. */
 export function BrandImage({
   fallback,
+  fallbackNode,
   className,
   alt,
   ...props
-}: ImgHTMLAttributes<HTMLImageElement> & { fallback: string; alt: string }) {
+}: ImgHTMLAttributes<HTMLImageElement> & {
+  fallback: string;
+  fallbackNode?: ReactNode;
+  alt: string;
+}) {
   const [failed, setFailed] = useState(false);
+  if (failed && fallbackNode) return <>{fallbackNode}</>;
   if (failed) {
     return (
       <span
         role="img"
         aria-label={alt}
         className={cn(
-          "inline-grid place-items-center rounded-xl bg-primary-soft px-1 font-extrabold text-primary",
+          "inline-grid place-items-center rounded-xl bg-primary-soft px-1 font-display font-semibold text-primary",
           className,
           fallback.length === 4 && "text-[11px]",
         )}

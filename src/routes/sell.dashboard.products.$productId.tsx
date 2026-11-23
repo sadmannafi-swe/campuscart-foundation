@@ -15,7 +15,7 @@ function EditProduct() {
 
   return (
     <SellerShell title="Edit Product">
-      <h2 className="mb-3 text-base font-bold">Edit Product</h2>
+      <h2 className="mb-3 text-base font-semibold">Edit Product</h2>
       {isLoading && <p className="text-sm text-muted-foreground">Loading…</p>}
       {!isLoading && !product && (
         <p className="text-sm text-muted-foreground">This product no longer exists.</p>

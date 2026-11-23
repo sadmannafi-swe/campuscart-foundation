@@ -49,9 +49,13 @@ function SellerStore() {
   return (
     <SellerShell title="Store">
       <div className="card-surface flex items-center gap-3 p-4">
-        <StoreAvatar logoPath={store?.logo_path ?? null} name={store?.name ?? "CC"} className="size-12" />
+        <StoreAvatar
+          logoPath={store?.logo_path ?? null}
+          name={store?.name ?? "CC"}
+          className="size-12"
+        />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold">{store?.name}</p>
+          <p className="truncate text-sm font-semibold">{store?.name}</p>
           <p className="text-xs text-muted-foreground">
             {uni?.name} · {store?.category}
           </p>

@@ -30,7 +30,7 @@ function OrderConfirmation() {
           <span className="mx-auto grid size-16 place-items-center rounded-full bg-accent-soft text-accent">
             <CheckCircle2 className="size-8" aria-hidden="true" />
           </span>
-          <h1 className="mt-4 text-xl font-extrabold">Order placed!</h1>
+          <h1 className="mt-4 text-xl font-semibold">Order placed!</h1>
           <p className="mt-2 text-sm text-muted-foreground">
             The seller has received your order and will confirm it soon.
           </p>

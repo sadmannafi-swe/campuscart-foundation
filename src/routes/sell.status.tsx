@@ -44,13 +44,17 @@ export default function SellerStatus() {
     <div className="min-h-screen bg-background">
       <div className="mx-auto w-full max-w-md px-4 py-8">
         {store.status === "approved" ? (
-          <ApprovedView storeName={store.name} uniShort={uni?.short_name ?? store.university_slug} approvedAt={store.approved_at} />
+          <ApprovedView
+            storeName={store.name}
+            uniShort={uni?.short_name ?? store.university_slug}
+            approvedAt={store.approved_at}
+          />
         ) : (
           <div className="text-center">
             <span className="mx-auto grid size-24 place-items-center rounded-3xl bg-primary-soft text-primary">
               <ClipboardCheck className="size-12" aria-hidden="true" />
             </span>
-            <h1 className="mt-5 text-xl font-extrabold">
+            <h1 className="mt-5 text-xl font-semibold">
               {store.status === "pending" && "Your store is under review"}
               {store.status === "rejected" && "Your store was not approved"}
               {store.status === "suspended" && "Your store is unpublished"}
@@ -59,8 +63,9 @@ export default function SellerStatus() {
               {store.status === "pending" &&
                 "Your seller account and store are currently under review by CampusCart Admin. You will be able to access your seller dashboard after approval."}
               {store.status === "rejected" &&
-                (store.rejection_reason ? `Reason: ${store.rejection_reason}` :
-                  "Your application did not pass verification.")}
+                (store.rejection_reason
+                  ? `Reason: ${store.rejection_reason}`
+                  : "Your application did not pass verification.")}
               {store.status === "suspended" &&
                 "Your store is currently hidden from the marketplace by CampusCart Admin."}
             </p>
@@ -73,7 +78,9 @@ export default function SellerStatus() {
           <Row
             label="Status"
             value={
-              <span className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", meta.className)}>
+              <span
+                className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", meta.className)}
+              >
                 {meta.label}
               </span>
             }
@@ -114,7 +121,7 @@ function ApprovedView({
       <span className="mx-auto grid size-24 place-items-center rounded-3xl bg-accent-soft text-accent">
         <CheckCircle2 className="size-12" aria-hidden="true" />
       </span>
-      <h1 className="mt-5 text-xl font-extrabold">Congratulations! 🎉</h1>
+      <h1 className="mt-5 text-xl font-semibold">Congratulations! 🎉</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Your store <span className="font-semibold text-foreground">{storeName}</span> has been
         approved and is now live on {uniShort} CampusCart.
