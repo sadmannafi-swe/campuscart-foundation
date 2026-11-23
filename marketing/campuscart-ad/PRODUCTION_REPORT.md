@@ -7,7 +7,7 @@
 | `CampusCart_Ad_1080x1920.mp4` | Final ad. 1080×1920 (9:16), 30 fps, H.264 + AAC 48 kHz, 45.0 s |
 | `CampusCart_Ad_VO.wav` | Voice-over only, timed to the video, 48 kHz |
 | `CampusCart_Ad_Thumbnail.png` | 1080×1920 cover image |
-| `PRODUCTION_REPORT.md` | This report |
+| `PRODUCTION_REPORT.md` | This report (copy of `../PRODUCTION_REPORT.md`) |
 
 The editable source is this whole folder (`marketing/campuscart-ad/`); see "Rebuilding" below.
 
@@ -61,9 +61,24 @@ Nothing in the phone was redesigned or edited. The only change is that the stick
   * The music ducks by about 8 dB under the voice.
 * **Mix.** ffmpeg, two-pass EBU R128 to about −14 LUFS integrated and −1.5 dBTP, which suits Reels, TikTok and Shorts.
 
-## QA performed
+## QA performed (on the final MP4)
 
-See the QA section at the end, which is filled in from the actual checks on the final file.
+* **Specs (ffprobe).** H.264 video, 1080×1920, 30/1 fps, 45.000 s. AAC audio, 48 kHz stereo, 45.000 s. File size 21.3 MB.
+* **Loudness (ffmpeg ebur128).** −14.5 LUFS integrated, 5.6 LU loudness range, −1.3 dBFS peak, no clipping.
+* **Music under voice.** Narration stem is −20.6 LUFS; the music and effects stem is −32.9 LUFS (+3 dB in the mix). The bed sits about 9 LU below the voice and drops a further ~8 dB while the voice is speaking.
+* **Sync.** Speech segments came from silencedetect on the VO stem, and each caption was compared with its spoken line:
+  * S1: 0.4–4.4 s. The logo appears at 3.3 s, on "Meet Campus Cart".
+  * S2: 5.9–11.2 s. The caption is on screen from 5.3 s.
+  * S3: 15.8–19.9 s. The caption is on screen from 15.4 s.
+  * S4: 22.9–25.8 s. The caption is on screen from 22.4 s.
+  * S5: 29.9–32.8 s. The caption is on screen from 29.4 s.
+  * S6:
+    * "Four useful services" (36.6–38.1 s): on screen from 36.4 s.
+    * "One connected campus community" (38.5–40.3 s): on screen from 38.3 s.
+    * "Your campus. Your community. Your Campus Cart." (40.6–43.6 s): its three lines come in at 40.8, 41.5 and 42.4 s.
+  * Every line finishes inside its own scene.
+* **Visual review.** I reviewed frames every 1.5 s across the whole video, plus every second of the last 10 s. No broken images, no empty screens, and no text cut off by the phone or the frame edge. The blood scene shows the site's own "not an emergency medical service" notice and the caption "Not an emergency service."
+* **Known cosmetic point.** The featured-store cards show the site's generic store icon instead of the demo lettermark logos. The local capture did not pick up the logo image, so the site used its own fallback. This is real site behaviour; nothing is broken on screen.
 
 ## Notes and limits
 

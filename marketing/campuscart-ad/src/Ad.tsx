@@ -418,7 +418,9 @@ export const Thumbnail = () => {
   return (
     <AbsoluteFill style={{ background: T.paper }}>
       <Backdrop frame={frame} />
-      <Phone frame={frame} />
+      <div style={{ position: "absolute", inset: 0, transform: "translateY(70px)" }}>
+        <Phone frame={frame} />
+      </div>
       <div style={{ position: "absolute", left: 70, right: 70, top: 110 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <Bloom size={92} frame={200} start={0} />
