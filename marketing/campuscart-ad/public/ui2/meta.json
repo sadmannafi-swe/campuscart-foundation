@@ -1,0 +1,302 @@
+{
+  "b01-diu": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 4869
+  },
+  "b02-stores": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 1728
+  },
+  "b03-products": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 2810
+  },
+  "b04-product": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 2205
+  },
+  "b05-added": {
+    "static": true
+  },
+  "b06-cart": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 1550
+  },
+  "b07-checkout": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 2074
+  },
+  "s01-sell": {
+    "static": true
+  },
+  "s02-register": {
+    "static": true
+  },
+  "s03-register-account": {
+    "header": null,
+    "nav": null,
+    "height": 1093
+  },
+  "s04-login": {
+    "static": true
+  },
+  "s05-dashboard": {
+    "header": {
+      "y": 0,
+      "h": 56
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 970
+  },
+  "s06-store-profile": {
+    "header": {
+      "y": 0,
+      "h": 56
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 958
+  },
+  "s07-products": {
+    "header": {
+      "y": 0,
+      "h": 56
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 844
+  },
+  "s08-product-edit": {
+    "header": {
+      "y": 0,
+      "h": 56
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 1042
+  },
+  "s09-product-new": {
+    "header": {
+      "y": 0,
+      "h": 56
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 1042
+  },
+  "s10-orders": {
+    "header": {
+      "y": 0,
+      "h": 56
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 1342
+  },
+  "s11-storefront": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 2453
+  },
+  "p01-preowned": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 2307
+  },
+  "p02-preowned-detail": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 1965
+  },
+  "p03-preowned-bike": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 1965
+  },
+  "m01-menu": {
+    "static": true
+  },
+  "d01-blood": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 2177
+  },
+  "d02-blood-bplus": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 1864
+  },
+  "d03-request": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 1840
+  },
+  "d04-donors": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 2072
+  },
+  "d05-donor": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 1720
+  },
+  "h01-basha": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 2731
+  },
+  "h02-basha-single": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 2461
+  },
+  "h03-basha-shared": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 2624
+  },
+  "h04-basha-apartment": {
+    "header": {
+      "y": 0,
+      "h": 109
+    },
+    "nav": {
+      "y": 786.5,
+      "h": 57.5
+    },
+    "height": 2358
+  },
+  "s03b-register-store": {
+    "header": null,
+    "nav": null,
+    "height": 871
+  }
+}

@@ -1,0 +1,236 @@
+{
+ "fps": 30,
+ "durationInFrames": 2383,
+ "vo": [
+  {
+   "id": "c01",
+   "scene": "open",
+   "from": 18,
+   "frames": 60,
+   "cap": "ক্যাম্পাস জীবনের প্রতিদিনের প্রয়োজন,",
+   "file": "audio/vo-bn75/c01.wav"
+  },
+  {
+   "id": "c02",
+   "scene": "open",
+   "from": 85,
+   "frames": 34,
+   "cap": "এবার এক প্ল্যাটফর্মে।",
+   "file": "audio/vo-bn75/c02.wav"
+  },
+  {
+   "id": "c03",
+   "scene": "open",
+   "from": 126,
+   "frames": 58,
+   "cap": "পরিচয় করিয়ে দিচ্ছি CampusCart।",
+   "file": "audio/vo-bn75/c03.wav"
+  },
+  {
+   "id": "c04",
+   "scene": "buyer",
+   "from": 211,
+   "frames": 91,
+   "cap": "প্রয়োজনীয় পণ্য খুঁজুন, বিভিন্ন স্টোর ঘুরে দেখুন",
+   "file": "audio/vo-bn75/c04.wav"
+  },
+  {
+   "id": "c05",
+   "scene": "buyer",
+   "from": 308,
+   "frames": 84,
+   "cap": "এবং সহজেই অর্ডার করুন CampusCart-এর মাধ্যমে।",
+   "file": "audio/vo-bn75/c05.wav"
+  },
+  {
+   "id": "c06",
+   "scene": "buyer",
+   "from": 399,
+   "frames": 52,
+   "cap": "ফ্ল্যাশ ডিলে মিলবে সাশ্রয়ী দাম।",
+   "file": "audio/vo-bn75/c06.wav"
+  },
+  {
+   "id": "c07",
+   "scene": "buyer",
+   "from": 458,
+   "frames": 87,
+   "cap": "পণ্যের বিস্তারিত দেখে এক ট্যাপেই যোগ করুন কার্টে,",
+   "file": "audio/vo-bn75/c07.wav"
+  },
+  {
+   "id": "c08",
+   "scene": "buyer",
+   "from": 551,
+   "frames": 68,
+   "cap": "তারপর কয়েক ধাপেই সম্পন্ন করুন অর্ডার।",
+   "file": "audio/vo-bn75/c08.wav"
+  },
+  {
+   "id": "c09",
+   "scene": "seller",
+   "from": 646,
+   "frames": 66,
+   "cap": "আপনি যদি একজন শিক্ষার্থী উদ্যোক্তা হন,",
+   "file": "audio/vo-bn75/c09.wav"
+  },
+  {
+   "id": "c10",
+   "scene": "seller",
+   "from": 719,
+   "frames": 88,
+   "cap": "CampusCart-এ তৈরি করতে পারবেন নিজের অনলাইন স্টোর।",
+   "file": "audio/vo-bn75/c10.wav"
+  },
+  {
+   "id": "c11",
+   "scene": "seller",
+   "from": 813,
+   "frames": 73,
+   "cap": "পণ্য যুক্ত করে সেগুলো তুলে ধরতে পারবেন",
+   "file": "audio/vo-bn75/c11.wav"
+  },
+  {
+   "id": "c12",
+   "scene": "seller",
+   "from": 892,
+   "frames": 45,
+   "cap": "ক্যাম্পাসের ক্রেতাদের সামনে।",
+   "file": "audio/vo-bn75/c12.wav"
+  },
+  {
+   "id": "c13",
+   "scene": "seller",
+   "from": 944,
+   "frames": 98,
+   "cap": "আর সহজেই পরিচালনা করতে পারবেন আপনার স্টোর ও অর্ডার।",
+   "file": "audio/vo-bn75/c13.wav"
+  },
+  {
+   "id": "c14",
+   "scene": "seller",
+   "from": 1049,
+   "frames": 90,
+   "cap": "স্টোর চালু হলেই ক্রেতারা খুঁজে পাবেন আপনার পণ্য।",
+   "file": "audio/vo-bn75/c14.wav"
+  },
+  {
+   "id": "c15",
+   "scene": "preowned",
+   "from": 1163,
+   "frames": 105,
+   "cap": "পুরোনো কিংবা অব্যবহৃত পণ্য কেনাবেচার জন্য রয়েছে Pre-Owned।",
+   "file": "audio/vo-bn75/c15.wav"
+  },
+  {
+   "id": "c16",
+   "scene": "preowned",
+   "from": 1275,
+   "frames": 100,
+   "cap": "ল্যাপটপ, বই, ক্যালকুলেটর কিংবা সাইকেল—সাশ্রয়ী দামে।",
+   "file": "audio/vo-bn75/c16.wav"
+  },
+  {
+   "id": "c17",
+   "scene": "blood",
+   "from": 1398,
+   "frames": 80,
+   "cap": "রক্তদাতা খুঁজে পেতে এবং প্রয়োজনের সময়ে",
+   "file": "audio/vo-bn75/c17.wav"
+  },
+  {
+   "id": "c18",
+   "scene": "blood",
+   "from": 1485,
+   "frames": 89,
+   "cap": "মানুষের সঙ্গে যোগাযোগ করতে রয়েছে Blood Donation।",
+   "file": "audio/vo-bn75/c18.wav"
+  },
+  {
+   "id": "c19",
+   "scene": "blood",
+   "from": 1581,
+   "frames": 115,
+   "cap": "রক্তের গ্রুপ বেছে নিন, অনুরোধ দেখুন, যোগাযোগ করুন সহজেই।",
+   "file": "audio/vo-bn75/c19.wav"
+  },
+  {
+   "id": "c20",
+   "scene": "basha",
+   "from": 1720,
+   "frames": 92,
+   "cap": "থাকার জায়গা কিংবা রুমমেট খুঁজতে রয়েছে BashaLagbe।",
+   "file": "audio/vo-bn75/c20.wav"
+  },
+  {
+   "id": "c21",
+   "scene": "basha",
+   "from": 1819,
+   "frames": 135,
+   "cap": "সিঙ্গেল রুম, শেয়ার্ড রুম কিংবা অ্যাপার্টমেন্ট—ভাড়া আর সুবিধার তথ্য এক জায়গায়।",
+   "file": "audio/vo-bn75/c21.wav"
+  },
+  {
+   "id": "c22",
+   "scene": "close",
+   "from": 1981,
+   "frames": 90,
+   "cap": "এক ক্যাম্পাস। অসংখ্য সম্ভাবনা।",
+   "file": "audio/vo-bn75/c22.wav"
+  },
+  {
+   "id": "c23",
+   "scene": "close",
+   "from": 2077,
+   "frames": 96,
+   "cap": "কেনাকাটা থেকে প্রয়োজনীয় সেবা—সবকিছু এক প্ল্যাটফর্মে।",
+   "file": "audio/vo-bn75/c23.wav"
+  },
+  {
+   "id": "c24",
+   "scene": "close",
+   "from": 2180,
+   "frames": 116,
+   "cap": "CampusCart — আপনার ক্যাম্পাস, আপনার কমিউনিটি।",
+   "file": "audio/vo-bn75/c24.wav"
+  },
+  {
+   "id": "c25",
+   "scene": "close",
+   "from": 2303,
+   "frames": 32,
+   "cap": "শিগগিরই আসছে।",
+   "file": "audio/vo-bn75/c25.wav"
+  }
+ ],
+ "sceneVo": {
+  "open": [
+   18,
+   184
+  ],
+  "buyer": [
+   211,
+   619
+  ],
+  "seller": [
+   646,
+   1139
+  ],
+  "preowned": [
+   1163,
+   1374
+  ],
+  "blood": [
+   1398,
+   1696
+  ],
+  "basha": [
+   1720,
+   1954
+  ],
+  "close": [
+   1981,
+   2335
+  ]
+ }
+}
