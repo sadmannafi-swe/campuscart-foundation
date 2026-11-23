@@ -36,7 +36,7 @@ function SellerChatPage() {
         <p className="py-16 text-center text-sm text-muted-foreground">Loading…</p>
       ) : !conversation || !owned ? (
         <div className="py-16 text-center">
-          <h2 className="text-xl font-bold">Conversation unavailable</h2>
+          <h2 className="text-xl font-semibold">Conversation unavailable</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             This conversation does not exist or belongs to another store.
           </p>
@@ -47,7 +47,7 @@ function SellerChatPage() {
       ) : (
         <div className="grid gap-4 lg:grid-cols-[320px,1fr]">
           <aside className="card-surface hidden self-start overflow-hidden lg:block">
-            <p className="border-b border-border px-3 py-2.5 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+            <p className="border-b border-border px-3 py-2.5 text-xs font-semibold text-muted-foreground">
               Messages
             </p>
             <ConversationList

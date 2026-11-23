@@ -43,7 +43,9 @@ function SellerOrders() {
 
   useEffect(() => {
     if (!focusId || orders.length === 0) return;
-    document.getElementById(`order-${focusId}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    document
+      .getElementById(`order-${focusId}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [focusId, orders.length]);
 
   const update = useMutation({
@@ -81,7 +83,9 @@ function SellerOrders() {
                 onClick={() => setFilter(s)}
                 className={cn(
                   "shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold",
-                  filter === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
+                  filter === s
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground",
                 )}
               >
                 {s === "all" ? "All" : orderStatusMeta[s].label} (
@@ -91,12 +95,22 @@ function SellerOrders() {
           </div>
           <ul className="space-y-3">
             {visible.map((order) => (
-              <li key={order.id} id={`order-${order.id}`} className={cn("card-surface p-4", focusId === order.id && "ring-2 ring-primary")}>
+              <li
+                key={order.id}
+                id={`order-${order.id}`}
+                className={cn("card-surface p-4", focusId === order.id && "ring-2 ring-primary")}
+              >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <p className="text-sm font-bold">{shortOrderId(order.id)}</p>
+                    <p className="text-sm font-semibold">{shortOrderId(order.id)}</p>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(order.created_at).toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      {new Date(order.created_at).toLocaleString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </p>
                   </div>
                   <Select
@@ -104,17 +118,28 @@ function SellerOrders() {
                     onValueChange={(v) => {
                       const next = v as OrderStatus;
                       if (next === order.status) return;
-                      if (next === "cancelled" && !window.confirm("Cancel this order? This cannot be undone.")) return;
+                      if (
+                        next === "cancelled" &&
+                        !window.confirm("Cancel this order? This cannot be undone.")
+                      )
+                        return;
                       update.mutate({ id: order.id, status: next });
                     }}
                     disabled={update.isPending || isFinalOrderStatus(order.status)}
                   >
-                    <SelectTrigger className={cn("h-8 w-36 text-xs font-semibold", orderStatusMeta[order.status].className)}>
+                    <SelectTrigger
+                      className={cn(
+                        "h-8 w-36 text-xs font-semibold",
+                        orderStatusMeta[order.status].className,
+                      )}
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {allowedOrderStatuses(order.status).map((s) => (
-                        <SelectItem key={s} value={s}>{orderStatusMeta[s].label}</SelectItem>
+                        <SelectItem key={s} value={s}>
+                          {orderStatusMeta[s].label}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -123,27 +148,61 @@ function SellerOrders() {
                 <ul className="mt-3 space-y-2">
                   {order.order_items.map((item) => (
                     <li key={item.id} className="flex items-center gap-3">
-                      <ItemThumb path={item.product_image} alt={item.product_name} className="size-12" />
+                      <ItemThumb
+                        path={item.product_image}
+                        alt={item.product_name}
+                        className="size-12"
+                      />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold">{item.product_name}</p>
-                        <p className="text-xs text-muted-foreground">Qty {item.quantity} × {formatPrice(Number(item.unit_price))}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Qty {item.quantity} × {formatPrice(Number(item.unit_price))}
+                        </p>
                       </div>
-                      <p className="text-sm font-semibold">{formatPrice(Number(item.line_total))}</p>
+                      <p className="text-sm font-semibold">
+                        {formatPrice(Number(item.line_total))}
+                      </p>
                     </li>
                   ))}
                 </ul>
 
                 <dl className="mt-3 grid gap-2 rounded-xl bg-muted/60 p-3 text-xs sm:grid-cols-2">
-                  <div><dt className="text-muted-foreground">Customer</dt><dd className="font-semibold">{order.customer_name}</dd></div>
-                  <div><dt className="text-muted-foreground">Phone</dt><dd className="font-semibold">{order.customer_phone}</dd></div>
-                  <div><dt className="text-muted-foreground">University</dt><dd className="font-semibold">{universities.find((u) => u.slug === order.university_slug)?.name ?? order.university_slug}</dd></div>
-                  <div className="sm:col-span-2"><dt className="text-muted-foreground">Delivery</dt><dd className="font-semibold">{order.delivery_address}</dd></div>
-                  {order.note && <div className="sm:col-span-2"><dt className="text-muted-foreground">Note</dt><dd className="font-semibold">{order.note}</dd></div>}
+                  <div>
+                    <dt className="text-muted-foreground">Customer</dt>
+                    <dd className="font-semibold">{order.customer_name}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Phone</dt>
+                    <dd className="font-semibold">{order.customer_phone}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">University</dt>
+                    <dd className="font-semibold">
+                      {universities.find((u) => u.slug === order.university_slug)?.name ??
+                        order.university_slug}
+                    </dd>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <dt className="text-muted-foreground">Delivery</dt>
+                    <dd className="font-semibold">{order.delivery_address}</dd>
+                  </div>
+                  {order.note && (
+                    <div className="sm:col-span-2">
+                      <dt className="text-muted-foreground">Note</dt>
+                      <dd className="font-semibold">{order.note}</dd>
+                    </div>
+                  )}
                 </dl>
 
                 <div className="mt-3 space-y-1 text-xs">
-                  <div className="flex justify-between"><span className="text-muted-foreground">Product total</span><span className="font-semibold">{formatPrice(Number(order.subtotal))}</span></div>
-                  <div className="flex justify-between text-sm font-bold"><span>Order total</span><span>{formatPrice(Number(order.subtotal))}</span></div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Product total</span>
+                    <span className="font-semibold">{formatPrice(Number(order.subtotal))}</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-semibold">
+                    <span>Order total</span>
+                    <span>{formatPrice(Number(order.subtotal))}</span>
+                  </div>
                 </div>
               </li>
             ))}

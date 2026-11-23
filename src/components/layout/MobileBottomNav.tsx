@@ -20,7 +20,7 @@ export function MobileBottomNav() {
   return (
     <nav
       aria-label="Mobile navigation"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
     >
       <ul className="grid grid-cols-6">
         {items.map(({ label, to, icon: Icon }) => (
@@ -28,14 +28,18 @@ export function MobileBottomNav() {
             <Link
               to={to}
               activeOptions={{ exact: to === "/diu" }}
-              activeProps={{ className: "text-primary" }}
+              activeProps={{ className: "text-foreground [&_.nav-dot]:scale-100" }}
               inactiveProps={{ className: "text-muted-foreground" }}
-              className="relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[10px] font-medium"
+              className="relative flex min-h-14 flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium transition-colors"
             >
-              <span className="relative">
-                <Icon className="size-5" aria-hidden="true" />
+              <span
+                className="nav-dot absolute top-1 h-[3px] w-5 scale-0 rounded-full bg-bloom transition-transform duration-300 ease-[var(--ease-bloom)]"
+                aria-hidden="true"
+              />
+              <span className="relative" {...(label === "Cart" ? { "data-cart-target": "" } : {})}>
+                <Icon className="size-5" strokeWidth={1.75} aria-hidden="true" />
                 {label === "Chat" && unreadTotal > 0 && (
-                  <span className="absolute -right-1.5 -top-1 grid min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] font-bold leading-4 text-accent-foreground">
+                  <span className="absolute -right-1.5 -top-1 grid min-w-4 place-items-center rounded-full bg-bloom px-1 text-[10px] font-semibold leading-4 text-bloom-foreground">
                     {unreadTotal > 9 ? "9+" : unreadTotal}
                   </span>
                 )}

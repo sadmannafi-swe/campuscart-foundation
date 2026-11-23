@@ -11,7 +11,10 @@ export const Route = createFileRoute("/sell/login")({
   head: () => ({
     meta: [
       { title: "Seller Login — CampusCart" },
-      { name: "description", content: "Login to your CampusCart seller account and manage your university store." },
+      {
+        name: "description",
+        content: "Login to your CampusCart seller account and manage your university store.",
+      },
       { property: "og:title", content: "Seller Login — CampusCart" },
       { property: "og:description", content: "Login to your CampusCart seller account." },
       { name: "robots", content: "noindex" },
@@ -60,7 +63,7 @@ export default function SellerLogin() {
           <span className="grid size-20 place-items-center rounded-3xl bg-primary-soft text-primary">
             <Store className="size-10" aria-hidden="true" />
           </span>
-          <h1 className="mt-4 text-xl font-extrabold">Welcome Back!</h1>
+          <h1 className="mt-4 text-xl font-semibold">Welcome Back!</h1>
           <p className="mt-1 text-sm text-muted-foreground">Login to your seller account</p>
         </div>
 

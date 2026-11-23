@@ -22,7 +22,7 @@ export function AccountPlaceholder({
     <SiteLayout>
       <div className="container-page py-10">
         <BackButton className="mb-3" />
-        <h1 className="text-2xl font-extrabold sm:text-3xl">{title}</h1>
+        <h1 className="text-2xl font-semibold sm:text-3xl">{title}</h1>
         <div className="mt-6">
           <EmptyState
             icon={icon}

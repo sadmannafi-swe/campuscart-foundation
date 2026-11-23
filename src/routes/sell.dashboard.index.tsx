@@ -1,9 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Eye, Package, Receipt, TrendingUp } from "lucide-react";
 import { SellerShell, StoreAvatar } from "@/components/seller/SellerShell";
-import { storeStatusMeta, useSellerAccount, useSellerProducts, useUniversities } from "@/lib/seller";
+import {
+  storeStatusMeta,
+  useSellerAccount,
+  useSellerProducts,
+  useUniversities,
+} from "@/lib/seller";
 import { useAuth } from "@/lib/auth";
-import { orderStatusMeta, orderStatuses, shortOrderId, useSellerOrders, type OrderStatus } from "@/lib/orders";
+import {
+  orderStatusMeta,
+  orderStatuses,
+  shortOrderId,
+  useSellerOrders,
+  type OrderStatus,
+} from "@/lib/orders";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -47,10 +58,16 @@ function DashboardOverview() {
   return (
     <SellerShell title="Dashboard">
       <div className="card-surface flex items-center gap-3 p-4">
-        <StoreAvatar logoPath={store?.logo_path ?? null} name={store?.name ?? "CC"} className="size-12" />
+        <StoreAvatar
+          logoPath={store?.logo_path ?? null}
+          name={store?.name ?? "CC"}
+          className="size-12"
+        />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold">{store?.name}</p>
-          <p className="text-xs text-muted-foreground">{uni?.short_name ?? store?.university_slug}</p>
+          <p className="truncate text-sm font-semibold">{store?.name}</p>
+          <p className="text-xs text-muted-foreground">
+            {uni?.short_name ?? store?.university_slug}
+          </p>
         </div>
         {meta && (
           <span className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", meta.className)}>
@@ -60,14 +77,14 @@ function DashboardOverview() {
       </div>
 
       <div className="mt-5 flex items-center justify-between">
-        <h2 className="text-sm font-bold">Overview</h2>
+        <h2 className="text-sm font-semibold">Overview</h2>
         <span className="text-xs text-muted-foreground">All time</span>
       </div>
       <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {stats.map(({ label, value, icon: Icon }) => (
           <div key={label} className="card-surface p-3">
             <Icon className="size-4 text-primary" aria-hidden="true" />
-            <p className="mt-2 text-lg font-extrabold">{value}</p>
+            <p className="mt-2 text-lg font-semibold">{value}</p>
             <p className="text-xs text-muted-foreground">{label}</p>
           </div>
         ))}
@@ -76,17 +93,22 @@ function DashboardOverview() {
       <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
         {orderStatuses.map((s) => (
           <div key={s} className="card-surface flex items-center gap-2 p-2.5">
-            <span className={cn("size-2 shrink-0 rounded-full", statusDots[s])} aria-hidden="true" />
+            <span
+              className={cn("size-2 shrink-0 rounded-full", statusDots[s])}
+              aria-hidden="true"
+            />
             <div className="min-w-0">
-              <p className="text-sm font-extrabold leading-tight">{statusCounts[s]}</p>
-              <p className="truncate text-[11px] text-muted-foreground">{orderStatusMeta[s].label}</p>
+              <p className="text-sm font-semibold leading-tight">{statusCounts[s]}</p>
+              <p className="truncate text-[11px] text-muted-foreground">
+                {orderStatusMeta[s].label}
+              </p>
             </div>
           </div>
         ))}
       </div>
 
       <div className="mt-6 flex items-center justify-between">
-        <h2 className="text-sm font-bold">Recent Orders</h2>
+        <h2 className="text-sm font-semibold">Recent Orders</h2>
         <Link to="/sell/dashboard/orders" className="text-xs font-semibold text-primary">
           View All
         </Link>
@@ -101,16 +123,23 @@ function DashboardOverview() {
             <li key={order.id} className="card-surface p-3">
               <div className="flex items-center justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-sm font-bold">{shortOrderId(order.id)}</p>
+                  <p className="text-sm font-semibold">{shortOrderId(order.id)}</p>
                   <p className="truncate text-xs text-muted-foreground">
                     {order.order_items.map((i) => `${i.product_name} × ${i.quantity}`).join(", ")}
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <span className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", orderStatusMeta[order.status].className)}>
+                  <span
+                    className={cn(
+                      "rounded-full px-2.5 py-1 text-xs font-semibold",
+                      orderStatusMeta[order.status].className,
+                    )}
+                  >
                     {orderStatusMeta[order.status].label}
                   </span>
-                  <span className="text-sm font-bold">{formatPrice(Number(order.subtotal))}</span>
+                  <span className="text-sm font-semibold">
+                    {formatPrice(Number(order.subtotal))}
+                  </span>
                 </div>
               </div>
               <Link

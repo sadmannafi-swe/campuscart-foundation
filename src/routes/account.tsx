@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Bell, Heart, LogOut, MessageCircle, Package, ShieldCheck, ShoppingCart, User } from "lucide-react";
+import {
+  Bell,
+  Heart,
+  LogOut,
+  MessageCircle,
+  Package,
+  ShieldCheck,
+  ShoppingCart,
+  User,
+} from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
@@ -58,7 +67,7 @@ function AccountPage() {
       <SiteLayout>
         <div className="container-page py-10">
           <BackButton className="mb-3" />
-          <h1 className="text-2xl font-extrabold sm:text-3xl">Profile</h1>
+          <h1 className="text-2xl font-semibold sm:text-3xl">Profile</h1>
           <div className="mt-6">
             <EmptyState
               icon={<User className="size-6" aria-hidden="true" />}
@@ -96,7 +105,7 @@ function AccountPage() {
     <SiteLayout>
       <div className="container-page py-6 sm:py-10">
         <BackButton className="mb-3" />
-        <h1 className="text-2xl font-extrabold sm:text-3xl">Profile</h1>
+        <h1 className="text-2xl font-semibold sm:text-3xl">Profile</h1>
 
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
           <div className="card-surface p-4 sm:p-6 lg:col-span-2">
@@ -109,13 +118,17 @@ function AccountPage() {
                   className="size-16 rounded-full object-cover"
                 />
               ) : (
-                <span className="grid size-16 place-items-center rounded-full bg-primary-soft text-lg font-bold text-primary">
+                <span className="grid size-16 place-items-center rounded-full bg-primary-soft text-lg font-semibold text-primary">
                   {initials}
                 </span>
               )}
               <div className="min-w-0">
-                <p className="truncate text-lg font-bold">{profile?.full_name || "CampusCart student"}</p>
-                <p className="truncate text-sm text-muted-foreground">{profile?.email || user.email}</p>
+                <p className="truncate text-lg font-semibold">
+                  {profile?.full_name || "CampusCart student"}
+                </p>
+                <p className="truncate text-sm text-muted-foreground">
+                  {profile?.email || user.email}
+                </p>
               </div>
             </div>
 
@@ -124,7 +137,7 @@ function AccountPage() {
               <Field label="Department" value={profile?.department || "—"} />
               <Field label="Batch" value={profile?.batch || "—"} />
               <div>
-                <dt className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                <dt className="text-xs font-semibold text-muted-foreground">
                   Student ID (private)
                 </dt>
                 <dd className="mt-1 flex items-center gap-2 text-sm font-medium">
@@ -159,7 +172,7 @@ function AccountPage() {
                 {unreadTotal > 0 && (
                   <span
                     className={cn(
-                      "grid min-w-5 place-items-center rounded-full px-1.5 text-xs font-bold",
+                      "grid min-w-5 place-items-center rounded-full px-1.5 text-xs font-semibold",
                       "bg-background/25 text-primary-foreground",
                     )}
                   >
@@ -169,9 +182,7 @@ function AccountPage() {
               </Link>
             </Button>
             <div className="card-surface p-4">
-              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                Shortcuts
-              </p>
+              <p className="text-xs font-semibold text-muted-foreground">Shortcuts</p>
               <div className="mt-3 space-y-1">
                 {quickLinks.map(({ label, to, icon: Icon }) => (
                   <Link
@@ -208,7 +219,7 @@ function AccountPage() {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{label}</dt>
+      <dt className="text-xs font-semibold text-muted-foreground">{label}</dt>
       <dd className="mt-1 text-sm font-medium">{value}</dd>
     </div>
   );

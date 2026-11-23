@@ -22,7 +22,9 @@ function readRecents(): string[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     const parsed = raw ? (JSON.parse(raw) as unknown) : [];
-    return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === "string").slice(0, 6) : [];
+    return Array.isArray(parsed)
+      ? parsed.filter((v): v is string => typeof v === "string").slice(0, 6)
+      : [];
   } catch {
     return [];
   }
@@ -104,7 +106,10 @@ export function SearchBar({
       writeRecents(next);
     }
     setOpen(false);
-    navigate({ to: "/products", search: { q: q || undefined, category: undefined, sort: undefined } });
+    navigate({
+      to: "/products",
+      search: { q: q || undefined, category: undefined, sort: undefined },
+    });
     onSubmitted?.();
   }
 
@@ -130,8 +135,8 @@ export function SearchBar({
 
         <div
           className={cn(
-            "relative flex items-center rounded-full border border-border bg-surface transition-colors",
-            focused && "border-primary/60",
+            "relative flex items-center rounded-full border border-border bg-surface transition-[border-color,box-shadow] duration-200",
+            focused && "border-primary/40 ring-4 ring-bloom/25",
           )}
         >
           <Search
@@ -178,7 +183,7 @@ export function SearchBar({
       </form>
 
       {showDropdown && (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 max-h-[70vh] overflow-y-auto rounded-xl border border-border bg-white p-2 shadow-lg">
+        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 max-h-[70vh] overflow-y-auto rounded-xl border border-border bg-surface p-2 shadow-lg">
           {value.trim() ? (
             <ul className="space-y-0.5">
               {suggestions.map((s) => (
@@ -186,16 +191,24 @@ export function SearchBar({
                   <button
                     type="button"
                     onClick={() => runSearch(s.label)}
-                    className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors hover:bg-gray-50"
+                    className="flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-sm transition-colors hover:bg-muted"
                   >
                     {s.kind === "store" ? (
-                      <StoreIcon className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                      <StoreIcon
+                        className="size-4 shrink-0 text-muted-foreground"
+                        aria-hidden="true"
+                      />
                     ) : (
-                      <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                      <Search
+                        className="size-4 shrink-0 text-muted-foreground"
+                        aria-hidden="true"
+                      />
                     )}
                     <span className="min-w-0 flex-1 truncate">{s.label}</span>
                     {s.kind !== "product" && (
-                      <span className="shrink-0 text-[11px] capitalize text-muted-foreground">{s.kind}</span>
+                      <span className="shrink-0 text-[11px] capitalize text-muted-foreground">
+                        {s.kind}
+                      </span>
                     )}
                   </button>
                 </li>
@@ -206,7 +219,7 @@ export function SearchBar({
               {recents.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between px-2.5 py-1.5">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-[11px] font-semibold text-muted-foreground">
                       Recent searches
                     </span>
                     <button
@@ -222,20 +235,26 @@ export function SearchBar({
                   </div>
                   <ul className="space-y-0.5">
                     {recents.map((term) => (
-                      <li key={term} className="group/row flex items-center rounded-lg hover:bg-gray-50">
+                      <li
+                        key={term}
+                        className="group/row flex items-center rounded-lg hover:bg-muted"
+                      >
                         <button
                           type="button"
                           onClick={() => runSearch(term)}
                           className="flex min-w-0 flex-1 items-center gap-2.5 px-2.5 py-2 text-left text-sm"
                         >
-                          <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                          <Search
+                            className="size-4 shrink-0 text-muted-foreground"
+                            aria-hidden="true"
+                          />
                           <span className="min-w-0 flex-1 truncate">{term}</span>
                         </button>
                         <button
                           type="button"
                           aria-label={`Remove ${term}`}
                           onClick={() => removeRecent(term)}
-                          className="mr-1.5 grid size-6 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-gray-100 hover:text-foreground"
+                          className="mr-1.5 grid size-6 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                         >
                           <X className="size-3.5" aria-hidden="true" />
                         </button>
@@ -246,7 +265,7 @@ export function SearchBar({
               )}
 
               <div className="px-2.5 pb-1 pt-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                <span className="text-[11px] font-semibold text-muted-foreground">
                   Popular right now
                 </span>
                 <div className="mt-2 flex flex-wrap gap-1.5">
@@ -255,7 +274,7 @@ export function SearchBar({
                       key={term}
                       type="button"
                       onClick={() => runSearch(term)}
-                      className="rounded-full border border-border bg-white px-2.5 py-1 text-xs font-medium transition-colors hover:border-primary/50 hover:bg-primary-soft hover:text-primary"
+                      className="rounded-full border border-border bg-surface px-2.5 py-1 text-xs font-medium transition-colors hover:border-primary/50 hover:bg-primary-soft hover:text-primary"
                     >
                       {term}
                     </button>

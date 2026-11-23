@@ -11,7 +11,10 @@ export const Route = createFileRoute("/offers")({
   head: () => ({
     meta: [
       { title: "Student Offers — DIU CampusCart" },
-      { name: "description", content: "Discounted textbooks, gadgets and hostel kits from verified DIU campus stores." },
+      {
+        name: "description",
+        content: "Discounted textbooks, gadgets and hostel kits from verified DIU campus stores.",
+      },
       { property: "og:title", content: "Student Offers — DIU CampusCart" },
       { property: "og:description", content: "Live discounts from verified DIU campus stores." },
     ],
@@ -30,7 +33,7 @@ function OffersPage() {
       <div className="container-page py-8">
         <BackButton className="mb-3" />
         <PageBreadcrumb items={[{ label: "Home", to: "/" }, { label: "Offers" }]} />
-        <h1 className="text-2xl font-extrabold sm:text-3xl">Student offers</h1>
+        <h1 className="text-2xl font-semibold sm:text-3xl">Student offers</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {offers.length} discounted listings, updated every semester week.
         </p>

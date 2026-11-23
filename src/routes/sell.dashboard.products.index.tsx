@@ -13,7 +13,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { apiDelete, apiPatch } from "@/lib/api";
 import { formatPrice } from "@/lib/format";
-import { useSellerAccount, useSellerProducts, useSignedUrl, type SellerProduct } from "@/lib/seller";
+import {
+  useSellerAccount,
+  useSellerProducts,
+  useSignedUrl,
+  type SellerProduct,
+} from "@/lib/seller";
 import { cn } from "@/lib/utils";
 import { useImageFallback } from "@/lib/useImageFallback";
 
@@ -34,7 +39,9 @@ function SellerProducts() {
   const shown = filter === "all" ? products : filter === "active" ? active : inactive;
 
   async function toggleActive(product: SellerProduct) {
-    const error = await apiPatch(`/seller/products/${product.id}`, { is_active: !product.is_active }).then(
+    const error = await apiPatch(`/seller/products/${product.id}`, {
+      is_active: !product.is_active,
+    }).then(
       () => null,
       (e: Error) => e,
     );
@@ -67,7 +74,7 @@ function SellerProducts() {
   return (
     <SellerShell title="Products">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-base font-bold">My Products</h2>
+        <h2 className="text-base font-semibold">My Products</h2>
         <Button asChild size="sm">
           <Link to="/sell/dashboard/products/new">
             <Plus className="mr-1 size-4" aria-hidden="true" />
@@ -143,7 +150,7 @@ function ProductRow({
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold">{product.name}</p>
-        <p className="text-sm font-bold text-primary">{formatPrice(Number(product.price))}</p>
+        <p className="text-sm font-semibold text-primary">{formatPrice(Number(product.price))}</p>
       </div>
       <span
         className={cn(
@@ -156,7 +163,10 @@ function ProductRow({
         {!product.is_active ? "Inactive" : product.in_stock ? "In Stock" : "Out of Stock"}
       </span>
       <DropdownMenu>
-        <DropdownMenuTrigger aria-label="Product actions" className="grid size-8 place-items-center rounded-lg text-muted-foreground">
+        <DropdownMenuTrigger
+          aria-label="Product actions"
+          className="grid size-8 place-items-center rounded-lg text-muted-foreground"
+        >
           <MoreVertical className="size-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

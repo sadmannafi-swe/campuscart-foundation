@@ -13,10 +13,7 @@ import { useImageFallback } from "@/lib/useImageFallback";
 
 export type ChatAccent = "buyer" | "seller";
 
-const accentStyles: Record<
-  ChatAccent,
-  { bubble: string; button: string; ring: string }
-> = {
+const accentStyles: Record<ChatAccent, { bubble: string; button: string; ring: string }> = {
   buyer: {
     bubble: "bg-primary text-primary-foreground",
     button: "bg-primary text-primary-foreground hover:bg-primary/90",
@@ -41,7 +38,7 @@ function ProductContextCard({
   const slug = liveProductSlug(conversation.product_name, conversation.product_id);
   return (
     <div className="flex items-center gap-3 border-b border-border bg-surface px-3 py-2.5">
-      <span className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted text-xs font-bold text-muted-foreground">
+      <span className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted text-xs font-semibold text-muted-foreground">
         {img.showImage && imageUrl ? (
           <img src={imageUrl} alt="" className="size-full object-cover" onError={img.onError} />
         ) : (
@@ -50,7 +47,12 @@ function ProductContextCard({
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold">{conversation.product_name}</p>
-        <p className={cn("text-xs font-bold", accent === "buyer" ? "text-primary" : "text-accent")}>
+        <p
+          className={cn(
+            "text-xs font-semibold",
+            accent === "buyer" ? "text-primary" : "text-accent",
+          )}
+        >
           {formatPrice(Number(conversation.product_price))}
         </p>
       </div>
@@ -59,7 +61,9 @@ function ProductContextCard({
         params={{ productSlug: slug }}
         className={cn(
           "shrink-0 rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition-colors",
-          accent === "buyer" ? "hover:border-primary hover:text-primary" : "hover:border-accent hover:text-accent",
+          accent === "buyer"
+            ? "hover:border-primary hover:text-primary"
+            : "hover:border-accent hover:text-accent",
         )}
       >
         View Product
@@ -129,7 +133,7 @@ export function ChatThread({
           <ArrowLeft className="size-5" />
         </Link>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-bold">{otherName}</p>
+          <p className="truncate text-sm font-semibold">{otherName}</p>
           <p className="text-[11px] text-muted-foreground">
             {accent === "buyer" ? "Seller chat" : "Buyer chat"}
           </p>
@@ -159,11 +163,14 @@ export function ChatThread({
                 <p className="whitespace-pre-line break-words">{m.body}</p>
                 <p
                   className={cn(
-                    "mt-0.5 text-right text-[10px]",
+                    "mt-0.5 text-right text-[11px]",
                     mine ? "opacity-70" : "text-muted-foreground",
                   )}
                 >
-                  {new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  {new Date(m.created_at).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </p>
               </div>
             </div>

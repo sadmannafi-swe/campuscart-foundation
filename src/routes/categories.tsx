@@ -10,7 +10,10 @@ export const Route = createFileRoute("/categories")({
   head: () => ({
     meta: [
       { title: "Categories — DIU CampusCart" },
-      { name: "description", content: "Explore every product category on the DIU CampusCart marketplace." },
+      {
+        name: "description",
+        content: "Explore every product category on the DIU CampusCart marketplace.",
+      },
       { property: "og:title", content: "Categories — DIU CampusCart" },
       { property: "og:description", content: "Explore every product category on DIU CampusCart." },
     ],
@@ -25,7 +28,7 @@ function CategoriesPage() {
       <div className="container-page py-8">
         <BackButton className="mb-3" />
         <PageBreadcrumb items={[{ label: "Home", to: "/" }, { label: "Categories" }]} />
-        <h1 className="text-2xl font-extrabold sm:text-3xl">All categories</h1>
+        <h1 className="text-2xl font-semibold sm:text-3xl">All categories</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Everything the DIU community buys and sells, organised in one place.
         </p>
@@ -41,7 +44,9 @@ function CategoriesPage() {
                 <CategoryIcon name={category.icon} className="size-6" />
               </span>
               <span className="text-sm font-semibold">{category.name}</span>
-              <span className="text-xs text-muted-foreground">{counts[category.slug] ?? 0} listings</span>
+              <span className="text-xs text-muted-foreground">
+                {counts[category.slug] ?? 0} listings
+              </span>
             </Link>
           ))}
         </div>

@@ -9,7 +9,7 @@ export const Route = createFileRoute("/sell/dashboard/products/new")({
 function AddProduct() {
   return (
     <SellerShell title="Add New Product">
-      <h2 className="mb-3 text-base font-bold">Add New Product</h2>
+      <h2 className="mb-3 text-base font-semibold">Add New Product</h2>
       <ProductForm />
     </SellerShell>
   );

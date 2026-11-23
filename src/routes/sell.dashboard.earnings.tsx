@@ -33,7 +33,7 @@ function SellerEarnings() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {cards.map((c) => (
           <div key={c.label} className="card-surface p-3">
-            <p className="text-lg font-extrabold">{isLoading ? "…" : c.value}</p>
+            <p className="text-lg font-semibold">{isLoading ? "…" : c.value}</p>
             <p className="text-xs text-muted-foreground">{c.label}</p>
           </div>
         ))}
@@ -63,7 +63,7 @@ function SellerEarnings() {
                 <Link
                   to="/sell/dashboard/orders"
                   search={{ order: t.order_id }}
-                  className="text-sm font-bold hover:text-primary"
+                  className="text-sm font-semibold hover:text-primary"
                 >
                   {shortOrderId(t.order_id)}
                 </Link>
@@ -79,7 +79,7 @@ function SellerEarnings() {
                   })}
                 </p>
               </div>
-              <span className="shrink-0 text-sm font-bold text-accent">
+              <span className="shrink-0 text-sm font-semibold text-accent">
                 {formatPrice(t.amount)}
               </span>
             </li>

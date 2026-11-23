@@ -52,7 +52,7 @@ export function OrderEmailSettings({ seller }: { seller: Seller }) {
           <Mail className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold">New order e-mails</p>
+          <p className="text-sm font-semibold">New order e-mails</p>
           <p className="text-xs text-muted-foreground">
             Get the buyer's name, phone, delivery address and items in your inbox the moment an
             order is placed.
