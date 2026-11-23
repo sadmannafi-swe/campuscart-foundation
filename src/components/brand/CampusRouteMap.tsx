@@ -13,6 +13,7 @@ import {
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { prefersReducedMotion } from "@/lib/motion";
+import { diuCampus } from "@/data/diuCampusMap";
 
 export interface MapListing {
   name: string;
@@ -32,21 +33,25 @@ const icons: Record<string, LucideIcon> = {
   services: Sparkles,
 };
 
-/** Where listings appear on the map (percent of the map box) and which place they sit at. */
-const spots: { place: string; style: { left?: string; right?: string; top: string } }[] = [
-  { place: "Hall 2", style: { left: "25%", top: "33%" } },
-  { place: "Academic block", style: { right: "3%", top: "4%" } },
-  { place: "Food court", style: { right: "3%", top: "51%" } },
-  { place: "Library", style: { left: "3%", top: "84%" } },
-];
-
-// The walk from a seller at Hall 2 to a buyer at the food court, along the walkways.
-const ROUTE = "M120 118 L120 210 L300 210 L300 330 L420 330";
+const { width: W, height: H, places } = diuCampus;
+const WALK_MINUTES = Math.max(1, Math.round(diuCampus.routeMeters / 80));
 
 /**
- * The product's moment: a small DIU-style campus map where a seller's listing
- * travels along the walkway to the buyer. Listings pin themselves to places on
- * campus. Everything here is decorative; real listings are linked elsewhere.
+ * Listing cards sit on the open lawn in the north-east of the campus, each tied to a
+ * real place by a thin leader line. Positions are in map units (W × H).
+ */
+const spots: { place: string; at: [number, number]; card: [number, number] }[] = [
+  { place: "Knowledge Tower", at: places.knowledgeTower, card: [450, 40] },
+  { place: "Basketball ground", at: places.basketball, card: [450, 128] },
+  { place: "DIU Cafeteria", at: places.cafeteria, card: [450, 216] },
+];
+
+const pct = (v: number, of: number) => `${(v / of) * 100}%`;
+
+/**
+ * The product's moment: the real Daffodil International University campus
+ * (OpenStreetMap data), where a seller's parcel walks the actual road from
+ * Knowledge Tower to the DIU Cafeteria. Decorative: real listings are linked elsewhere.
  */
 export function CampusRouteMap({
   listings,
@@ -60,212 +65,231 @@ export function CampusRouteMap({
   useEffect(() => setMotion(!prefersReducedMotion()), []);
 
   return (
-    <div
-      className={cn(
-        "relative isolate aspect-[560/440] w-full overflow-hidden rounded-[28px] border border-border bg-surface shadow-[var(--shadow-card-hover)]",
-        className,
-      )}
-      aria-hidden="true"
-    >
-      <svg viewBox="0 0 560 440" className="absolute inset-0 size-full">
-        <defs>
-          <pattern id="cc-dots" width="16" height="16" patternUnits="userSpaceOnUse">
-            <circle cx="2" cy="2" r="1" fill="var(--color-foreground)" opacity="0.07" />
-          </pattern>
-        </defs>
-        <rect width="560" height="440" fill="var(--color-background)" />
-        <rect width="560" height="440" fill="url(#cc-dots)" />
-
-        {/* lawns and the playing field */}
-        <rect x="24" y="236" width="232" height="180" rx="22" fill="var(--color-accent-soft)" />
-        <rect x="332" y="24" width="204" height="160" rx="22" fill="var(--color-accent-soft)" />
-        <rect
-          x="360"
-          y="52"
-          width="148"
-          height="104"
-          rx="52"
-          fill="none"
-          stroke="var(--color-accent)"
-          strokeOpacity="0.25"
-          strokeWidth="2"
-        />
-        <line
-          x1="434"
-          y1="52"
-          x2="434"
-          y2="156"
-          stroke="var(--color-accent)"
-          strokeOpacity="0.25"
-          strokeWidth="2"
-        />
-
-        {/* a pond */}
-        <path
-          d="M460 250 C 520 240, 540 300, 510 330 C 480 360, 430 340, 440 300 C 446 276, 440 256, 460 250 Z"
-          fill="var(--color-primary-soft)"
-        />
-
-        {/* walkways */}
-        <g
-          stroke="var(--color-surface)"
-          strokeWidth="18"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        >
-          <path d="M120 40 L120 210 L540 210" />
-          <path d="M300 210 L300 420" />
-          <path d="M300 330 L540 330" />
-          <path d="M20 330 L300 330" />
-        </g>
-        <g stroke="var(--color-border)" strokeWidth="1" fill="none" strokeDasharray="2 6">
-          <path d="M120 40 L120 210 L540 210" />
-          <path d="M300 210 L300 420" />
-          <path d="M300 330 L540 330" />
-          <path d="M20 330 L300 330" />
-        </g>
-
-        {/* buildings */}
-        <g fill="var(--color-surface)" stroke="var(--color-border)" strokeWidth="1.5">
-          <rect x="44" y="52" width="58" height="86" rx="10" />
-          <rect x="146" y="64" width="128" height="72" rx="12" />
-          <rect x="44" y="262" width="72" height="50" rx="10" />
-          <rect x="140" y="352" width="120" height="56" rx="12" />
-          <rect x="330" y="232" width="92" height="74" rx="12" />
-          <rect x="356" y="350" width="84" height="56" rx="12" />
-        </g>
-        <g
-          fill="var(--color-muted-foreground)"
-          fontSize="10"
-          fontFamily="Inter, sans-serif"
-          opacity="0.8"
-        >
-          <text x="73" y="100" textAnchor="middle">
-            Hall 2
-          </text>
-          <text x="210" y="104" textAnchor="middle">
-            Academic block
-          </text>
-          <text x="80" y="292" textAnchor="middle">
-            Library
-          </text>
-          <text x="376" y="296" textAnchor="middle">
-            Food court
-          </text>
-        </g>
-
-        {/* the route: drawn once, then a parcel walks it */}
-        <path
-          d={ROUTE}
-          fill="none"
-          stroke="var(--color-bloom)"
-          strokeOpacity="0.28"
-          strokeWidth="10"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d={ROUTE}
-          fill="none"
-          stroke="var(--color-bloom)"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeDasharray="700"
-          strokeDashoffset="700"
-          style={{ animation: "cc-draw 1600ms var(--ease-bloom) 500ms forwards" }}
-        />
-
-        {/* seller and buyer */}
-        <g transform="translate(120 118)">
-          <circle r="9" fill="var(--color-ink)" />
-          <circle r="3.5" fill="var(--color-bloom)" />
-        </g>
-        <g transform="translate(420 330)">
-          <circle
-            r="12"
-            fill="var(--color-bloom)"
-            opacity="0.35"
-            style={{
-              transformBox: "fill-box",
-              transformOrigin: "center",
-              animation: "cc-live 1800ms ease-out 2100ms infinite",
-            }}
-          />
-          <circle r="9" fill="var(--color-bloom)" stroke="var(--color-ink)" strokeWidth="2.5" />
-        </g>
-
-        {/* the parcel walking the route; SMIL keeps it on the walkway at any size */}
-        {motion && (
-          <g>
-            <animateMotion
-              path={ROUTE}
-              dur="4.2s"
-              begin="2.1s"
-              repeatCount="indefinite"
-              calcMode="spline"
-              keyPoints="0;1;1"
-              keyTimes="0;0.8;1"
-              keySplines="0.22 1 0.36 1; 0 0 1 1"
-            />
-            <rect x="-14" y="-14" width="28" height="28" rx="8" fill="var(--color-ink)" />
-            <g
-              transform="translate(-8 -8) scale(0.667)"
-              fill="none"
-              stroke="var(--color-bloom)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M21 8 12 3 3 8v8l9 5 9-5Z" />
-              <path d="m3 8 9 5 9-5M12 13v8" />
-            </g>
-          </g>
-        )}
-      </svg>
-
-      {/* listings pinned to places on campus */}
-      {pins.map((pin, i) => {
-        const spot = spots[i] ?? spots[0]!;
-        const Icon = icons[pin.categorySlug ?? ""] ?? Sparkles;
-        return (
-          <div
-            key={`${pin.name}-${i}`}
-            className={cn(
-              "absolute flex max-w-[44%] items-center gap-2 rounded-[12px] border border-border bg-surface/95 py-1.5 pl-1.5 pr-3 shadow-[var(--shadow-card)] backdrop-blur-sm",
-              i >= 2 && "max-sm:hidden",
-            )}
-            style={{
-              ...spot.style,
-              animation: `cc-pin 700ms var(--ease-bloom) ${900 + i * 220}ms both`,
-            }}
-          >
-            <span className="grid size-7 shrink-0 place-items-center rounded-[8px] bg-bloom-soft text-bloom-ink">
-              <Icon className="size-4" strokeWidth={1.75} />
-            </span>
-            <span className="min-w-0">
-              <span className="block truncate text-[11px] font-medium leading-tight text-foreground">
-                {pin.name}
-              </span>
-              <span className="block text-[11px] leading-tight text-muted-foreground">
-                <span className="font-semibold tabular-nums text-foreground">
-                  {formatPrice(pin.price)}
-                </span>
-                {" · "}
-                {spot.place}
-              </span>
-            </span>
-          </div>
-        );
-      })}
-
-      {/* the walk itself, as the buyer would read it */}
+    <figure className={cn("relative w-full", className)}>
       <div
-        className="absolute bottom-3 right-3 flex items-center gap-3 rounded-[16px] bg-ink px-4 py-3 text-ink-foreground sm:bottom-4 sm:right-4"
+        className="relative isolate w-full overflow-hidden rounded-[28px] border border-border bg-surface shadow-[var(--shadow-card-hover)]"
+        style={{ aspectRatio: `${W} / ${H}` }}
+      >
+        <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 size-full" aria-hidden="true">
+          <defs>
+            <pattern id="cc-dots" width="16" height="16" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" fill="var(--color-foreground)" opacity="0.06" />
+            </pattern>
+          </defs>
+          <rect width={W} height={H} fill="var(--color-background)" />
+          <rect width={W} height={H} fill="url(#cc-dots)" />
+
+          {/* neighbourhood around the campus */}
+          <g fill="var(--color-foreground)" opacity="0.06">
+            {diuCampus.nearby.map((d, i) => (
+              <path key={i} d={d} />
+            ))}
+          </g>
+
+          {/* the campus grounds */}
+          <path
+            d={diuCampus.campus}
+            fill="var(--color-accent-soft)"
+            stroke="var(--color-accent)"
+            strokeOpacity="0.35"
+            strokeWidth="1.5"
+          />
+          {diuCampus.water.map((d, i) => (
+            <path key={i} d={d} fill="var(--color-primary-soft)" />
+          ))}
+          {diuCampus.pitches.map((d, i) => (
+            <path key={i} d={d} fill="var(--color-accent)" opacity="0.25" />
+          ))}
+
+          {/* roads */}
+          <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+            {diuCampus.roads.map((d, i) => (
+              <path key={i} d={d} stroke="var(--color-surface)" strokeWidth="9" />
+            ))}
+            {diuCampus.roads.map((d, i) => (
+              <path key={`e${i}`} d={d} stroke="var(--color-border)" strokeWidth="1" />
+            ))}
+          </g>
+
+          {/* campus buildings */}
+          <g
+            fill="var(--color-surface)"
+            stroke="var(--color-foreground)"
+            strokeOpacity="0.28"
+            strokeWidth="1"
+          >
+            {diuCampus.buildings.map((d, i) => (
+              <path key={i} d={d} />
+            ))}
+          </g>
+
+          {/* place names from OpenStreetMap */}
+          <g
+            fill="var(--color-muted-foreground)"
+            fontSize="16"
+            fontFamily="Inter, sans-serif"
+            fontWeight="500"
+            paintOrder="stroke"
+            stroke="var(--color-background)"
+            strokeWidth="4"
+            className="max-sm:hidden"
+          >
+            <text x={places.knowledgeTower[0] + 8} y={places.knowledgeTower[1] - 60}>
+              Knowledge Tower
+            </text>
+            <text x={places.basketball[0] + 18} y={places.basketball[1] - 14}>
+              Basketball ground
+            </text>
+            <text x={places.cafeteria[0] - 18} y={places.cafeteria[1] + 5} textAnchor="end">
+              DIU Cafeteria
+            </text>
+          </g>
+
+          {/* leader lines from listing cards to their places */}
+          <g
+            fill="none"
+            stroke="var(--color-foreground)"
+            strokeOpacity="0.45"
+            strokeWidth="1.25"
+            strokeDasharray="3 4"
+          >
+            {pins.map((_, i) => {
+              const s = spots[i]!;
+              return (
+                <path
+                  key={i}
+                  d={`M${s.card[0]} ${s.card[1] + 20} L${s.at[0]} ${s.at[1]}`}
+                  className={cn(i >= 1 && "max-sm:hidden")}
+                  style={{ animation: `cc-rise 600ms var(--ease-bloom) ${900 + i * 220}ms both` }}
+                />
+              );
+            })}
+          </g>
+
+          {/* the walk: drawn once, then a parcel follows it */}
+          <path
+            d={diuCampus.route}
+            fill="none"
+            stroke="var(--color-bloom)"
+            strokeOpacity="0.3"
+            strokeWidth="10"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d={diuCampus.route}
+            fill="none"
+            stroke="var(--color-bloom)"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            pathLength={1}
+            strokeDasharray="1"
+            strokeDashoffset="1"
+            style={{ animation: "cc-draw 1600ms var(--ease-bloom) 500ms forwards" }}
+          />
+
+          {/* seller at Knowledge Tower, buyer at the cafeteria */}
+          <g transform={`translate(${diuCampus.routeStart[0]} ${diuCampus.routeStart[1]})`}>
+            <circle r="8" fill="var(--color-ink)" />
+            <circle r="3" fill="var(--color-bloom)" />
+          </g>
+          <g transform={`translate(${diuCampus.routeEnd[0]} ${diuCampus.routeEnd[1]})`}>
+            <circle
+              r="11"
+              fill="var(--color-bloom)"
+              opacity="0.35"
+              style={{
+                transformBox: "fill-box",
+                transformOrigin: "center",
+                animation: "cc-live 1800ms ease-out 2100ms infinite",
+              }}
+            />
+            <circle r="8" fill="var(--color-bloom)" stroke="var(--color-ink)" strokeWidth="2.5" />
+          </g>
+
+          {motion && (
+            <g>
+              <animateMotion
+                path={diuCampus.route}
+                dur="4.2s"
+                begin="2.1s"
+                repeatCount="indefinite"
+                calcMode="spline"
+                keyPoints="0;1;1"
+                keyTimes="0;0.8;1"
+                keySplines="0.22 1 0.36 1; 0 0 1 1"
+              />
+              <rect x="-13" y="-13" width="26" height="26" rx="7" fill="var(--color-ink)" />
+              <g
+                transform="translate(-7.5 -7.5) scale(0.625)"
+                fill="none"
+                stroke="var(--color-bloom)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 8 12 3 3 8v8l9 5 9-5Z" />
+                <path d="m3 8 9 5 9-5M12 13v8" />
+              </g>
+            </g>
+          )}
+        </svg>
+
+        {/* listings tied to real places on campus */}
+        {pins.map((pin, i) => {
+          const spot = spots[i]!;
+          const Icon = icons[pin.categorySlug ?? ""] ?? Sparkles;
+          return (
+            <div
+              key={`${pin.name}-${i}`}
+              aria-hidden="true"
+              className={cn(
+                "absolute flex max-w-[47%] items-center gap-2 rounded-[12px] border border-border bg-surface/95 py-1.5 pl-1.5 pr-3 shadow-[var(--shadow-card)] backdrop-blur-sm",
+                i >= 1 && "max-sm:hidden",
+              )}
+              style={{
+                left: pct(spot.card[0], W),
+                top: pct(spot.card[1], H),
+                animation: `cc-pin 700ms var(--ease-bloom) ${900 + i * 220}ms both`,
+              }}
+            >
+              <span className="grid size-7 shrink-0 place-items-center rounded-[8px] bg-bloom-soft text-bloom-ink">
+                <Icon className="size-4" strokeWidth={1.75} />
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-[11px] font-medium leading-tight text-foreground">
+                  {pin.name}
+                </span>
+                <span className="block truncate text-[11px] leading-tight text-muted-foreground">
+                  <span className="font-semibold tabular-nums text-foreground">
+                    {formatPrice(pin.price)}
+                  </span>
+                  {" · "}
+                  {spot.place}
+                </span>
+              </span>
+            </div>
+          );
+        })}
+
+        {/* required credit for the map data (ODbL) */}
+        <a
+          href="https://www.openstreetmap.org/copyright"
+          target="_blank"
+          rel="noreferrer"
+          className="absolute left-2 top-2 rounded-[6px] bg-surface/80 px-1.5 py-0.5 text-[10px] text-muted-foreground backdrop-blur-sm transition-colors hover:text-foreground"
+        >
+          © OpenStreetMap contributors
+        </a>
+      </div>
+
+      {/* the walk, as the buyer would read it: below the map on phones, over it on larger screens */}
+      <figcaption
+        className="mt-3 flex items-center gap-3 rounded-[16px] bg-ink px-4 py-3 text-ink-foreground sm:absolute sm:bottom-4 sm:right-4 sm:mt-0"
         style={{ animation: "cc-rise 600ms var(--ease-bloom) 1900ms both" }}
       >
-        <span className="relative grid size-2.5 place-items-center">
+        <span className="relative grid size-2.5 place-items-center" aria-hidden="true">
           <span
             className="absolute inset-0 rounded-full bg-bloom"
             style={{ animation: "cc-live 1600ms ease-out infinite" }}
@@ -273,12 +297,12 @@ export function CampusRouteMap({
           <span className="size-2.5 rounded-full bg-bloom" />
         </span>
         <span className="text-[13px] leading-tight">
-          <span className="font-medium">Hand-over at the food court</span>
+          <span className="font-medium">Hand-over at DIU Cafeteria</span>
           <span className="block text-[11px] text-ink-foreground/70">
-            From Hall 2 · about a 6 minute walk
+            From Knowledge Tower · {diuCampus.routeMeters} m, about a {WALK_MINUTES} minute walk
           </span>
         </span>
-      </div>
-    </div>
+      </figcaption>
+    </figure>
   );
 }
