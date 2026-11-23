@@ -14,6 +14,11 @@ import { chatRouter } from "./routes/chat";
 import { ordersRouter } from "./routes/orders";
 import { publicRouter } from "./routes/public";
 import { sellerRouter } from "./routes/seller";
+import { preownedRouter } from "./routes/preowned";
+import { bloodRouter } from "./routes/blood";
+import { bashaRouter } from "./routes/basha";
+import { reportsRouter } from "./routes/reports";
+import { searchRouter } from "./routes/search";
 
 function cronAuthorized(req: Request): boolean {
   const secret = process.env["CRON_SECRET"];
@@ -109,6 +114,13 @@ export function createApp() {
   app.post("/api/cron/order-emails", cron);
 
   app.use("/api", publicRouter);
+  // Campus modules: public reads, owner-only writes. Mounted before the routers
+  // that require a login for every request they see.
+  app.use("/api", searchRouter);
+  app.use("/api", preownedRouter);
+  app.use("/api", bloodRouter);
+  app.use("/api", bashaRouter);
+  app.use("/api", reportsRouter);
   app.use("/api/admin", adminRouter);
   app.use("/api/seller", sellerRouter);
   app.use("/api", ordersRouter);

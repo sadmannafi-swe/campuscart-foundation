@@ -1,7 +1,17 @@
 import { useCart } from "@/lib/cart";
 import { useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bell, Heart, Menu, MessageCircle, Search, ShoppingCart, User } from "lucide-react";
+import {
+  Bell,
+  Droplet,
+  Heart,
+  Home as HomeIcon,
+  Menu,
+  MessageCircle,
+  Search,
+  ShoppingCart,
+  User,
+} from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { CategoryIcon } from "@/components/common/CategoryIcon";
@@ -23,6 +33,9 @@ const primaryLinks = [
   { label: "Offers", to: "/offers" as const },
   { label: "New Arrivals", to: "/new-arrivals" as const },
 ];
+
+/** Desktop has no bottom bar, so Pre-Owned sits with the header links there. */
+const desktopLinks = [...primaryLinks, { label: "Pre-Owned", to: "/preowned" as const }];
 
 const activeProps = { className: "text-foreground after:scale-x-100" };
 
@@ -76,7 +89,7 @@ export function Header() {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-              {primaryLinks.map((link) => (
+              {desktopLinks.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
@@ -196,7 +209,7 @@ export function Header() {
 
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Open menu">
+                <Button variant="ghost" size="icon" aria-label="Open menu">
                   <Menu />
                 </Button>
               </SheetTrigger>
@@ -222,6 +235,41 @@ export function Header() {
                     </Link>
                   ))}
                 </nav>
+                <p className="mt-6 px-3 text-xs font-semibold text-muted-foreground">
+                  Campus services
+                </p>
+                <div className="mt-2 space-y-1">
+                  <Link
+                    to="/blood"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-blood-soft"
+                    activeProps={{ className: "bg-blood-soft" }}
+                  >
+                    <span className="grid size-8 place-items-center rounded-[10px] bg-blood-soft text-blood">
+                      <Droplet className="size-4" aria-hidden="true" />
+                    </span>
+                    <span className="flex-1">
+                      Blood Donation
+                      <span className="block text-xs font-normal text-muted-foreground">
+                        Requests and donors
+                      </span>
+                    </span>
+                  </Link>
+                  <Link
+                    to="/basha"
+                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-basha-soft"
+                    activeProps={{ className: "bg-basha-soft" }}
+                  >
+                    <span className="grid size-8 place-items-center rounded-[10px] bg-basha-soft text-basha">
+                      <HomeIcon className="size-4" aria-hidden="true" />
+                    </span>
+                    <span className="flex-1">
+                      BashaLagbe
+                      <span className="block text-xs font-normal text-muted-foreground">
+                        Rooms, roommates, apartments
+                      </span>
+                    </span>
+                  </Link>
+                </div>
                 <div className="mt-2 px-3">
                   <Link
                     to="/sell"

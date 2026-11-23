@@ -8,6 +8,7 @@ import type { AdminApplication, AdminOrder, StoreOrderSummary } from "@shared/ty
 import { api, apiPost } from "@/lib/api";
 import { storeStatusMeta, useUniversities, type StoreStatus } from "@/lib/seller";
 import { cn } from "@/lib/utils";
+import { CampusModeration } from "@/components/admin/CampusModeration";
 import { useAuth } from "@/lib/auth";
 import { formatPrice } from "@/lib/format";
 import { orderStatusMeta, shortOrderId } from "@/lib/orders";
@@ -344,6 +345,8 @@ function AdminConsole() {
             },
           )}
         </ul>
+
+        <CampusModeration />
 
         <p className="mt-8 text-center text-xs text-muted-foreground">
           <Link to="/" className="hover:text-primary">

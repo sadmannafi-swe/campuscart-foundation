@@ -23,10 +23,15 @@ const publicStore = (s: StoreDoc): PublicStore => ({
   created_at: s.created_at.toISOString(),
 });
 
-/** Active listings of approved stores, newest first, with rating aggregates. */
-/** Active listings of approved stores in ONE university marketplace. */
-publicRouter.get("/products", async (req, res) => {
-  const university = marketplaceParam(req.query["university"]);
+/**
+ * Active listings of approved stores in ONE university marketplace, newest first, with
+ * rating aggregates. Only the `products` collection: Pre-Owned listings live elsewhere
+ * and can never appear here. `match` narrows the products (used by search).
+ */
+export async function marketplaceProducts(
+  university: string,
+  match: Record<string, unknown> = {},
+): Promise<PublicProduct[]> {
   const stores = await col
     .stores()
     .find(
@@ -38,6 +43,7 @@ publicRouter.get("/products", async (req, res) => {
   const products = await col
     .products()
     .find({
+      ...match,
       is_active: true,
       university_slug: university,
       store_id: { $in: [...storeById.keys()] },
@@ -53,13 +59,18 @@ publicRouter.get("/products", async (req, res) => {
     ])
     .toArray();
   const ratingBy = new Map(ratings.map((r) => [r._id, r]));
-  const out: PublicProduct[] = products.map((p) => ({
+  return products.map((p) => ({
     ...toApi(p),
     store_name: storeById.get(p.store_id)?.name ?? "Campus seller",
     seller_id: storeById.get(p.store_id)?.seller_id ?? "",
     rating: Math.round((ratingBy.get(p._id)?.avg ?? 0) * 10) / 10,
     review_count: ratingBy.get(p._id)?.count ?? 0,
   }));
+}
+
+publicRouter.get("/products", async (req, res) => {
+  const university = marketplaceParam(req.query["university"]);
+  const out = await marketplaceProducts(university);
   res.set("cache-control", "public, max-age=15").json(out);
 });
 

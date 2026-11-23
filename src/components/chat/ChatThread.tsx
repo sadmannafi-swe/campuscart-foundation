@@ -26,6 +26,64 @@ const accentStyles: Record<ChatAccent, { bubble: string; button: string; ring: s
   },
 };
 
+const contextMeta = {
+  preowned: { label: "Pre-Owned", view: "View item", tone: "bg-preowned-soft text-preowned" },
+  blood_request: { label: "Blood request", view: "View request", tone: "bg-blood-soft text-blood" },
+  donor: { label: "Blood donor", view: "View donor", tone: "bg-blood-soft text-blood" },
+  basha: { label: "BashaLagbe", view: "View place", tone: "bg-basha-soft text-basha" },
+} as const;
+
+/** Link to the listing/request/profile a module conversation is about. */
+function ContextLink({
+  conversation,
+  className,
+  children,
+}: {
+  conversation: ChatConversation;
+  className: string;
+  children: React.ReactNode;
+}) {
+  const id = conversation.context_id ?? "";
+  switch (conversation.kind) {
+    case "preowned":
+      return (
+        <Link to="/preowned/$listingId" params={{ listingId: id }} className={className}>
+          {children}
+        </Link>
+      );
+    case "blood_request":
+      return (
+        <Link to="/blood/requests/$requestId" params={{ requestId: id }} className={className}>
+          {children}
+        </Link>
+      );
+    case "donor":
+      return (
+        <Link to="/blood/donors/$donorId" params={{ donorId: id }} className={className}>
+          {children}
+        </Link>
+      );
+    case "basha":
+      return (
+        <Link to="/basha/$listingId" params={{ listingId: id }} className={className}>
+          {children}
+        </Link>
+      );
+    default:
+      return (
+        <Link
+          to="/products/$productSlug"
+          params={{
+            productSlug: liveProductSlug(conversation.product_name, conversation.product_id),
+          }}
+          className={className}
+        >
+          {children}
+        </Link>
+      );
+  }
+}
+
 function ProductContextCard({
   conversation,
   accent,
@@ -35,7 +93,9 @@ function ProductContextCard({
 }) {
   const { data: imageUrl } = useSignedUrl(conversation.product_image);
   const img = useImageFallback(imageUrl);
-  const slug = liveProductSlug(conversation.product_name, conversation.product_id);
+  const kind = conversation.kind ?? "product";
+  const meta = kind === "product" ? null : contextMeta[kind];
+  const amount = Number(conversation.product_price);
   return (
     <div className="flex items-center gap-3 border-b border-border bg-surface px-3 py-2.5">
       <span className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted text-xs font-semibold text-muted-foreground">
@@ -46,19 +106,38 @@ function ProductContextCard({
         )}
       </span>
       <div className="min-w-0 flex-1">
+        {meta && (
+          <span
+            className={cn(
+              "mb-0.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold",
+              meta.tone,
+            )}
+          >
+            {meta.label}
+          </span>
+        )}
         <p className="truncate text-sm font-semibold">{conversation.product_name}</p>
-        <p
-          className={cn(
-            "text-xs font-semibold",
-            accent === "buyer" ? "text-primary" : "text-accent",
-          )}
-        >
-          {formatPrice(Number(conversation.product_price))}
-        </p>
+        {kind === "product" || kind === "preowned" || kind === "basha" ? (
+          <p
+            className={cn(
+              "text-xs font-semibold",
+              accent === "buyer" ? "text-primary" : "text-accent",
+            )}
+          >
+            {formatPrice(amount)}
+            {kind === "basha" && (
+              <span className="font-normal text-muted-foreground"> / month</span>
+            )}
+          </p>
+        ) : null}
+        {conversation.context_subtitle && (
+          <p className="truncate text-[11px] text-muted-foreground">
+            {conversation.context_subtitle}
+          </p>
+        )}
       </div>
-      <Link
-        to="/products/$productSlug"
-        params={{ productSlug: slug }}
+      <ContextLink
+        conversation={conversation}
         className={cn(
           "shrink-0 rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition-colors",
           accent === "buyer"
@@ -66,8 +145,8 @@ function ProductContextCard({
             : "hover:border-accent hover:text-accent",
         )}
       >
-        View Product
-      </Link>
+        {meta ? meta.view : "View Product"}
+      </ContextLink>
     </div>
   );
 }
@@ -119,7 +198,34 @@ export function ChatThread({
     }
   }
 
-  const otherName = accent === "buyer" ? "Seller" : conversation.buyer_name;
+  const isModule = !!conversation.kind && conversation.kind !== "product";
+  const viewerIsOwner = conversation.seller_user_id === viewerId;
+  const otherName = isModule
+    ? viewerIsOwner
+      ? conversation.buyer_name
+      : (conversation.owner_name ?? "Owner")
+    : accent === "buyer"
+      ? "Seller"
+      : conversation.buyer_name;
+  const subtitle = isModule
+    ? conversation.kind === "blood_request"
+      ? viewerIsOwner
+        ? "About your blood request"
+        : "Blood requester"
+      : conversation.kind === "donor"
+        ? viewerIsOwner
+          ? "About your donor profile"
+          : "Blood donor"
+        : conversation.kind === "basha"
+          ? viewerIsOwner
+            ? "About your listing"
+            : "Property owner"
+          : viewerIsOwner
+            ? "Interested buyer"
+            : "Pre-Owned seller"
+    : accent === "buyer"
+      ? "Seller chat"
+      : "Buyer chat";
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -134,9 +240,7 @@ export function ChatThread({
         </Link>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">{otherName}</p>
-          <p className="text-[11px] text-muted-foreground">
-            {accent === "buyer" ? "Seller chat" : "Buyer chat"}
-          </p>
+          <p className="text-[11px] text-muted-foreground">{subtitle}</p>
         </div>
       </div>
 
@@ -145,9 +249,13 @@ export function ChatThread({
       <div className="flex-1 space-y-2 overflow-y-auto bg-muted/30 px-3 py-4">
         {messages.length === 0 && (
           <p className="py-10 text-center text-xs text-muted-foreground">
-            {accent === "buyer"
-              ? "Say hello — the seller will see your conversation once you send the first message."
-              : "No messages yet."}
+            {viewerIsOwner
+              ? "No messages yet."
+              : isModule
+                ? "Say hello. They'll see this conversation once you send the first message."
+                : accent === "buyer"
+                  ? "Say hello — the seller will see your conversation once you send the first message."
+                  : "No messages yet."}
           </p>
         )}
         {messages.map((m) => {
