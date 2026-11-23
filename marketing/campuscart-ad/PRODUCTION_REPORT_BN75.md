@@ -70,6 +70,20 @@
   * Pops for the closing cards.
 * **Levels:** the music ducks about 8 dB under each block of speech and sits well under the voice. The whole mix is normalised to −14 LUFS / −1.5 dBTP.
 
-## QA
+## QA on the final MP4
 
-Filled in from the checks on the final file below.
+| Check | Result |
+|---|---|
+| Duration | **79.43 s** (target 70–80 s) |
+| Video | H.264, 1080×1920 (9:16), 30/1 fps |
+| Audio | AAC, 48 kHz stereo, 79.43 s |
+| Full decode (`ffmpeg -v error -f null`) | No errors; the file plays from start to finish |
+| Loudness | −14.0 LUFS integrated, −1.3 dBFS peak, no clipping |
+| **Is the Bengali VO inside the MP4?** | **Yes.** The MP4's audio track correlates 0.965 with the VO stem |
+| Voice above music | Average level is −13.3 dB while the narrator speaks and −23.6 dB in pauses (music only), so the music sits about 10 dB under the voice |
+| Narration coverage | 68.1 s of speech across 79.4 s |
+| Speech check on the MP4 audio | Whisper picked up the narration at 23.9 s ("…তৈরি করতে পারবেন নিজের অনলাইন স্টোর") and 32.4 s ("…স্টোর চালু হলে…") |
+| Subtitles | Each subtitle is drawn from the same chunk list as the audio (`src/vo-bn75.json`), so it shows exactly while its line plays |
+| Visual pass | Frames every 2 s across the whole video: no broken images, empty listings or placeholder screens; no URL, domain or QR code; all scenes present |
+
+Not done: listening by ear. Please play it once and check the pronunciation of the brand names before publishing.
