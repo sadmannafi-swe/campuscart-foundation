@@ -61,6 +61,13 @@ Any of these unblocks it:
 * **Sound effects.** A click on every tap, whooshes on screen changes, a riser with a chime and sparkle on both logo reveals, and pops for the service cards.
 * **Mix.** With the voice-over, the music ducks about 8 dB under the voice and the mix is normalised to −14 LUFS / −1.5 dBTP. The music-only preview is normalised to −18 LUFS.
 
-## QA
+## QA (on `CampusCart_Bangla_Ad_PREVIEW_no-voiceover.mp4`)
 
-Filled in from checks on the rendered file. See the bottom of this report.
+* **Specs (ffprobe).** H.264, 1080×1920, 30/1 fps, 45.000 s. AAC 48 kHz stereo, 45.000 s. File size 26.4 MB.
+* **Loudness (music-only preview).** −18.0 LUFS, −1.6 dBFS peak, no clipping.
+* **Visual review.** I checked frames every 1.5 s across the whole video:
+  * All Bengali text is shaped correctly; conjuncts such as ক্রে, ব্য, স্টো and প্র were checked at full resolution.
+  * No broken images or empty listings, and nothing is cut off at the frame edge.
+  * No URL, domain, address bar or QR code appears.
+  * Buyer and seller are both shown, and all four services appear.
+* **Not yet checked.** Voice timing and pronunciation can only be checked once the Bengali voice-over exists.
