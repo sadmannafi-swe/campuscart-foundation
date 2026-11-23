@@ -188,6 +188,7 @@ export function CampusRouteMap({
             fill="var(--color-bloom)"
             opacity="0.35"
             style={{
+              transformBox: "fill-box",
               transformOrigin: "center",
               animation: "cc-live 1800ms ease-out 2100ms infinite",
             }}
