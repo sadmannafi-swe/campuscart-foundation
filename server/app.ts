@@ -1,7 +1,7 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import { toNodeHandler } from "better-auth/node";
 import { createHash, timingSafeEqual } from "node:crypto";
-import { getAuth, trustedOrigins } from "./lib/auth";
+import { getAuth, googleConfig, trustedOrigins } from "./lib/auth";
 import { getCloudinaryConfig } from "./lib/cloudinary";
 import { ensureIndexes, getDb } from "./lib/db";
 import { getGmailConfig } from "./lib/gmail";
@@ -59,7 +59,13 @@ export function createApp() {
       gmail: getGmailConfig() !== null,
       cron: (process.env["CRON_SECRET"] ?? "").length >= 16,
       admins: (process.env["ADMIN_EMAILS"] ?? "").split(",").filter((e) => e.trim()).length,
+      google: googleConfig() !== null,
     });
+  });
+
+  // Which sign-in methods the login pages should offer.
+  app.get("/api/auth-providers", (_req, res) => {
+    res.set("cache-control", "no-store").json({ google: googleConfig() !== null });
   });
 
   // Static data — no database needed.

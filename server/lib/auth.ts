@@ -31,6 +31,13 @@ function authSecret(): string {
   return "dev-only-secret-change-me-dev-only-secret";
 }
 
+/** Google sign-in is on only when both OAuth credentials are set (Vercel → Environment Variables). */
+export function googleConfig(): { clientId: string; clientSecret: string } | null {
+  const clientId = process.env["GOOGLE_CLIENT_ID"]?.trim();
+  const clientSecret = process.env["GOOGLE_CLIENT_SECRET"]?.trim();
+  return clientId && clientSecret ? { clientId, clientSecret } : null;
+}
+
 function createAuth() {
   const secret = authSecret();
   // Only demand e-mail verification when we can actually send the e-mail.
@@ -52,6 +59,17 @@ function createAuth() {
       sendResetPassword: async ({ user, url }) => {
         await sendMail(user.email, renderPasswordResetEmail(url));
       },
+    },
+    // "Continue with Google". Google confirms the e-mail address, so the account is
+    // created verified. It links to an existing account with the same e-mail only
+    // when that account's e-mail was already verified (Better Auth's default), so a
+    // stranger can't pre-register someone's address and capture their Google sign-in.
+    socialProviders: (() => {
+      const google = googleConfig();
+      return google ? { google: { ...google, prompt: "select_account" as const } } : {};
+    })(),
+    account: {
+      accountLinking: { enabled: true, trustedProviders: ["google"] },
     },
     emailVerification: {
       sendOnSignUp: isMailConfigured(),

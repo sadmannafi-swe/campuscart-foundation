@@ -763,4 +763,37 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     await patch(sellerA, "/api/seller/store", { name: "Hijacked" });
     expect((await request(app).get(`/api/stores/${storeC}?university=diu`)).body.name).toBe(before);
   });
+
+  it("offers Google sign-in only when it is configured", async () => {
+    const auth = await import("./lib/auth");
+    expect((await request(app).get("/api/auth-providers")).body).toEqual({ google: false });
+
+    process.env["GOOGLE_CLIENT_ID"] = "test-client.apps.googleusercontent.com";
+    process.env["GOOGLE_CLIENT_SECRET"] = "test-secret";
+    auth.resetAuthForTests();
+    try {
+      expect((await request(app).get("/api/auth-providers")).body).toEqual({ google: true });
+      const r = await request(app)
+        .post("/api/auth/sign-in/social")
+        .set("origin", ORIGIN)
+        .send({ provider: "google", callbackURL: "/account", errorCallbackURL: "/auth" });
+      expect(r.status, JSON.stringify(r.body)).toBe(200);
+      const url = new URL(r.body.url as string);
+      expect(url.hostname).toBe("accounts.google.com");
+      expect(url.searchParams.get("client_id")).toBe("test-client.apps.googleusercontent.com");
+      expect(url.searchParams.get("redirect_uri")).toMatch(/\/api\/auth\/callback\/google$/);
+      expect(url.searchParams.get("prompt")).toBe("select_account");
+      // only same-site return addresses are accepted
+      const evil = await request(app)
+        .post("/api/auth/sign-in/social")
+        .set("origin", ORIGIN)
+        .send({ provider: "google", callbackURL: "https://evil.example/steal" });
+      expect(evil.status).toBe(403);
+    } finally {
+      delete process.env["GOOGLE_CLIENT_ID"];
+      delete process.env["GOOGLE_CLIENT_SECRET"];
+      auth.resetAuthForTests();
+    }
+    expect((await request(app).get("/api/auth-providers")).body).toEqual({ google: false });
+  });
 });
