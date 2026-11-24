@@ -1,0 +1,209 @@
+{
+ "fps": 30,
+ "durationInFrames": 2383,
+ "voiceFile": "audio/vo-bn-eleven/vo_full_elevenlabs.wav",
+ "voiceOffsetSec": 0.3,
+ "source": "ElevenLabs take uploaded by the owner (Subhajit - Grounded Bengali Storyteller), one continuous file; line windows from pause detection + per-segment Whisper check",
+ "vo": [
+  {
+   "id": "c01",
+   "scene": "open",
+   "from": 9,
+   "frames": 60,
+   "cap": "ক্যাম্পাস জীবনের প্রতিদিনের প্রয়োজন,",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c02",
+   "scene": "open",
+   "from": 82,
+   "frames": 41,
+   "cap": "এবার এক প্ল্যাটফর্মে।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c03",
+   "scene": "open",
+   "from": 136,
+   "frames": 65,
+   "cap": "পরিচয় করিয়ে দিচ্ছি CampusCart।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c04",
+   "scene": "buyer",
+   "from": 213,
+   "frames": 86,
+   "cap": "প্রয়োজনীয় পণ্য খুঁজুন, বিভিন্ন স্টোর ঘুরে দেখুন",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c05",
+   "scene": "buyer",
+   "from": 305,
+   "frames": 80,
+   "cap": "এবং সহজেই অর্ডার করুন CampusCart-এর মাধ্যমে।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c06",
+   "scene": "buyer",
+   "from": 396,
+   "frames": 54,
+   "cap": "ফ্ল্যাশ ডিলে মিলবে সাশ্রয়ী দাম।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c07",
+   "scene": "buyer",
+   "from": 464,
+   "frames": 89,
+   "cap": "পণ্যের বিস্তারিত দেখে এক ট্যাপেই যোগ করুন কার্টে,",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c08",
+   "scene": "buyer",
+   "from": 560,
+   "frames": 70,
+   "cap": "তারপর কয়েক ধাপেই সম্পন্ন করুন অর্ডার।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c09",
+   "scene": "seller",
+   "from": 642,
+   "frames": 67,
+   "cap": "আপনি যদি একজন শিক্ষার্থী উদ্যোক্তা হন,",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c10",
+   "scene": "seller",
+   "from": 716,
+   "frames": 84,
+   "cap": "CampusCart-এ তৈরি করতে পারবেন নিজের অনলাইন স্টোর।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c11",
+   "scene": "seller",
+   "from": 809,
+   "frames": 70,
+   "cap": "পণ্য যুক্ত করে সেগুলো তুলে ধরতে পারবেন",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c12",
+   "scene": "seller",
+   "from": 880,
+   "frames": 43,
+   "cap": "ক্যাম্পাসের ক্রেতাদের সামনে।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c13",
+   "scene": "seller",
+   "from": 932,
+   "frames": 103,
+   "cap": "আর সহজেই পরিচালনা করতে পারবেন আপনার স্টোর ও অর্ডার।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c14",
+   "scene": "seller",
+   "from": 1047,
+   "frames": 91,
+   "cap": "স্টোর চালু হলেই ক্রেতারা খুঁজে পাবেন আপনার পণ্য।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c15",
+   "scene": "preowned",
+   "from": 1150,
+   "frames": 110,
+   "cap": "পুরোনো কিংবা অব্যবহৃত পণ্য কেনাবেচার জন্য রয়েছে Pre-Owned।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c16",
+   "scene": "preowned",
+   "from": 1275,
+   "frames": 125,
+   "cap": "ল্যাপটপ, বই, ক্যালকুলেটর কিংবা সাইকেল—সাশ্রয়ী দামে।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c17",
+   "scene": "blood",
+   "from": 1412,
+   "frames": 78,
+   "cap": "রক্তদাতা খুঁজে পেতে এবং প্রয়োজনের সময়ে",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c18",
+   "scene": "blood",
+   "from": 1490,
+   "frames": 88,
+   "cap": "মানুষের সঙ্গে যোগাযোগ করতে রয়েছে Blood Donation।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c19",
+   "scene": "blood",
+   "from": 1589,
+   "frames": 122,
+   "cap": "রক্তের গ্রুপ বেছে নিন, অনুরোধ দেখুন, যোগাযোগ করুন সহজেই।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c20",
+   "scene": "basha",
+   "from": 1723,
+   "frames": 100,
+   "cap": "থাকার জায়গা কিংবা রুমমেট খুঁজতে রয়েছে BashaLagbe।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c21",
+   "scene": "basha",
+   "from": 1832,
+   "frames": 160,
+   "cap": "সিঙ্গেল রুম, শেয়ার্ড রুম কিংবা অ্যাপার্টমেন্ট—ভাড়া আর সুবিধার তথ্য এক জায়গায়।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c22",
+   "scene": "close",
+   "from": 2002,
+   "frames": 66,
+   "cap": "এক ক্যাম্পাস। অসংখ্য সম্ভাবনা।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c23",
+   "scene": "close",
+   "from": 2079,
+   "frames": 111,
+   "cap": "কেনাকাটা থেকে প্রয়োজনীয় সেবা—সবকিছু এক প্ল্যাটফর্মে।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c24",
+   "scene": "close",
+   "from": 2198,
+   "frames": 97,
+   "cap": "CampusCart — আপনার ক্যাম্পাস, আপনার কমিউনিটি।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  },
+  {
+   "id": "c25",
+   "scene": "close",
+   "from": 2305,
+   "frames": 30,
+   "cap": "শিগগিরই আসছে।",
+   "file": "audio/vo-bn-eleven/vo_full_elevenlabs.wav"
+  }
+ ]
+}

@@ -236,8 +236,9 @@ function Title({ frame, from, to, eyebrow, color, title, note }: { frame: number
 
 // ---------- subtitles (same chunks as the voice-over) ----------
 const NO_SUB = new Set(["c22", "c23", "c24", "c25"]); // the end card shows these words large
-function Subtitles({ frame }: { frame: number }) {
-  const c = vo.vo.find((v) => frame >= v.from - 3 && frame < v.from + v.frames + 8);
+type VoTimings = { vo: { id: string; scene: string; from: number; frames: number; cap: string }[] };
+function Subtitles({ frame, timings }: { frame: number; timings: VoTimings }) {
+  const c = timings.vo.find((v) => frame >= v.from - 3 && frame < v.from + v.frames + 8);
   if (!c || NO_SUB.has(c.id)) return null;
   const a = lerp(frame, [c.from - 3, c.from + 4, c.from + c.frames + 2, c.from + c.frames + 8], [0, 1, 1, 0], Easing.linear);
   const dark = c.scene === "open";
@@ -397,7 +398,8 @@ const SELLER_STEPS = [
   { f: 1046, label: "ক্রেতারা খুঁজে পান" },
 ];
 
-export const CampusCartAdBn75 = () => {
+/** `timings`: which voice-over take the subtitles follow (default: the original chunked VO). */
+export const CampusCartAdBn75 = ({ timings = vo }: { timings?: VoTimings }) => {
   const frame = useCurrentFrame();
   return (
     <AbsoluteFill style={{ background: T.paper }}>
@@ -415,7 +417,7 @@ export const CampusCartAdBn75 = () => {
       <Montage frame={frame} />
       <EndCard frame={frame} />
       <Opening frame={frame} />
-      <Subtitles frame={frame} />
+      <Subtitles frame={frame} timings={timings} />
     </AbsoluteFill>
   );
 };
