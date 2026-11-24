@@ -5,7 +5,7 @@ import { getAuth, googleConfig, trustedOrigins } from "./lib/auth";
 import { getCloudinaryConfig } from "./lib/cloudinary";
 import { ensureIndexes, getDb } from "./lib/db";
 import { getGmailConfig } from "./lib/gmail";
-import { errorHandler } from "./lib/http";
+import { errorHandler, STATIC_CDN_CACHE } from "./lib/http";
 import { UNIVERSITIES } from "../shared/universities";
 import { processEmailOutbox } from "./lib/outbox";
 import { accountRouter } from "./routes/account";
@@ -75,7 +75,7 @@ export function createApp() {
 
   // Static data — no database needed.
   app.get("/api/universities", (_req, res) => {
-    res.set("cache-control", "public, max-age=300").json(UNIVERSITIES);
+    res.set("cache-control", STATIC_CDN_CACHE).json(UNIVERSITIES);
   });
 
   app.use("/api", async (_req: Request, res: Response, next: NextFunction) => {
