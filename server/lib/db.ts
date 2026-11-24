@@ -431,26 +431,44 @@ const validators: Record<string, Document> = {
   },
 };
 
+/** Same validator already on the collection? (Skips a collMod round-trip.) */
+const sameValidator = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+
+/**
+ * Applies the module validators. They are a second line of defence only (zod
+ * already validates every write), so this is best-effort: a database user that
+ * may not run `collMod` — Atlas's built-in `readWrite` role, for example — must
+ * never take the API down. Failures are logged and the API carries on.
+ */
 async function ensureValidators() {
   const database = getDb();
-  const existing = new Set(
-    (await database.listCollections({}, { nameOnly: true }).toArray()).map((c) => c.name),
+  const existing = new Map(
+    (await database.listCollections({}, { nameOnly: false }).toArray()).map((c) => [
+      c.name,
+      (c as { options?: { validator?: unknown } }).options?.validator,
+    ]),
   );
   await Promise.all(
     Object.entries(validators).map(async ([name, validator]) => {
-      if (existing.has(name)) {
-        await database.command({ collMod: name, validator, validationLevel: "moderate" });
-      } else {
-        try {
+      try {
+        if (existing.has(name)) {
+          if (sameValidator(existing.get(name), validator)) return;
+          await database.command({ collMod: name, validator, validationLevel: "moderate" });
+        } else {
           await database.createCollection(name, { validator, validationLevel: "moderate" });
-        } catch (err) {
-          // Another instance created it first.
-          if ((err as { code?: number }).code !== 48) throw err;
         }
+      } catch (err) {
+        // 48 = NamespaceExists: another instance created it first.
+        if ((err as { code?: number }).code === 48) return;
+        console.warn(
+          `[db] schema validator for "${name}" not applied (${(err as Error).message}); continuing without it`,
+        );
       }
     }),
   );
 }
+
+const INDEX_RETRY_MS = 60_000;
 
 /** Create indexes once per process (idempotent on the server). */
 export function ensureIndexes(): Promise<void> {
@@ -490,7 +508,8 @@ export function ensureIndexes(): Promise<void> {
       col.reports().createIndex({ status: 1, created_at: -1 }),
     ]);
   })().catch((err) => {
-    indexesReady = undefined;
+    // Retry on a later request, but not on every request while the cause persists.
+    setTimeout(() => (indexesReady = undefined), INDEX_RETRY_MS).unref?.();
     throw err;
   });
   return indexesReady;
