@@ -27,6 +27,7 @@ import {
 import { authClient, authErrorMessage } from "@/lib/authClient";
 import { apiPost } from "@/lib/api";
 import { uploadImage } from "@/lib/uploads";
+import { departments } from "@/data/departments";
 import { useAuth } from "@/lib/auth";
 import { storeCategories, useSellerAccount, useUniversities } from "@/lib/seller";
 import { cn } from "@/lib/utils";
@@ -51,23 +52,8 @@ export const Route = createFileRoute("/sell/register")({
   component: SellerRegister,
 });
 
-const departments = [
-  "CSE",
-  "SWE",
-  "EEE",
-  "BBA",
-  "English",
-  "Pharmacy",
-  "Civil Engineering",
-  "Textile Engineering",
-  "Journalism & Media",
-  "Other",
-];
-
 /** Must match the API's store schema (server/routes/seller.ts). */
 const STORE_DESC_MIN = 10;
-
-const batches = Array.from({ length: 12 }, (_, i) => `Batch ${65 - i}`);
 
 type Step = "university" | "account" | "store";
 
@@ -143,7 +129,7 @@ function Stepper({ current }: { current: Step }) {
         <li key={s.id} className="flex flex-1 items-center gap-2">
           <span
             className={cn(
-              "grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-bold",
+              "grid size-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold",
               i <= index ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground",
             )}
           >
@@ -177,7 +163,7 @@ function UniversityStep({
   return (
     <div>
       <div className="text-center">
-        <h1 className="text-xl font-extrabold">Select Your University</h1>
+        <h1 className="text-xl font-semibold">Select Your University</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Choose the university where you want to open your store
         </p>
@@ -197,7 +183,7 @@ function UniversityStep({
                 selected ? "border-primary bg-primary-soft/40" : "border-border",
               )}
             >
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-xs font-bold text-primary">
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-xs font-semibold text-primary">
                 {uni.short_name}
               </span>
               <span className="min-w-0 flex-1 text-sm font-semibold">
@@ -267,7 +253,7 @@ function AccountStep({
           phone: phone.trim(),
           studentId: studentId.trim(),
           department,
-          batch,
+          batch: batch.trim(),
           callbackURL: "/sell/register",
         });
         if (error) throw new Error(authErrorMessage(error));
@@ -303,7 +289,7 @@ function AccountStep({
         full_name: fullName.trim(),
         phone: phone.trim(),
         department,
-        batch,
+        batch: batch.trim(),
         student_id: studentId.trim(),
         avatar_id: avatarUrl,
         student_id_image: idImage,
@@ -321,7 +307,7 @@ function AccountStep({
   return (
     <div>
       <div className="text-center">
-        <h1 className="text-xl font-extrabold">Create Seller Account</h1>
+        <h1 className="text-xl font-semibold">Create Seller Account</h1>
         <p className="mt-1 text-sm text-muted-foreground">Fill in your personal information</p>
       </div>
 
@@ -416,19 +402,16 @@ function AccountStep({
         </div>
 
         <div className="space-y-1.5">
-          <Label>Batch</Label>
-          <Select value={batch} onValueChange={setBatch} required>
-            <SelectTrigger>
-              <SelectValue placeholder="Select your batch" />
-            </SelectTrigger>
-            <SelectContent>
-              {batches.map((b) => (
-                <SelectItem key={b} value={b}>
-                  {b}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label htmlFor="s-batch">Batch</Label>
+          <Input
+            id="s-batch"
+            value={batch}
+            onChange={(e) => setBatch(e.target.value)}
+            placeholder="e.g. 61st"
+            maxLength={20}
+            autoComplete="off"
+            required
+          />
         </div>
 
         {!existingUserId && (
@@ -480,7 +463,11 @@ function AccountStep({
           <Button type="button" variant="outline" className="flex-1" onClick={onBack}>
             Back
           </Button>
-          <Button type="submit" className="flex-[2]" disabled={busy || !department || !batch}>
+          <Button
+            type="submit"
+            className="flex-[2]"
+            disabled={busy || !department || !batch.trim()}
+          >
             {busy && <Loader2 className="mr-2 size-4 animate-spin" />}
             Create Account
           </Button>
@@ -575,7 +562,7 @@ function StoreStep({
   return (
     <div>
       <div className="text-center">
-        <h1 className="text-xl font-extrabold">Store Information</h1>
+        <h1 className="text-xl font-semibold">Store Information</h1>
         <p className="mt-1 text-sm text-muted-foreground">Tell us about your store</p>
       </div>
 

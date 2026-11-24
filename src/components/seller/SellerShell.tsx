@@ -54,7 +54,7 @@ export function StoreAvatar({
   return (
     <span
       className={cn(
-        "grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-primary-soft text-sm font-bold text-primary",
+        "grid size-10 shrink-0 place-items-center overflow-hidden rounded-xl bg-primary-soft text-sm font-semibold text-primary",
         className,
       )}
     >
@@ -150,7 +150,7 @@ export function SellerShell({ children, title }: { children: ReactNode; title: s
               {nav}
             </SheetContent>
           </Sheet>
-          <h1 className="flex-1 truncate text-base font-bold">{title}</h1>
+          <h1 className="flex-1 truncate text-base font-semibold">{title}</h1>
           <Link
             to="/sell/dashboard/notifications"
             className="relative grid size-9 place-items-center rounded-lg text-muted-foreground hover:text-foreground"
@@ -158,7 +158,7 @@ export function SellerShell({ children, title }: { children: ReactNode; title: s
           >
             <Bell className="size-5" />
             {unread > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 grid min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">
+              <span className="absolute -right-0.5 -top-0.5 grid min-w-4 place-items-center rounded-full bg-destructive px-1 text-[11px] font-semibold text-destructive-foreground">
                 {unread > 9 ? "9+" : unread}
               </span>
             )}
@@ -205,13 +205,7 @@ export function SellerShell({ children, title }: { children: ReactNode; title: s
   );
 }
 
-export function SellerPlaceholder({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
+export function SellerPlaceholder({ title, description }: { title: string; description: string }) {
   return (
     <div className="card-surface flex flex-col items-center gap-2 px-6 py-14 text-center">
       <span className="grid size-12 place-items-center rounded-full bg-primary-soft text-primary">

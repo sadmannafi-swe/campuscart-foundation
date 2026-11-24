@@ -27,7 +27,7 @@ function CartPage() {
     <SiteLayout>
       <div className="container-page py-6">
         <BackButton className="mb-3" />
-        <h1 className="text-2xl font-extrabold">Your cart</h1>
+        <h1 className="text-2xl font-semibold">Your cart</h1>
 
         {items.length === 0 ? (
           <div className="card-surface mt-6 grid place-items-center gap-3 p-10 text-center">
@@ -36,7 +36,9 @@ function CartPage() {
             </span>
             <p className="font-semibold">Your cart is empty</p>
             <Button asChild size="sm">
-              <Link to="/products" search={{}}>Browse products</Link>
+              <Link to="/products" search={{}}>
+                Browse products
+              </Link>
             </Button>
           </div>
         ) : (
@@ -54,7 +56,7 @@ function CartPage() {
                       {item.name}
                     </Link>
                     <p className="text-xs text-muted-foreground">{item.storeName}</p>
-                    <p className="mt-1 text-sm font-bold">{formatPrice(item.price)}</p>
+                    <p className="mt-1 text-sm font-semibold">{formatPrice(item.price)}</p>
                     <div className="mt-2 flex items-center gap-3">
                       <div className="flex items-center rounded-full border border-border">
                         <button
@@ -65,7 +67,9 @@ function CartPage() {
                         >
                           <Minus className="size-3.5" />
                         </button>
-                        <span className="w-7 text-center text-sm font-semibold">{item.quantity}</span>
+                        <span className="w-7 text-center text-sm font-semibold">
+                          {item.quantity}
+                        </span>
                         <button
                           type="button"
                           aria-label="Increase quantity"
@@ -84,7 +88,9 @@ function CartPage() {
                       </button>
                     </div>
                   </div>
-                  <p className="shrink-0 text-sm font-bold">{formatPrice(item.price * item.quantity)}</p>
+                  <p className="shrink-0 text-sm font-semibold">
+                    {formatPrice(item.price * item.quantity)}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -92,10 +98,12 @@ function CartPage() {
             <aside className="card-surface p-4">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Subtotal ({count} items)</span>
-                <span className="font-bold">{formatPrice(subtotal)}</span>
+                <span className="font-semibold">{formatPrice(subtotal)}</span>
               </div>
               <Button asChild className="mt-4 w-full">
-                <Link to="/checkout" search={{}}>Proceed to Checkout</Link>
+                <Link to="/checkout" search={{}}>
+                  Proceed to Checkout
+                </Link>
               </Button>
             </aside>
           </div>

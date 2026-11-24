@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { Code2, Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
-import { Logo } from "@/components/brand/Logo";
+import { Code2, Facebook, Instagram, Linkedin } from "lucide-react";
+import { Wordmark } from "@/components/brand/BloomMark";
+import { BloomMark } from "@/components/brand/BloomMark";
 
 const columns = [
   {
@@ -26,11 +27,11 @@ const columns = [
 
 export function Footer() {
   return (
-    <footer className="mt-10 border-t border-border bg-surface">
-      <div className="container-page grid gap-8 py-8 md:grid-cols-2 lg:grid-cols-4">
+    <footer className="relative mt-16 overflow-hidden bg-ink text-ink-foreground">
+      <div className="container-page grid gap-8 py-10 sm:grid-cols-[minmax(0,1.4fr)_1fr_1fr]">
         <div className="space-y-4">
-          <Logo size="md" className="h-12" />
-          <p className="max-w-xs text-sm text-muted-foreground">
+          <Wordmark campus="DIU" className="[&_span]:!text-ink-foreground" />
+          <p className="max-w-xs text-sm text-ink-foreground/65">
             The official student marketplace of Daffodil International University. Buy, sell and
             discover everything campus life needs.
           </p>
@@ -38,7 +39,7 @@ export function Footer() {
             {[Facebook, Instagram, Linkedin].map((Icon, i) => (
               <span
                 key={i}
-                className="grid size-9 place-items-center rounded-full bg-muted text-muted-foreground"
+                className="grid size-9 place-items-center rounded-full bg-ink-foreground/10 text-ink-foreground/80"
               >
                 <Icon className="size-4" aria-hidden="true" />
               </span>
@@ -48,13 +49,13 @@ export function Footer() {
 
         {columns.map((column) => (
           <div key={column.title}>
-            <h3 className="text-sm font-bold">{column.title}</h3>
+            <h3 className="text-sm font-semibold">{column.title}</h3>
             <ul className="mt-3 space-y-2">
               {column.links.map((link) => (
                 <li key={link.label}>
                   <Link
                     to={link.to}
-                    className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                    className="text-sm text-ink-foreground/65 transition-colors hover:text-bloom"
                   >
                     {link.label}
                   </Link>
@@ -63,47 +64,30 @@ export function Footer() {
             </ul>
           </div>
         ))}
-
-        <div>
-          <h3 className="text-sm font-bold">Campus support</h3>
-          <ul className="mt-3 space-y-2.5 text-sm text-muted-foreground">
-            <li className="flex gap-2">
-              <MapPin className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-              Daffodil Smart City, Ashulia, Dhaka
-            </li>
-            <li className="flex gap-2">
-              <Mail className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-              support@diucampuscart.com
-            </li>
-            <li className="flex gap-2">
-              <Phone className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
-              +880 1700 000 000
-            </li>
-          </ul>
-        </div>
       </div>
 
-      <div className="border-t border-border">
-        <div className="container-page flex flex-col items-center justify-between gap-2 py-5 text-xs text-muted-foreground sm:flex-row">
+      <div className="border-t border-ink-foreground/10">
+        <div className="container-page flex flex-col items-center justify-between gap-2 py-5 text-xs text-ink-foreground/55 sm:flex-row">
           <p>© {new Date().getFullYear()} DIU CampusCart. Your Campus. Your Marketplace.</p>
           <p>Built for Daffodil International University students.</p>
         </div>
       </div>
 
-      <div className="border-t border-border/60">
-        <p className="dev-credit container-page flex items-center justify-center gap-1.5 py-3.5 text-xs text-muted-foreground">
-          <Code2 className="dev-credit__mark size-3.5 text-primary" aria-hidden="true" />
+      <div className="relative z-10 border-t border-ink-foreground/10">
+        <p className="dev-credit container-page flex items-center justify-center gap-1.5 py-3.5 text-xs text-ink-foreground/55">
+          <Code2 className="dev-credit__mark size-3.5 text-bloom" aria-hidden="true" />
           <span>Developed by</span>
           <a
             href="https://sadmannafi.com"
             target="_blank"
             rel="noopener"
-            className="dev-credit__name rounded-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            className="dev-credit__name rounded-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-bloom focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
           >
             Sadman Nahial Nafi
           </a>
         </p>
       </div>
+      <BloomMark className="pointer-events-none absolute -bottom-24 -right-16 size-72 opacity-[0.07]" />
     </footer>
   );
 }

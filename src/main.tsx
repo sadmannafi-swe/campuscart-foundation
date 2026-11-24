@@ -15,6 +15,8 @@ const router = createRouter({
   scrollRestoration: true,
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0,
+  // Pages cross-fade where the browser supports the View Transitions API.
+  defaultViewTransition: true,
 });
 
 declare module "@tanstack/react-router" {

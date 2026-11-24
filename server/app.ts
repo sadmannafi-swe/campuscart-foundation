@@ -1,11 +1,11 @@
 import express, { type NextFunction, type Request, type Response } from "express";
 import { toNodeHandler } from "better-auth/node";
 import { createHash, timingSafeEqual } from "node:crypto";
-import { getAuth, trustedOrigins } from "./lib/auth";
+import { getAuth, googleConfig, trustedOrigins } from "./lib/auth";
 import { getCloudinaryConfig } from "./lib/cloudinary";
 import { ensureIndexes, getDb } from "./lib/db";
 import { getGmailConfig } from "./lib/gmail";
-import { errorHandler } from "./lib/http";
+import { errorHandler, STATIC_CDN_CACHE } from "./lib/http";
 import { UNIVERSITIES } from "../shared/universities";
 import { processEmailOutbox } from "./lib/outbox";
 import { accountRouter } from "./routes/account";
@@ -14,6 +14,11 @@ import { chatRouter } from "./routes/chat";
 import { ordersRouter } from "./routes/orders";
 import { publicRouter } from "./routes/public";
 import { sellerRouter } from "./routes/seller";
+import { preownedRouter } from "./routes/preowned";
+import { bloodRouter } from "./routes/blood";
+import { bashaRouter } from "./routes/basha";
+import { reportsRouter } from "./routes/reports";
+import { searchRouter } from "./routes/search";
 
 function cronAuthorized(req: Request): boolean {
   const secret = process.env["CRON_SECRET"];
@@ -59,19 +64,31 @@ export function createApp() {
       gmail: getGmailConfig() !== null,
       cron: (process.env["CRON_SECRET"] ?? "").length >= 16,
       admins: (process.env["ADMIN_EMAILS"] ?? "").split(",").filter((e) => e.trim()).length,
+      google: googleConfig() !== null,
     });
+  });
+
+  // Which sign-in methods the login pages should offer.
+  app.get("/api/auth-providers", (_req, res) => {
+    res.set("cache-control", "no-store").json({ google: googleConfig() !== null });
   });
 
   // Static data — no database needed.
   app.get("/api/universities", (_req, res) => {
-    res.set("cache-control", "public, max-age=300").json(UNIVERSITIES);
+    res.set("cache-control", STATIC_CDN_CACHE).json(UNIVERSITIES);
   });
 
   app.use("/api", async (_req: Request, res: Response, next: NextFunction) => {
     if (!process.env["MONGODB_URI"]) {
       return res.status(503).json({ error: "Service is not configured yet (database missing)." });
     }
-    await ensureIndexes();
+    // Indexes are set-up work: if they can't be created (permissions, a transient
+    // Atlas error) the request must still be served, never answered with a 500.
+    try {
+      await ensureIndexes();
+    } catch (err) {
+      console.error("[db] ensureIndexes failed; serving the request anyway:", err);
+    }
     return next();
   });
 
@@ -103,6 +120,13 @@ export function createApp() {
   app.post("/api/cron/order-emails", cron);
 
   app.use("/api", publicRouter);
+  // Campus modules: public reads, owner-only writes. Mounted before the routers
+  // that require a login for every request they see.
+  app.use("/api", searchRouter);
+  app.use("/api", preownedRouter);
+  app.use("/api", bloodRouter);
+  app.use("/api", bashaRouter);
+  app.use("/api", reportsRouter);
   app.use("/api/admin", adminRouter);
   app.use("/api/seller", sellerRouter);
   app.use("/api", ordersRouter);

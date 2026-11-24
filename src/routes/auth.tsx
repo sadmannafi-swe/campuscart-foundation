@@ -12,12 +12,15 @@ import { authClient, authErrorMessage } from "@/lib/authClient";
 import { apiPatch } from "@/lib/api";
 import { uploadImage } from "@/lib/uploads";
 import { useAuth } from "@/lib/auth";
+import { GoogleSignInButton, googleErrorMessage } from "@/components/auth/GoogleSignInButton";
 
 type AuthMode = "login" | "signup";
 
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): { mode: AuthMode } => ({
+  validateSearch: (search: Record<string, unknown>): { mode: AuthMode; error?: string } => ({
     mode: search["mode"] === "signup" ? "signup" : "login",
+    // Set by Better Auth when Google sign-in fails and sends the user back here.
+    ...(typeof search["error"] === "string" ? { error: search["error"].slice(0, 60) } : {}),
   }),
   head: () => ({
     meta: [
@@ -38,7 +41,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const { mode } = useSearch({ from: "/auth" });
+  const { mode, error: googleError } = useSearch({ from: "/auth" });
   const navigate = useNavigate();
   const { user, loading } = useAuth();
   const [tab, setTab] = useState<AuthMode>(mode);
@@ -47,19 +50,29 @@ function AuthPage() {
     if (!loading && user) void navigate({ to: "/account", replace: true });
   }, [loading, user, navigate]);
 
+  useEffect(() => {
+    const message = googleErrorMessage(googleError);
+    if (message) toast.error(message, { id: "google-sign-in" });
+  }, [googleError]);
+
   return (
     <SiteLayout>
       <div className="container-page py-6 sm:py-10">
         <BackButton className="mb-3" />
         <div className="mx-auto w-full max-w-md">
           <div className="mb-5 text-center">
-            <h1 className="text-2xl font-extrabold sm:text-3xl">Your CampusCart account</h1>
+            <h1 className="text-2xl font-semibold sm:text-3xl">Your CampusCart account</h1>
             <p className="mt-1 text-sm text-muted-foreground">
               One student account for buying today — and selling second-hand later.
             </p>
           </div>
 
           <div className="card-surface p-4 sm:p-6">
+            <GoogleSignInButton
+              callbackURL="/account"
+              errorCallbackURL={`/auth?mode=${tab}`}
+              className="mb-5"
+            />
             <Tabs value={tab} onValueChange={(v) => setTab(v as AuthMode)}>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Log in</TabsTrigger>
@@ -384,7 +397,11 @@ function SignupForm() {
 
       <p className="text-center text-xs text-muted-foreground">
         Already registered?{" "}
-        <Link to="/auth" search={{ mode: "login" }} className="font-medium text-primary hover:underline">
+        <Link
+          to="/auth"
+          search={{ mode: "login" }}
+          className="font-medium text-primary hover:underline"
+        >
           Log in instead
         </Link>
       </p>

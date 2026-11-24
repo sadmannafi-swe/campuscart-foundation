@@ -37,6 +37,7 @@ import {
 } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { SearchScopeTabs, ScopedResults } from "@/components/modules/SearchScope";
 
 interface ProductSearch {
   q?: string | undefined;
@@ -48,6 +49,8 @@ interface ProductSearch {
   rating?: number | undefined;
   instock?: boolean | undefined;
   sort?: SortKey | undefined;
+  /** Search scope: Marketplace (default), Pre-Owned only, or both. */
+  scope?: "preowned" | "all" | undefined;
 }
 
 const toStringArray = (value: unknown): string[] | undefined => {
@@ -66,17 +69,19 @@ const toNumber = (value: unknown): number | undefined => {
 
 export const Route = createFileRoute("/products/")({
   validateSearch: (search: Record<string, unknown>): ProductSearch => ({
-    q: typeof search['q'] === "string" && search['q'] ? search['q'] : undefined,
-    category: typeof search['category'] === "string" ? search['category'] : undefined,
-    cats: toStringArray(search['cats']),
-    stores: toStringArray(search['stores']),
-    min: toNumber(search['min']),
-    max: toNumber(search['max']),
-    rating: toNumber(search['rating']),
-    instock: search['instock'] === true || search['instock'] === "true" ? true : undefined,
-    sort: sortOptions.some((o) => o.value === search['sort'])
-      ? (search['sort'] as SortKey)
+    q: typeof search["q"] === "string" && search["q"] ? search["q"] : undefined,
+    category: typeof search["category"] === "string" ? search["category"] : undefined,
+    cats: toStringArray(search["cats"]),
+    stores: toStringArray(search["stores"]),
+    min: toNumber(search["min"]),
+    max: toNumber(search["max"]),
+    rating: toNumber(search["rating"]),
+    instock: search["instock"] === true || search["instock"] === "true" ? true : undefined,
+    sort: sortOptions.some((o) => o.value === search["sort"])
+      ? (search["sort"] as SortKey)
       : undefined,
+    scope:
+      search["scope"] === "preowned" || search["scope"] === "all" ? search["scope"] : undefined,
   }),
   head: () => ({
     meta: [
@@ -117,8 +122,7 @@ function ProductsPage() {
     if (!term) return [];
     return stores
       .filter(
-        (s) =>
-          s.name.toLowerCase().includes(term) || s.categoryName.toLowerCase().includes(term),
+        (s) => s.name.toLowerCase().includes(term) || s.categoryName.toLowerCase().includes(term),
       )
       .slice(0, 4);
   }, [search.q, stores]);
@@ -163,7 +167,8 @@ function ProductsPage() {
     });
 
   const resetFilters = () =>
-    navigate({ search: (prev) => ({ q: prev.q, sort: prev.sort }) });
+    navigate({ search: (prev) => ({ q: prev.q, sort: prev.sort, scope: prev.scope }) });
+  const scope = search.q ? (search.scope ?? "marketplace") : "marketplace";
 
   const filters = (
     <FilterPanel
@@ -194,20 +199,25 @@ function ProductsPage() {
           ]}
         />
 
-        <SearchBar defaultValue={search.q ?? ""} placeholder="Search products, stores or categories" />
+        <SearchBar
+          defaultValue={search.q ?? ""}
+          placeholder="Search products, stores or categories"
+        />
 
         <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
           <div className="min-w-0">
-            <h1 className="text-xl font-extrabold sm:text-2xl">
+            <h1 className="text-xl font-semibold sm:text-2xl">
               {search.q
                 ? `Results for “${search.q}”`
                 : activeCategory
                   ? activeCategory.name
                   : "All products"}
             </h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {results.length} {results.length === 1 ? "listing" : "listings"} found
-            </p>
+            {scope === "marketplace" && (
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                {results.length} {results.length === 1 ? "listing" : "listings"} found
+              </p>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -216,7 +226,7 @@ function ProductsPage() {
                 <Button variant="outline" className="lg:hidden">
                   <SlidersHorizontal /> Filter
                   {activeCount > 0 && (
-                    <span className="ml-1 rounded-full bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
+                    <span className="ml-1 rounded-full bg-primary px-1.5 text-[11px] font-semibold text-primary-foreground">
                       {activeCount}
                     </span>
                   )}
@@ -224,9 +234,7 @@ function ProductsPage() {
               </SheetTrigger>
               <SheetContent side="bottom" className="max-h-[88vh] rounded-t-2xl p-0">
                 <SheetHeader className="border-b border-border px-4 py-3">
-                  <SheetTitle className="text-left text-sm font-bold uppercase tracking-wide">
-                    Filter
-                  </SheetTitle>
+                  <SheetTitle className="text-left text-sm font-semibold">Filter</SheetTitle>
                 </SheetHeader>
                 <div className="max-h-[60vh] overflow-y-auto px-4 py-4">{filters}</div>
                 <div className="sticky bottom-0 flex gap-2 border-t border-border bg-surface px-4 py-3">
@@ -255,119 +263,141 @@ function ProductsPage() {
           </div>
         </div>
 
-        {(matchingStores.length > 0 || matchingCategories.length > 0) && (
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-muted-foreground">Also matching:</span>
-            {matchingCategories.map((category) => (
-              <button
-                key={category.id}
-                type="button"
-                onClick={() => toggleCategory(category.slug)}
-                className="cursor-pointer rounded-full border border-border px-2.5 py-1 text-xs font-semibold transition-colors hover:bg-primary-soft hover:text-primary"
-              >
-                {category.name}
-              </button>
-            ))}
-            {matchingStores.map((store) => (
-              <Link
-                key={store.id}
-                to="/stores/$storeSlug"
-                params={{ storeSlug: store.slug }}
-                className="rounded-full border border-border px-2.5 py-1 text-xs font-semibold transition-colors hover:bg-primary-soft hover:text-primary"
-              >
-                {store.name}
-              </Link>
-            ))}
-          </div>
+        {search.q && (
+          <SearchScopeTabs
+            value={scope}
+            onChange={(next) =>
+              void navigate({
+                search: (prev) => ({ ...prev, scope: next === "marketplace" ? undefined : next }),
+                replace: true,
+              })
+            }
+          />
         )}
 
-        {activeCount > 0 && (
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {selectedCats.map((slug) => (
-              <Badge key={slug} variant="secondary" className="gap-1 py-1">
-                {categories.find((c) => c.slug === slug)?.name ?? slug}
-                <button
-                  type="button"
-                  aria-label="Remove category filter"
-                  onClick={() => toggleCategory(slug)}
-                  className="cursor-pointer"
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            ))}
-            {selectedStores.map((id) => (
-              <Badge key={id} variant="secondary" className="gap-1 py-1">
-                {stores.find((s) => s.id === id)?.name ?? id}
-                <button
-                  type="button"
-                  aria-label="Remove store filter"
-                  onClick={() => toggleStore(id)}
-                  className="cursor-pointer"
-                >
-                  <X className="size-3" />
-                </button>
-              </Badge>
-            ))}
-            {search.rating ? (
-              <Badge variant="secondary" className="py-1">{search.rating}★ & above</Badge>
-            ) : null}
-            {search.instock ? (
-              <Badge variant="secondary" className="py-1">In stock only</Badge>
-            ) : null}
-            {(search.min !== undefined || search.max !== undefined) && (
-              <Badge variant="secondary" className="py-1">
-                {formatPrice(search.min ?? PRICE_MIN)} — {formatPrice(search.max ?? PRICE_MAX)}
-              </Badge>
-            )}
-            <Button variant="ghost" size="sm" onClick={resetFilters}>
-              Clear all
-            </Button>
-          </div>
-        )}
-
-        <div className="mt-5 grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]">
-          <aside className="hidden lg:block">
-            <div className="card-surface sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-sm font-bold uppercase tracking-wide">Filter</h2>
-                {activeCount > 0 && (
+        {scope !== "marketplace" ? (
+          <ScopedResults q={search.q ?? ""} scope={scope} />
+        ) : (
+          <>
+            {(matchingStores.length > 0 || matchingCategories.length > 0) && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold text-muted-foreground">Also matching:</span>
+                {matchingCategories.map((category) => (
                   <button
+                    key={category.id}
                     type="button"
-                    onClick={resetFilters}
-                    className="cursor-pointer text-xs font-semibold text-primary hover:underline"
+                    onClick={() => toggleCategory(category.slug)}
+                    className="cursor-pointer rounded-full border border-border px-2.5 py-1 text-xs font-semibold transition-colors hover:bg-primary-soft hover:text-primary"
                   >
-                    Reset
+                    {category.name}
                   </button>
+                ))}
+                {matchingStores.map((store) => (
+                  <Link
+                    key={store.id}
+                    to="/stores/$storeSlug"
+                    params={{ storeSlug: store.slug }}
+                    className="rounded-full border border-border px-2.5 py-1 text-xs font-semibold transition-colors hover:bg-primary-soft hover:text-primary"
+                  >
+                    {store.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {activeCount > 0 && (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {selectedCats.map((slug) => (
+                  <Badge key={slug} variant="secondary" className="gap-1 py-1">
+                    {categories.find((c) => c.slug === slug)?.name ?? slug}
+                    <button
+                      type="button"
+                      aria-label="Remove category filter"
+                      onClick={() => toggleCategory(slug)}
+                      className="cursor-pointer"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                ))}
+                {selectedStores.map((id) => (
+                  <Badge key={id} variant="secondary" className="gap-1 py-1">
+                    {stores.find((s) => s.id === id)?.name ?? id}
+                    <button
+                      type="button"
+                      aria-label="Remove store filter"
+                      onClick={() => toggleStore(id)}
+                      className="cursor-pointer"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </Badge>
+                ))}
+                {search.rating ? (
+                  <Badge variant="secondary" className="py-1">
+                    {search.rating}★ & above
+                  </Badge>
+                ) : null}
+                {search.instock ? (
+                  <Badge variant="secondary" className="py-1">
+                    In stock only
+                  </Badge>
+                ) : null}
+                {(search.min !== undefined || search.max !== undefined) && (
+                  <Badge variant="secondary" className="py-1">
+                    {formatPrice(search.min ?? PRICE_MIN)} — {formatPrice(search.max ?? PRICE_MAX)}
+                  </Badge>
+                )}
+                <Button variant="ghost" size="sm" onClick={resetFilters}>
+                  Clear all
+                </Button>
+              </div>
+            )}
+
+            <div className="mt-5 grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]">
+              <aside className="hidden lg:block">
+                <div className="card-surface sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto p-4">
+                  <div className="mb-3 flex items-center justify-between">
+                    <h2 className="text-sm font-semibold">Filter</h2>
+                    {activeCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={resetFilters}
+                        className="cursor-pointer text-xs font-semibold text-primary hover:underline"
+                      >
+                        Reset
+                      </button>
+                    )}
+                  </div>
+                  {filters}
+                </div>
+              </aside>
+
+              <div className="min-w-0">
+                {results.length === 0 ? (
+                  <EmptyState
+                    title="No products found"
+                    description="Nothing matched this search and filter combination."
+                    action={
+                      <div className="flex flex-wrap justify-center gap-2">
+                        <Button variant="outline" onClick={resetFilters}>
+                          Clear filters
+                        </Button>
+                        <Button asChild>
+                          <Link to="/products" search={{}}>
+                            Try another search
+                          </Link>
+                        </Button>
+                      </div>
+                    }
+                  />
+                ) : (
+                  <ProductGrid products={results} />
                 )}
               </div>
-              {filters}
             </div>
-          </aside>
-
-          <div className="min-w-0">
-            {results.length === 0 ? (
-              <EmptyState
-                title="No products found"
-                description="Nothing matched this search and filter combination."
-                action={
-                  <div className="flex flex-wrap justify-center gap-2">
-                    <Button variant="outline" onClick={resetFilters}>
-                      Clear filters
-                    </Button>
-                    <Button asChild>
-                      <Link to="/products" search={{}}>
-                        Try another search
-                      </Link>
-                    </Button>
-                  </div>
-                }
-              />
-            ) : (
-              <ProductGrid products={results} />
-            )}
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </SiteLayout>
   );
@@ -406,9 +436,7 @@ function FilterPanel({
   return (
     <div className="space-y-5">
       <section>
-        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-          Category
-        </h3>
+        <h3 className="mb-2 text-xs font-semibold text-muted-foreground">Category</h3>
         <ul className="space-y-1">
           {categories.map((category) => (
             <li key={category.id}>
@@ -432,9 +460,7 @@ function FilterPanel({
       </section>
 
       <section>
-        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-          Price Range
-        </h3>
+        <h3 className="mb-2 text-xs font-semibold text-muted-foreground">Price Range</h3>
         <Slider
           value={range}
           min={PRICE_MIN}
@@ -469,9 +495,7 @@ function FilterPanel({
       </section>
 
       <section>
-        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-          Rating
-        </h3>
+        <h3 className="mb-2 text-xs font-semibold text-muted-foreground">Rating</h3>
         <div className="space-y-1">
           {ratingOptions.map((option) => (
             <label
@@ -495,9 +519,7 @@ function FilterPanel({
       </section>
 
       <section>
-        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-          Store
-        </h3>
+        <h3 className="mb-2 text-xs font-semibold text-muted-foreground">Store</h3>
         <ul className="max-h-52 space-y-1 overflow-y-auto pr-1">
           {stores.map((store) => (
             <li key={store.id}>
@@ -514,9 +536,7 @@ function FilterPanel({
       </section>
 
       <section>
-        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-          Availability
-        </h3>
+        <h3 className="mb-2 text-xs font-semibold text-muted-foreground">Availability</h3>
         <div className="flex items-center justify-between rounded-lg px-2 py-1.5">
           <Label htmlFor="instock-filter" className="cursor-pointer text-sm">
             In stock only

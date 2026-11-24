@@ -1,7 +1,10 @@
 import { Router } from "express";
 import { ObjectId } from "mongodb";
 import { z } from "zod";
+import { REPORT_TARGETS, type ChatKind } from "../../shared/types";
 import { col, toApi, type ConversationDoc } from "../lib/db";
+import { publicOwners } from "../lib/modules";
+import { getTarget } from "../lib/targets";
 import {
   badRequest,
   forbidden,
@@ -78,25 +81,101 @@ chatRouter.post("/chat/open", async (req, res) => {
   }
 });
 
+/**
+ * Open (or reuse) a conversation about a Pre-Owned listing, blood request, donor
+ * profile or BashaLagbe listing. The person who starts it is the "buyer" side, the
+ * owner is the "seller" side, so the existing rules apply: the owner can reply only
+ * after the first message.
+ */
+chatRouter.post("/chat/open-context", async (req, res) => {
+  const u = me(req);
+  const { kind, id } = parse(
+    z.object({ kind: z.enum(REPORT_TARGETS), id: z.string().uuid() }),
+    req.body,
+  );
+  const target = await getTarget(kind, id);
+  if (!target || target.moderation !== "visible") throw notFound("This is no longer available");
+  if (target.owner_id === u.id) throw badRequest("This is your own post");
+  const key = `${kind}:${id}`;
+  const existing = await col.conversations().findOne({ buyer_id: u.id, product_id: key });
+  if (existing) return res.json({ id: existing._id });
+  if (!target.open) throw badRequest("This is no longer open for new messages");
+
+  const userDoc = await col
+    .users()
+    .findOne({ _id: ObjectId.isValid(u.id) ? new ObjectId(u.id) : u.id } as never, {
+      projection: { name: 1 },
+    });
+  const doc: ConversationDoc = {
+    _id: newId(),
+    kind,
+    context_id: id,
+    context_subtitle: target.subtitle,
+    product_id: key,
+    store_id: "",
+    seller_user_id: target.owner_id,
+    buyer_id: u.id,
+    university_slug: target.university_slug,
+    product_name: target.title,
+    product_price: target.amount,
+    product_image: target.image,
+    buyer_name: String(userDoc?.["name"] ?? "").trim() || "CampusCart student",
+    first_message_at: null,
+    last_message_at: null,
+    last_message_preview: "",
+    created_at: new Date(),
+  };
+  try {
+    await col.conversations().insertOne(doc);
+    return res.status(201).json({ id: doc._id });
+  } catch (err) {
+    if ((err as { code?: number }).code === 11000) {
+      const again = await col.conversations().findOne({ buyer_id: u.id, product_id: key });
+      if (again) return res.json({ id: again._id });
+    }
+    throw err;
+  }
+});
+
+const MODULE_KINDS: ChatKind[] = ["preowned", "blood_request", "donor", "basha"];
+
+/** Adds the owner's public name to module conversations, for the person who started them. */
+async function withOwnerNames(list: ConversationDoc[]) {
+  const moduleRows = list.filter((c) => c.kind && c.kind !== "product");
+  const owners = await publicOwners(moduleRows.map((c) => c.seller_user_id));
+  return list.map((c) => ({
+    ...toApi(c),
+    kind: c.kind ?? "product",
+    owner_name: c.kind && c.kind !== "product" ? owners.get(c.seller_user_id)?.name : null,
+  }));
+}
+
 chatRouter.get("/chat/conversations", async (req, res) => {
   const u = me(req);
   const role = req.query["role"] === "seller" ? "seller" : "buyer";
+  // Seller inbox (dashboard) = Marketplace product chats only. The personal inbox holds
+  // the user's own chats plus module chats others started about the user's posts.
   const filter =
     role === "seller"
-      ? { seller_user_id: u.id, first_message_at: { $ne: null } }
-      : { buyer_id: u.id };
+      ? { seller_user_id: u.id, first_message_at: { $ne: null }, kind: { $nin: MODULE_KINDS } }
+      : {
+          $or: [
+            { buyer_id: u.id },
+            { seller_user_id: u.id, kind: { $in: MODULE_KINDS }, first_message_at: { $ne: null } },
+          ],
+        };
   const list = await col
     .conversations()
     .find(filter)
     .sort({ last_message_at: -1, created_at: -1 })
     .limit(200)
     .toArray();
-  res.json(list.map((c) => toApi(c)));
+  res.json(await withOwnerNames(list));
 });
 
 chatRouter.get("/chat/conversations/:id", async (req, res) => {
   const c = await participantConversation(req.params["id"]!, me(req).id);
-  res.json(toApi(c));
+  res.json((await withOwnerNames([c]))[0]);
 });
 
 chatRouter.get("/chat/conversations/:id/messages", async (req, res) => {

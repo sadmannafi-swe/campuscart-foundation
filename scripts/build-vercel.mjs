@@ -6,6 +6,8 @@ import { build } from "esbuild";
 import { cp, mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+const FUNCTION_REGION = "bom1";
+
 const out = ".vercel/output";
 const fn = path.join(out, "functions/api.func");
 
@@ -56,6 +58,10 @@ await writeFile(
       launcherType: "Nodejs",
       shouldAddHelpers: false,
       maxDuration: 30,
+      // Mumbai: same AWS region as the Atlas cluster (ap-south-1) and closest to our
+      // users in Bangladesh. With the Build Output API this per-function setting is
+      // what decides where the function runs (vercel.json "regions" mirrors it).
+      regions: [FUNCTION_REGION],
     },
     null,
     2,

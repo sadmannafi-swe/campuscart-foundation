@@ -30,7 +30,7 @@ function SellerReviews() {
           <div className="card-surface flex items-center justify-between p-4">
             <div>
               <p className="text-xs text-muted-foreground">Average rating</p>
-              <p className="text-2xl font-extrabold">{average.toFixed(1)}</p>
+              <p className="text-2xl font-semibold">{average.toFixed(1)}</p>
             </div>
             <Rating value={Math.round(average * 10) / 10} reviewCount={reviews.length} size="md" />
           </div>
@@ -38,7 +38,7 @@ function SellerReviews() {
             {reviews.map((r) => (
               <li key={r.id} className="card-surface p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="truncate text-sm font-bold">{r.product_name}</p>
+                  <p className="truncate text-sm font-semibold">{r.product_name}</p>
                   <Rating value={r.rating} showValue={false} />
                 </div>
                 {r.comment && <p className="mt-2 text-sm">{r.comment}</p>}

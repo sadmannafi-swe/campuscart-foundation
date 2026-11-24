@@ -36,7 +36,9 @@ function ResetPasswordPage() {
     const token = new URLSearchParams(window.location.search).get("token");
     if (!token) {
       setBusy(false);
-      toast.error("This reset link is invalid or has expired. Request a new one from the login page.");
+      toast.error(
+        "This reset link is invalid or has expired. Request a new one from the login page.",
+      );
       return;
     }
     const { error } = await authClient.resetPassword({ newPassword: password, token });
@@ -54,7 +56,7 @@ function ResetPasswordPage() {
       <div className="container-page py-10">
         <BackButton className="mb-3" />
         <div className="mx-auto w-full max-w-md">
-          <h1 className="text-2xl font-extrabold">Set a new password</h1>
+          <h1 className="text-2xl font-semibold">Set a new password</h1>
           <form onSubmit={onSubmit} className="card-surface mt-5 space-y-4 p-4 sm:p-6">
             <div className="space-y-1.5">
               <Label htmlFor="new-password">New password</Label>

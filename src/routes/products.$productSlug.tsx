@@ -1,7 +1,17 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BadgeCheck, Check, Heart, MessageCircle, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
+import {
+  BadgeCheck,
+  Check,
+  Heart,
+  MessageCircle,
+  Minus,
+  Plus,
+  ShieldCheck,
+  Truck,
+} from "lucide-react";
 import { toast } from "sonner";
+import { flyToCart } from "@/lib/motion";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
 import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
@@ -50,9 +60,15 @@ export const Route = createFileRoute("/products/$productSlug")({
       return {
         meta: [
           { title: "Product Details — CampusCart" },
-          { name: "description", content: "View campus seller products and verified purchase reviews on CampusCart." },
+          {
+            name: "description",
+            content: "View campus seller products and verified purchase reviews on CampusCart.",
+          },
           { property: "og:title", content: "Product Details — CampusCart" },
-          { property: "og:description", content: "View campus seller products and verified purchase reviews on CampusCart." },
+          {
+            property: "og:description",
+            content: "View campus seller products and verified purchase reviews on CampusCart.",
+          },
           { property: "og:type", content: "website" },
           { name: "twitter:card", content: "summary" },
           { name: "robots", content: "noindex" },
@@ -115,15 +131,32 @@ function LiveProductDetails({ slug }: { slug: string }) {
           <p className="text-sm text-muted-foreground">Loading…</p>
         ) : !product ? (
           <div className="py-16 text-center">
-            <h1 className="text-xl font-bold">Product unavailable</h1>
-            <p className="mt-2 text-sm text-muted-foreground">This listing may have been removed.</p>
-            <Button asChild className="mt-4"><Link to="/products" search={{}}>Browse products</Link></Button>
+            <h1 className="text-xl font-semibold">Product unavailable</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              This listing may have been removed.
+            </p>
+            <Button asChild className="mt-4">
+              <Link to="/products" search={{}}>
+                Browse products
+              </Link>
+            </Button>
           </div>
         ) : (
           <div className="grid gap-8 lg:grid-cols-2">
-            <div className={cn("grid aspect-square w-full place-items-center overflow-hidden rounded-3xl border border-border bg-gradient-to-br", product.accentFrom, product.accentTo)}>
+            <div
+              className={cn(
+                "grid aspect-square w-full place-items-center overflow-hidden rounded-3xl border border-border bg-gradient-to-br",
+                product.accentFrom,
+                product.accentTo,
+              )}
+            >
               {img.showImage ? (
-                <img src={product.image} alt={product.name} className="size-full object-cover" onError={img.onError} />
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="size-full object-cover"
+                  onError={img.onError}
+                />
               ) : (
                 <CategoryIcon name={category?.icon ?? "Tag"} className="size-24 text-primary/70" />
               )}
@@ -131,32 +164,60 @@ function LiveProductDetails({ slug }: { slug: string }) {
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 {category && <Badge variant="secondary">{category.name}</Badge>}
-                <Badge variant="secondary" className="capitalize">{product.condition.replace("-", " ")}</Badge>
+                <Badge variant="secondary" className="capitalize">
+                  {product.condition.replace("-", " ")}
+                </Badge>
                 {product.inStock ? (
                   <span className="text-xs font-semibold text-accent">In stock</span>
                 ) : (
                   <span className="text-xs font-semibold text-destructive">Out of stock</span>
                 )}
               </div>
-              <h1 className="mt-3 text-2xl font-extrabold sm:text-3xl">{product.name}</h1>
+              <h1 className="mt-3 text-2xl font-semibold sm:text-3xl">{product.name}</h1>
               <div className="mt-3 flex flex-wrap items-baseline gap-3">
                 <span className="price-lg text-2xl">{formatPrice(product.price)}</span>
-                {discountPercent(product.price, product.originalPrice) !== null && product.originalPrice && (
-                  <>
-                    <span className="text-base text-muted-foreground line-through">
-                      {formatPrice(product.originalPrice)}
-                    </span>
-                    <span className="rounded-full bg-destructive px-2.5 py-1 text-xs font-bold text-destructive-foreground">
-                      Save {discountPercent(product.price, product.originalPrice)}%
-                    </span>
-                  </>
-                )}
+                {discountPercent(product.price, product.originalPrice) !== null &&
+                  product.originalPrice && (
+                    <>
+                      <span className="text-base text-muted-foreground line-through">
+                        {formatPrice(product.originalPrice)}
+                      </span>
+                      <span className="rounded-full bg-destructive px-2.5 py-1 text-xs font-semibold text-destructive-foreground">
+                        Save {discountPercent(product.price, product.originalPrice)}%
+                      </span>
+                    </>
+                  )}
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">Sold by <span className="font-semibold text-foreground">{product.storeName}</span></p>
-              {product.description && <p className="mt-4 whitespace-pre-line text-sm leading-relaxed">{product.description}</p>}
+              <p className="mt-2 text-sm text-muted-foreground">
+                Sold by <span className="font-semibold text-foreground">{product.storeName}</span>
+              </p>
+              {product.description && (
+                <p className="mt-4 whitespace-pre-line text-sm leading-relaxed">
+                  {product.description}
+                </p>
+              )}
               <div className="mt-6 flex gap-3">
-                <Button className="flex-1 sm:flex-none" disabled={!product.inStock} onClick={() => { cart.add(product, 1); toast.success("Added to cart"); }}>Add to Cart</Button>
-                <Button variant="secondary" className="flex-1 sm:flex-none" disabled={!product.inStock} onClick={() => void navigate({ to: "/checkout", search: { buy: product.slug, qty: 1 } })}>Buy Now</Button>
+                <Button
+                  className="flex-1 sm:flex-none"
+                  disabled={!product.inStock}
+                  onClick={(e) => {
+                    cart.add(product, 1);
+                    flyToCart(e.currentTarget);
+                    toast.success("Added to cart");
+                  }}
+                >
+                  Add to Cart
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="flex-1 sm:flex-none"
+                  disabled={!product.inStock}
+                  onClick={() =>
+                    void navigate({ to: "/checkout", search: { buy: product.slug, qty: 1 } })
+                  }
+                >
+                  Buy Now
+                </Button>
               </div>
               <Button
                 variant="outline"
@@ -248,7 +309,7 @@ function StaticProductDetails({
               )}
             </div>
 
-            <h1 className="mt-3 text-2xl font-extrabold sm:text-3xl">{product.name}</h1>
+            <h1 className="mt-3 text-2xl font-semibold sm:text-3xl">{product.name}</h1>
 
             <div className="mt-3 flex flex-wrap items-center gap-3">
               <Rating value={product.rating} reviewCount={product.reviewCount} size="md" />
@@ -265,7 +326,7 @@ function StaticProductDetails({
                 </span>
               )}
               {discount && (
-                <span className="rounded-full bg-destructive px-2.5 py-1 text-xs font-bold text-destructive-foreground">
+                <span className="rounded-full bg-destructive px-2.5 py-1 text-xs font-semibold text-destructive-foreground">
                   Save {discount}%
                 </span>
               )}
@@ -276,13 +337,15 @@ function StaticProductDetails({
               params={{ storeSlug: store.slug }}
               className="card-surface mt-6 flex items-center gap-3 p-4 transition-shadow hover:shadow-[var(--shadow-card-hover)]"
             >
-              <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary-soft text-sm font-extrabold text-primary">
+              <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary-soft text-sm font-semibold text-primary">
                 {store.initials}
               </span>
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-1.5 truncate text-sm font-semibold">
                   {store.name}
-                  {store.verified && <BadgeCheck className="size-4 text-accent" aria-hidden="true" />}
+                  {store.verified && (
+                    <BadgeCheck className="size-4 text-accent" aria-hidden="true" />
+                  )}
                 </span>
                 <span className="text-xs text-muted-foreground">{store.responseTime}</span>
               </span>
@@ -341,8 +404,9 @@ function StaticProductDetails({
                 size="lg"
                 className="flex-1 sm:flex-none"
                 disabled={!product.inStock}
-                onClick={() => {
+                onClick={(e) => {
                   cart.add(product, quantity);
+                  flyToCart(e.currentTarget);
                   toast.success("Added to cart");
                 }}
               >
@@ -374,7 +438,10 @@ function StaticProductDetails({
                 { icon: Truck, text: "Free campus pickup, same day" },
                 { icon: ShieldCheck, text: "7-day return window" },
               ].map((item) => (
-                <div key={item.text} className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div
+                  key={item.text}
+                  className="flex items-center gap-2 text-sm text-muted-foreground"
+                >
                   <item.icon className="size-4 text-accent" aria-hidden="true" />
                   {item.text}
                 </div>
@@ -389,7 +456,10 @@ function StaticProductDetails({
             <TabsTrigger value="highlights">Highlights</TabsTrigger>
             <TabsTrigger value="reviews">Reviews</TabsTrigger>
           </TabsList>
-          <TabsContent value="description" className="card-surface mt-4 p-6 text-sm text-muted-foreground">
+          <TabsContent
+            value="description"
+            className="card-surface mt-4 p-6 text-sm text-muted-foreground"
+          >
             {product.description}
           </TabsContent>
           <TabsContent value="highlights" className="card-surface mt-4 p-6">
@@ -422,12 +492,11 @@ function StaticProductDetails({
               ))}
             </ul>
           </TabsContent>
-
         </Tabs>
 
         {related.length > 0 && (
           <section className="mt-12">
-            <h2 className="text-xl font-bold sm:text-2xl">You may also like</h2>
+            <h2 className="text-xl font-semibold sm:text-2xl">You may also like</h2>
             <div className="mt-5">
               <ProductGrid products={related} />
             </div>

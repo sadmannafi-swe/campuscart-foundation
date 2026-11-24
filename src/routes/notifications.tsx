@@ -31,7 +31,7 @@ function BuyerNotificationsPage() {
       <div className="container-page py-6">
         <BackButton className="mb-3" />
         <div className="flex items-center justify-between gap-3">
-          <h1 className="text-2xl font-extrabold">Notifications</h1>
+          <h1 className="text-2xl font-semibold">Notifications</h1>
           {unreadIds.length > 0 && (
             <button
               type="button"

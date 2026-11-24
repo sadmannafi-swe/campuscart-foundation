@@ -16,10 +16,14 @@ export const Route = createFileRoute("/stores/")({
       { title: "Campus Stores — DIU CampusCart" },
       {
         name: "description",
-        content: "Browse verified student-run stores at DIU: books, electronics, food, fashion and services.",
+        content:
+          "Browse verified student-run stores at DIU: books, electronics, food, fashion and services.",
       },
       { property: "og:title", content: "Campus Stores — DIU CampusCart" },
-      { property: "og:description", content: "Discover verified student-run stores on the DIU campus." },
+      {
+        property: "og:description",
+        content: "Discover verified student-run stores on the DIU campus.",
+      },
     ],
   }),
   component: StoresPage,
@@ -46,7 +50,7 @@ function StoresPage() {
         <BackButton className="mb-3" />
         <PageBreadcrumb items={[{ label: "Home", to: "/" }, { label: "Stores" }]} />
 
-        <h1 className="text-2xl font-extrabold sm:text-3xl">Campus stores</h1>
+        <h1 className="text-2xl font-semibold sm:text-3xl">Campus stores</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           {stores.length} student-run stores serving the DIU community. Follow your favourites and
           order directly from campus.

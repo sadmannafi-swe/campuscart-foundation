@@ -45,7 +45,7 @@ export default function SellerEntry() {
             width={512}
             height={512}
           />
-          <h1 className="mt-5 text-xl font-extrabold sm:text-2xl">Welcome to CampusCart</h1>
+          <h1 className="mt-5 text-xl font-semibold sm:text-2xl">Welcome to CampusCart</h1>
           <p className="mt-1 text-sm text-muted-foreground">Start your journey as a seller</p>
         </div>
 
@@ -89,13 +89,19 @@ export default function SellerEntry() {
 
         <div className="mt-6 rounded-2xl bg-muted/70 p-4 text-center">
           <p className="text-xs text-muted-foreground">Already a buyer?</p>
-          <Link to="/auth" search={{ mode: "login" }} className="text-sm font-semibold text-primary">
+          <Link
+            to="/auth"
+            search={{ mode: "login" }}
+            className="text-sm font-semibold text-primary"
+          >
             Login with your buyer account
           </Link>
         </div>
 
         <section className="mt-10">
-          <h2 className="text-center text-base font-bold text-primary">Why Sell on CampusCart?</h2>
+          <h2 className="text-center text-base font-semibold text-primary">
+            Why Sell on CampusCart?
+          </h2>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {benefits.map((b) => (
               <li key={b.title} className="card-surface p-3 text-center">

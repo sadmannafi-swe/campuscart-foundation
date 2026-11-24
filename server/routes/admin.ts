@@ -1,11 +1,22 @@
 import { Router } from "express";
 import { z } from "zod";
-import type { AdminApplication, AdminOrder, StoreOrderSummary } from "../../shared/types";
+import {
+  REPORT_TARGETS,
+  type AdminApplication,
+  type AdminModuleRow,
+  type AdminOrder,
+  type AdminReport,
+  type Moderation,
+  type ReportTarget,
+  type StoreOrderSummary,
+} from "../../shared/types";
 import { universityBySlug } from "../../shared/universities";
 import { signedPrivateUrl } from "../lib/cloudinary";
 import { col, toApi } from "../lib/db";
 import { badRequest, notFound, parse, requireAdmin } from "../lib/http";
 import { orderToApi } from "./orders";
+import { publicOwners } from "../lib/modules";
+import { getTarget, moduleCollection } from "../lib/targets";
 
 export const adminRouter = Router();
 adminRouter.use(requireAdmin);
@@ -150,5 +161,140 @@ adminRouter.post("/feature", async (req, res) => {
       .products()
       .updateOne({ _id: body.id }, { $set: { featured_university_slug: body.universitySlug } });
   }
+  res.json({ ok: true });
+});
+
+// ---- Campus modules: Pre-Owned, Blood Donation, BashaLagbe --------------------
+// Kept apart from store/product management. Admins can hide (unpublish) or delete
+// records and review reports; they never edit what the owner wrote.
+
+const moduleKind = z.enum(REPORT_TARGETS);
+
+function rowFor(kind: ReportTarget, d: Record<string, unknown>) {
+  const s = (k: string) => String(d[k] ?? "");
+  switch (kind) {
+    case "preowned":
+      return {
+        title: s("title"),
+        subtitle: `৳${s("price")} · ${s("location")}`,
+        status: s("status"),
+      };
+    case "blood_request":
+      return {
+        title: `${s("blood_group")} needed at ${s("hospital_name")}`,
+        subtitle: s("hospital_location"),
+        status: s("status"),
+      };
+    case "donor":
+      return {
+        title: `${s("name")} (${s("blood_group")})`,
+        subtitle: s("location"),
+        status: s("availability"),
+      };
+    case "basha":
+      return {
+        title: s("title"),
+        subtitle: `৳${s("rent")}/month · ${s("area")}`,
+        status: s("status"),
+      };
+  }
+}
+
+adminRouter.get("/modules/:kind", async (req, res) => {
+  const kind = parse(moduleKind, req.params["kind"]);
+  const docs = (await moduleCollection(kind)
+    .find({})
+    .sort({ created_at: -1 })
+    .limit(1000)
+    .toArray()) as unknown as Array<Record<string, unknown> & { _id: string; owner_id: string }>;
+  const [owners, reportCounts] = await Promise.all([
+    publicOwners(docs.map((d) => d.owner_id)),
+    col
+      .reports()
+      .aggregate<{ _id: string; n: number }>([
+        { $match: { target_type: kind, status: "open" } },
+        { $group: { _id: "$target_id", n: { $sum: 1 } } },
+      ])
+      .toArray(),
+  ]);
+  const counts = new Map(reportCounts.map((r) => [r._id, r.n]));
+  const rows: AdminModuleRow[] = docs.map((d) => ({
+    id: d._id,
+    ...rowFor(kind, d),
+    moderation: d["moderation"] as Moderation,
+    owner_id: d.owner_id,
+    owner_name: owners.get(d.owner_id)?.name ?? "CampusCart student",
+    university_slug: String(d["university_slug"] ?? ""),
+    open_reports: counts.get(d._id) ?? 0,
+    created_at: (d["created_at"] as Date).toISOString(),
+  }));
+  res.json(rows);
+});
+
+adminRouter.post("/modules/:kind/:id/moderation", async (req, res) => {
+  const kind = parse(moduleKind, req.params["kind"]);
+  const { moderation } = parse(z.object({ moderation: z.enum(["visible", "hidden"]) }), req.body);
+  const r = await moduleCollection(kind).updateOne(
+    { _id: req.params["id"] } as never,
+    { $set: { moderation, updated_at: new Date() } } as never,
+  );
+  if (r.matchedCount === 0) throw notFound("Record not found");
+  res.json({ ok: true });
+});
+
+adminRouter.delete("/modules/:kind/:id", async (req, res) => {
+  const kind = parse(moduleKind, req.params["kind"]);
+  const id = req.params["id"]!;
+  const r = await moduleCollection(kind).deleteOne({ _id: id } as never);
+  if (r.deletedCount === 0) throw notFound("Record not found");
+  await col
+    .reports()
+    .updateMany(
+      { target_type: kind, target_id: id, status: "open" },
+      { $set: { status: "reviewed", reviewed_at: new Date() } },
+    );
+  res.json({ ok: true });
+});
+
+adminRouter.get("/reports", async (req, res) => {
+  const status = req.query["status"];
+  const filter: Record<string, unknown> = {};
+  if (status === "open" || status === "reviewed" || status === "dismissed")
+    filter["status"] = status;
+  const reports = await col.reports().find(filter).sort({ created_at: -1 }).limit(1000).toArray();
+  const reporters = await publicOwners(reports.map((r) => r.reporter_id));
+  const out: AdminReport[] = await Promise.all(
+    reports.map(async (r) => {
+      const target = await getTarget(r.target_type, r.target_id);
+      return {
+        id: r._id,
+        target_type: r.target_type,
+        target_id: r.target_id,
+        target_title: target?.title ?? null,
+        target_moderation: target?.moderation ?? null,
+        reporter_id: r.reporter_id,
+        reporter_name: reporters.get(r.reporter_id)?.name ?? "CampusCart student",
+        reason: r.reason,
+        details: r.details,
+        status: r.status,
+        created_at: r.created_at.toISOString(),
+      };
+    }),
+  );
+  res.json(out);
+});
+
+adminRouter.patch("/reports/:id", async (req, res) => {
+  const { status } = parse(
+    z.object({ status: z.enum(["open", "reviewed", "dismissed"]) }),
+    req.body,
+  );
+  const r = await col
+    .reports()
+    .updateOne(
+      { _id: req.params["id"] },
+      { $set: { status, reviewed_at: status === "open" ? null : new Date() } },
+    );
+  if (r.matchedCount === 0) throw notFound("Report not found");
   res.json({ ok: true });
 });

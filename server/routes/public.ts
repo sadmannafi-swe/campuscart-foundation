@@ -6,7 +6,7 @@ import type {
   PublicStoreSummary,
 } from "../../shared/types";
 import { col, toApi, type StoreDoc } from "../lib/db";
-import { marketplaceParam, notFound } from "../lib/http";
+import { marketplaceParam, notFound, PUBLIC_CDN_CACHE } from "../lib/http";
 
 export const publicRouter = Router();
 
@@ -23,10 +23,15 @@ const publicStore = (s: StoreDoc): PublicStore => ({
   created_at: s.created_at.toISOString(),
 });
 
-/** Active listings of approved stores, newest first, with rating aggregates. */
-/** Active listings of approved stores in ONE university marketplace. */
-publicRouter.get("/products", async (req, res) => {
-  const university = marketplaceParam(req.query["university"]);
+/**
+ * Active listings of approved stores in ONE university marketplace, newest first, with
+ * rating aggregates. Only the `products` collection: Pre-Owned listings live elsewhere
+ * and can never appear here. `match` narrows the products (used by search).
+ */
+export async function marketplaceProducts(
+  university: string,
+  match: Record<string, unknown> = {},
+): Promise<PublicProduct[]> {
   const stores = await col
     .stores()
     .find(
@@ -38,6 +43,7 @@ publicRouter.get("/products", async (req, res) => {
   const products = await col
     .products()
     .find({
+      ...match,
       is_active: true,
       university_slug: university,
       store_id: { $in: [...storeById.keys()] },
@@ -53,14 +59,19 @@ publicRouter.get("/products", async (req, res) => {
     ])
     .toArray();
   const ratingBy = new Map(ratings.map((r) => [r._id, r]));
-  const out: PublicProduct[] = products.map((p) => ({
+  return products.map((p) => ({
     ...toApi(p),
     store_name: storeById.get(p.store_id)?.name ?? "Campus seller",
     seller_id: storeById.get(p.store_id)?.seller_id ?? "",
     rating: Math.round((ratingBy.get(p._id)?.avg ?? 0) * 10) / 10,
     review_count: ratingBy.get(p._id)?.count ?? 0,
   }));
-  res.set("cache-control", "public, max-age=15").json(out);
+}
+
+publicRouter.get("/products", async (req, res) => {
+  const university = marketplaceParam(req.query["university"]);
+  const out = await marketplaceProducts(university);
+  res.set("cache-control", PUBLIC_CDN_CACHE).json(out);
 });
 
 /** Approved stores (optionally one university), with active-listing counts and ratings. */
@@ -103,7 +114,7 @@ publicRouter.get("/stores", async (req, res) => {
       review_count: r?.count ?? 0,
     };
   });
-  return res.set("cache-control", "public, max-age=15").json(out);
+  return res.set("cache-control", PUBLIC_CDN_CACHE).json(out);
 });
 
 publicRouter.get("/stores/featured", async (req, res) => {
@@ -114,7 +125,7 @@ publicRouter.get("/stores/featured", async (req, res) => {
     .sort({ updated_at: -1 })
     .limit(24)
     .toArray();
-  res.json(stores.map(publicStore));
+  res.set("cache-control", PUBLIC_CDN_CACHE).json(stores.map(publicStore));
 });
 
 publicRouter.get("/stores/:id", async (req, res) => {
@@ -123,7 +134,7 @@ publicRouter.get("/stores/:id", async (req, res) => {
     .stores()
     .findOne({ _id: req.params["id"], status: "approved", university_slug: university });
   if (!store) throw notFound("Store unavailable");
-  res.json(publicStore(store));
+  res.set("cache-control", PUBLIC_CDN_CACHE).json(publicStore(store));
 });
 
 /** Public reviews: author name, rating, comment, date only — never buyer ids. */
@@ -135,6 +146,7 @@ publicRouter.get("/products/:id/reviews", async (req, res) => {
   const store = product
     ? await col.stores().findOne({ _id: product.store_id, status: "approved" })
     : null;
+  res.set("cache-control", PUBLIC_CDN_CACHE);
   if (!product || !store) return res.json([]);
   const reviews = await col
     .reviews()

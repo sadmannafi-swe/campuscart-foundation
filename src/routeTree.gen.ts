@@ -26,8 +26,19 @@ import { Route as OrderConfirmationRouteImport } from './routes/order-confirmati
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as AccountBashaRouteImport } from './routes/account_.basha'
+import { Route as AccountBloodRouteImport } from './routes/account_.blood'
+import { Route as AccountPreownedRouteImport } from './routes/account_.preowned'
+import { Route as BashaIndexRouteImport } from './routes/basha.index'
+import { Route as BashaListingIdRouteImport } from './routes/basha.$listingId'
+import { Route as BashaNewRouteImport } from './routes/basha.new'
+import { Route as BloodIndexRouteImport } from './routes/blood.index'
+import { Route as BloodDonorRouteImport } from './routes/blood.donor'
 import { Route as CampusCampusSlugRouteImport } from './routes/campus.$campusSlug'
 import { Route as ChatConversationIdRouteImport } from './routes/chat_.$conversationId'
+import { Route as PreownedIndexRouteImport } from './routes/preowned.index'
+import { Route as PreownedListingIdRouteImport } from './routes/preowned.$listingId'
+import { Route as PreownedNewRouteImport } from './routes/preowned.new'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsProductSlugRouteImport } from './routes/products.$productSlug'
 import { Route as SellIndexRouteImport } from './routes/sell.index'
@@ -37,6 +48,11 @@ import { Route as SellRegisterRouteImport } from './routes/sell.register'
 import { Route as SellStatusRouteImport } from './routes/sell.status'
 import { Route as StoresIndexRouteImport } from './routes/stores.index'
 import { Route as StoresStoreSlugRouteImport } from './routes/stores.$storeSlug'
+import { Route as BashaListingIdEditRouteImport } from './routes/basha.$listingId_.edit'
+import { Route as BloodDonorsDonorIdRouteImport } from './routes/blood.donors.$donorId'
+import { Route as BloodRequestsRequestIdRouteImport } from './routes/blood.requests.$requestId'
+import { Route as BloodRequestsNewRouteImport } from './routes/blood.requests.new'
+import { Route as PreownedListingIdEditRouteImport } from './routes/preowned.$listingId_.edit'
 import { Route as SellDashboardIndexRouteImport } from './routes/sell.dashboard.index'
 import { Route as SellDashboardEarningsRouteImport } from './routes/sell.dashboard.earnings'
 import { Route as SellDashboardHelpRouteImport } from './routes/sell.dashboard.help'
@@ -46,6 +62,7 @@ import { Route as SellDashboardOrdersRouteImport } from './routes/sell.dashboard
 import { Route as SellDashboardReviewsRouteImport } from './routes/sell.dashboard.reviews'
 import { Route as SellDashboardSettingsRouteImport } from './routes/sell.dashboard.settings'
 import { Route as SellDashboardStoreRouteImport } from './routes/sell.dashboard.store'
+import { Route as BloodRequestsRequestIdEditRouteImport } from './routes/blood.requests.$requestId_.edit'
 import { Route as SellDashboardMessagesConversationIdRouteImport } from './routes/sell.dashboard.messages_.$conversationId'
 import { Route as SellDashboardProductsIndexRouteImport } from './routes/sell.dashboard.products.index'
 import { Route as SellDashboardProductsProductIdRouteImport } from './routes/sell.dashboard.products.$productId'
@@ -136,6 +153,46 @@ const WishlistRoute = WishlistRouteImport.update({
   path: '/wishlist',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountBashaRoute = AccountBashaRouteImport.update({
+  id: '/account_/basha',
+  path: '/account/basha',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountBloodRoute = AccountBloodRouteImport.update({
+  id: '/account_/blood',
+  path: '/account/blood',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountPreownedRoute = AccountPreownedRouteImport.update({
+  id: '/account_/preowned',
+  path: '/account/preowned',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BashaIndexRoute = BashaIndexRouteImport.update({
+  id: '/basha/',
+  path: '/basha/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BashaListingIdRoute = BashaListingIdRouteImport.update({
+  id: '/basha/$listingId',
+  path: '/basha/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BashaNewRoute = BashaNewRouteImport.update({
+  id: '/basha/new',
+  path: '/basha/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BloodIndexRoute = BloodIndexRouteImport.update({
+  id: '/blood/',
+  path: '/blood/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BloodDonorRoute = BloodDonorRouteImport.update({
+  id: '/blood/donor',
+  path: '/blood/donor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CampusCampusSlugRoute = CampusCampusSlugRouteImport.update({
   id: '/campus/$campusSlug',
   path: '/campus/$campusSlug',
@@ -144,6 +201,21 @@ const CampusCampusSlugRoute = CampusCampusSlugRouteImport.update({
 const ChatConversationIdRoute = ChatConversationIdRouteImport.update({
   id: '/chat_/$conversationId',
   path: '/chat/$conversationId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreownedIndexRoute = PreownedIndexRouteImport.update({
+  id: '/preowned/',
+  path: '/preowned/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreownedListingIdRoute = PreownedListingIdRouteImport.update({
+  id: '/preowned/$listingId',
+  path: '/preowned/$listingId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreownedNewRoute = PreownedNewRouteImport.update({
+  id: '/preowned/new',
+  path: '/preowned/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsIndexRoute = ProductsIndexRouteImport.update({
@@ -189,6 +261,31 @@ const StoresIndexRoute = StoresIndexRouteImport.update({
 const StoresStoreSlugRoute = StoresStoreSlugRouteImport.update({
   id: '/stores/$storeSlug',
   path: '/stores/$storeSlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BashaListingIdEditRoute = BashaListingIdEditRouteImport.update({
+  id: '/basha/$listingId_/edit',
+  path: '/basha/$listingId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BloodDonorsDonorIdRoute = BloodDonorsDonorIdRouteImport.update({
+  id: '/blood/donors/$donorId',
+  path: '/blood/donors/$donorId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BloodRequestsRequestIdRoute = BloodRequestsRequestIdRouteImport.update({
+  id: '/blood/requests/$requestId',
+  path: '/blood/requests/$requestId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BloodRequestsNewRoute = BloodRequestsNewRouteImport.update({
+  id: '/blood/requests/new',
+  path: '/blood/requests/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreownedListingIdEditRoute = PreownedListingIdEditRouteImport.update({
+  id: '/preowned/$listingId_/edit',
+  path: '/preowned/$listingId/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SellDashboardIndexRoute = SellDashboardIndexRouteImport.update({
@@ -237,6 +334,12 @@ const SellDashboardStoreRoute = SellDashboardStoreRouteImport.update({
   path: '/store',
   getParentRoute: () => SellDashboardRoute,
 } as any)
+const BloodRequestsRequestIdEditRoute =
+  BloodRequestsRequestIdEditRouteImport.update({
+    id: '/blood/requests/$requestId_/edit',
+    path: '/blood/requests/$requestId/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const SellDashboardMessagesConversationIdRoute =
   SellDashboardMessagesConversationIdRouteImport.update({
     id: '/messages_/$conversationId',
@@ -280,17 +383,33 @@ export interface FileRoutesByFullPath {
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
+  '/account/basha': typeof AccountBashaRoute
+  '/account/blood': typeof AccountBloodRoute
+  '/account/preowned': typeof AccountPreownedRoute
+  '/basha/$listingId': typeof BashaListingIdRoute
+  '/basha/new': typeof BashaNewRoute
+  '/blood/donor': typeof BloodDonorRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/chat/$conversationId': typeof ChatConversationIdRoute
+  '/preowned/$listingId': typeof PreownedListingIdRoute
+  '/preowned/new': typeof PreownedNewRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
   '/sell/dashboard': typeof SellDashboardRouteWithChildren
   '/sell/login': typeof SellLoginRoute
   '/sell/register': typeof SellRegisterRoute
   '/sell/status': typeof SellStatusRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
+  '/basha/': typeof BashaIndexRoute
+  '/blood/': typeof BloodIndexRoute
+  '/preowned/': typeof PreownedIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
+  '/basha/$listingId/edit': typeof BashaListingIdEditRoute
+  '/blood/donors/$donorId': typeof BloodDonorsDonorIdRoute
+  '/blood/requests/$requestId': typeof BloodRequestsRequestIdRoute
+  '/blood/requests/new': typeof BloodRequestsNewRoute
+  '/preowned/$listingId/edit': typeof PreownedListingIdEditRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
@@ -300,6 +419,7 @@ export interface FileRoutesByFullPath {
   '/sell/dashboard/settings': typeof SellDashboardSettingsRoute
   '/sell/dashboard/store': typeof SellDashboardStoreRoute
   '/sell/dashboard/': typeof SellDashboardIndexRoute
+  '/blood/requests/$requestId/edit': typeof BloodRequestsRequestIdEditRoute
   '/sell/dashboard/messages/$conversationId': typeof SellDashboardMessagesConversationIdRoute
   '/sell/dashboard/products/$productId': typeof SellDashboardProductsProductIdRoute
   '/sell/dashboard/products/new': typeof SellDashboardProductsNewRoute
@@ -323,16 +443,32 @@ export interface FileRoutesByTo {
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
+  '/account/basha': typeof AccountBashaRoute
+  '/account/blood': typeof AccountBloodRoute
+  '/account/preowned': typeof AccountPreownedRoute
+  '/basha/$listingId': typeof BashaListingIdRoute
+  '/basha/new': typeof BashaNewRoute
+  '/blood/donor': typeof BloodDonorRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/chat/$conversationId': typeof ChatConversationIdRoute
+  '/preowned/$listingId': typeof PreownedListingIdRoute
+  '/preowned/new': typeof PreownedNewRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
   '/sell/login': typeof SellLoginRoute
   '/sell/register': typeof SellRegisterRoute
   '/sell/status': typeof SellStatusRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
+  '/basha': typeof BashaIndexRoute
+  '/blood': typeof BloodIndexRoute
+  '/preowned': typeof PreownedIndexRoute
   '/products': typeof ProductsIndexRoute
   '/sell': typeof SellIndexRoute
   '/stores': typeof StoresIndexRoute
+  '/basha/$listingId/edit': typeof BashaListingIdEditRoute
+  '/blood/donors/$donorId': typeof BloodDonorsDonorIdRoute
+  '/blood/requests/$requestId': typeof BloodRequestsRequestIdRoute
+  '/blood/requests/new': typeof BloodRequestsNewRoute
+  '/preowned/$listingId/edit': typeof PreownedListingIdEditRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
@@ -342,6 +478,7 @@ export interface FileRoutesByTo {
   '/sell/dashboard/settings': typeof SellDashboardSettingsRoute
   '/sell/dashboard/store': typeof SellDashboardStoreRoute
   '/sell/dashboard': typeof SellDashboardIndexRoute
+  '/blood/requests/$requestId/edit': typeof BloodRequestsRequestIdEditRoute
   '/sell/dashboard/messages/$conversationId': typeof SellDashboardMessagesConversationIdRoute
   '/sell/dashboard/products/$productId': typeof SellDashboardProductsProductIdRoute
   '/sell/dashboard/products/new': typeof SellDashboardProductsNewRoute
@@ -366,17 +503,33 @@ export interface FileRoutesById {
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wishlist': typeof WishlistRoute
+  '/account_/basha': typeof AccountBashaRoute
+  '/account_/blood': typeof AccountBloodRoute
+  '/account_/preowned': typeof AccountPreownedRoute
+  '/basha/$listingId': typeof BashaListingIdRoute
+  '/basha/new': typeof BashaNewRoute
+  '/blood/donor': typeof BloodDonorRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/chat_/$conversationId': typeof ChatConversationIdRoute
+  '/preowned/$listingId': typeof PreownedListingIdRoute
+  '/preowned/new': typeof PreownedNewRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
   '/sell/dashboard': typeof SellDashboardRouteWithChildren
   '/sell/login': typeof SellLoginRoute
   '/sell/register': typeof SellRegisterRoute
   '/sell/status': typeof SellStatusRoute
   '/stores/$storeSlug': typeof StoresStoreSlugRoute
+  '/basha/': typeof BashaIndexRoute
+  '/blood/': typeof BloodIndexRoute
+  '/preowned/': typeof PreownedIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/sell/': typeof SellIndexRoute
   '/stores/': typeof StoresIndexRoute
+  '/basha/$listingId_/edit': typeof BashaListingIdEditRoute
+  '/blood/donors/$donorId': typeof BloodDonorsDonorIdRoute
+  '/blood/requests/$requestId': typeof BloodRequestsRequestIdRoute
+  '/blood/requests/new': typeof BloodRequestsNewRoute
+  '/preowned/$listingId_/edit': typeof PreownedListingIdEditRoute
   '/sell/dashboard/earnings': typeof SellDashboardEarningsRoute
   '/sell/dashboard/help': typeof SellDashboardHelpRoute
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
@@ -386,6 +539,7 @@ export interface FileRoutesById {
   '/sell/dashboard/settings': typeof SellDashboardSettingsRoute
   '/sell/dashboard/store': typeof SellDashboardStoreRoute
   '/sell/dashboard/': typeof SellDashboardIndexRoute
+  '/blood/requests/$requestId_/edit': typeof BloodRequestsRequestIdEditRoute
   '/sell/dashboard/messages_/$conversationId': typeof SellDashboardMessagesConversationIdRoute
   '/sell/dashboard/products/$productId': typeof SellDashboardProductsProductIdRoute
   '/sell/dashboard/products/new': typeof SellDashboardProductsNewRoute
@@ -411,17 +565,33 @@ export interface FileRouteTypes {
     | '/orders'
     | '/reset-password'
     | '/wishlist'
+    | '/account/basha'
+    | '/account/blood'
+    | '/account/preowned'
+    | '/basha/$listingId'
+    | '/basha/new'
+    | '/blood/donor'
     | '/campus/$campusSlug'
     | '/chat/$conversationId'
+    | '/preowned/$listingId'
+    | '/preowned/new'
     | '/products/$productSlug'
     | '/sell/dashboard'
     | '/sell/login'
     | '/sell/register'
     | '/sell/status'
     | '/stores/$storeSlug'
+    | '/basha/'
+    | '/blood/'
+    | '/preowned/'
     | '/products/'
     | '/sell/'
     | '/stores/'
+    | '/basha/$listingId/edit'
+    | '/blood/donors/$donorId'
+    | '/blood/requests/$requestId'
+    | '/blood/requests/new'
+    | '/preowned/$listingId/edit'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
     | '/sell/dashboard/messages'
@@ -431,6 +601,7 @@ export interface FileRouteTypes {
     | '/sell/dashboard/settings'
     | '/sell/dashboard/store'
     | '/sell/dashboard/'
+    | '/blood/requests/$requestId/edit'
     | '/sell/dashboard/messages/$conversationId'
     | '/sell/dashboard/products/$productId'
     | '/sell/dashboard/products/new'
@@ -454,16 +625,32 @@ export interface FileRouteTypes {
     | '/orders'
     | '/reset-password'
     | '/wishlist'
+    | '/account/basha'
+    | '/account/blood'
+    | '/account/preowned'
+    | '/basha/$listingId'
+    | '/basha/new'
+    | '/blood/donor'
     | '/campus/$campusSlug'
     | '/chat/$conversationId'
+    | '/preowned/$listingId'
+    | '/preowned/new'
     | '/products/$productSlug'
     | '/sell/login'
     | '/sell/register'
     | '/sell/status'
     | '/stores/$storeSlug'
+    | '/basha'
+    | '/blood'
+    | '/preowned'
     | '/products'
     | '/sell'
     | '/stores'
+    | '/basha/$listingId/edit'
+    | '/blood/donors/$donorId'
+    | '/blood/requests/$requestId'
+    | '/blood/requests/new'
+    | '/preowned/$listingId/edit'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
     | '/sell/dashboard/messages'
@@ -473,6 +660,7 @@ export interface FileRouteTypes {
     | '/sell/dashboard/settings'
     | '/sell/dashboard/store'
     | '/sell/dashboard'
+    | '/blood/requests/$requestId/edit'
     | '/sell/dashboard/messages/$conversationId'
     | '/sell/dashboard/products/$productId'
     | '/sell/dashboard/products/new'
@@ -496,17 +684,33 @@ export interface FileRouteTypes {
     | '/orders'
     | '/reset-password'
     | '/wishlist'
+    | '/account_/basha'
+    | '/account_/blood'
+    | '/account_/preowned'
+    | '/basha/$listingId'
+    | '/basha/new'
+    | '/blood/donor'
     | '/campus/$campusSlug'
     | '/chat_/$conversationId'
+    | '/preowned/$listingId'
+    | '/preowned/new'
     | '/products/$productSlug'
     | '/sell/dashboard'
     | '/sell/login'
     | '/sell/register'
     | '/sell/status'
     | '/stores/$storeSlug'
+    | '/basha/'
+    | '/blood/'
+    | '/preowned/'
     | '/products/'
     | '/sell/'
     | '/stores/'
+    | '/basha/$listingId_/edit'
+    | '/blood/donors/$donorId'
+    | '/blood/requests/$requestId'
+    | '/blood/requests/new'
+    | '/preowned/$listingId_/edit'
     | '/sell/dashboard/earnings'
     | '/sell/dashboard/help'
     | '/sell/dashboard/messages'
@@ -516,6 +720,7 @@ export interface FileRouteTypes {
     | '/sell/dashboard/settings'
     | '/sell/dashboard/store'
     | '/sell/dashboard/'
+    | '/blood/requests/$requestId_/edit'
     | '/sell/dashboard/messages_/$conversationId'
     | '/sell/dashboard/products/$productId'
     | '/sell/dashboard/products/new'
@@ -540,17 +745,34 @@ export interface RootRouteChildren {
   OrdersRoute: typeof OrdersRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   WishlistRoute: typeof WishlistRoute
+  AccountBashaRoute: typeof AccountBashaRoute
+  AccountBloodRoute: typeof AccountBloodRoute
+  AccountPreownedRoute: typeof AccountPreownedRoute
+  BashaListingIdRoute: typeof BashaListingIdRoute
+  BashaNewRoute: typeof BashaNewRoute
+  BloodDonorRoute: typeof BloodDonorRoute
   CampusCampusSlugRoute: typeof CampusCampusSlugRoute
   ChatConversationIdRoute: typeof ChatConversationIdRoute
+  PreownedListingIdRoute: typeof PreownedListingIdRoute
+  PreownedNewRoute: typeof PreownedNewRoute
   ProductsProductSlugRoute: typeof ProductsProductSlugRoute
   SellDashboardRoute: typeof SellDashboardRouteWithChildren
   SellLoginRoute: typeof SellLoginRoute
   SellRegisterRoute: typeof SellRegisterRoute
   SellStatusRoute: typeof SellStatusRoute
   StoresStoreSlugRoute: typeof StoresStoreSlugRoute
+  BashaIndexRoute: typeof BashaIndexRoute
+  BloodIndexRoute: typeof BloodIndexRoute
+  PreownedIndexRoute: typeof PreownedIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
   SellIndexRoute: typeof SellIndexRoute
   StoresIndexRoute: typeof StoresIndexRoute
+  BashaListingIdEditRoute: typeof BashaListingIdEditRoute
+  BloodDonorsDonorIdRoute: typeof BloodDonorsDonorIdRoute
+  BloodRequestsRequestIdRoute: typeof BloodRequestsRequestIdRoute
+  BloodRequestsNewRoute: typeof BloodRequestsNewRoute
+  PreownedListingIdEditRoute: typeof PreownedListingIdEditRoute
+  BloodRequestsRequestIdEditRoute: typeof BloodRequestsRequestIdEditRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -674,6 +896,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WishlistRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account_/basha': {
+      id: '/account_/basha'
+      path: '/account/basha'
+      fullPath: '/account/basha'
+      preLoaderRoute: typeof AccountBashaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account_/blood': {
+      id: '/account_/blood'
+      path: '/account/blood'
+      fullPath: '/account/blood'
+      preLoaderRoute: typeof AccountBloodRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account_/preowned': {
+      id: '/account_/preowned'
+      path: '/account/preowned'
+      fullPath: '/account/preowned'
+      preLoaderRoute: typeof AccountPreownedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/basha/': {
+      id: '/basha/'
+      path: '/basha'
+      fullPath: '/basha/'
+      preLoaderRoute: typeof BashaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/basha/$listingId': {
+      id: '/basha/$listingId'
+      path: '/basha/$listingId'
+      fullPath: '/basha/$listingId'
+      preLoaderRoute: typeof BashaListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/basha/new': {
+      id: '/basha/new'
+      path: '/basha/new'
+      fullPath: '/basha/new'
+      preLoaderRoute: typeof BashaNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blood/': {
+      id: '/blood/'
+      path: '/blood'
+      fullPath: '/blood/'
+      preLoaderRoute: typeof BloodIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blood/donor': {
+      id: '/blood/donor'
+      path: '/blood/donor'
+      fullPath: '/blood/donor'
+      preLoaderRoute: typeof BloodDonorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/campus/$campusSlug': {
       id: '/campus/$campusSlug'
       path: '/campus/$campusSlug'
@@ -686,6 +964,27 @@ declare module '@tanstack/react-router' {
       path: '/chat/$conversationId'
       fullPath: '/chat/$conversationId'
       preLoaderRoute: typeof ChatConversationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preowned/': {
+      id: '/preowned/'
+      path: '/preowned'
+      fullPath: '/preowned/'
+      preLoaderRoute: typeof PreownedIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preowned/$listingId': {
+      id: '/preowned/$listingId'
+      path: '/preowned/$listingId'
+      fullPath: '/preowned/$listingId'
+      preLoaderRoute: typeof PreownedListingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preowned/new': {
+      id: '/preowned/new'
+      path: '/preowned/new'
+      fullPath: '/preowned/new'
+      preLoaderRoute: typeof PreownedNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products/': {
@@ -751,6 +1050,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoresStoreSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/basha/$listingId_/edit': {
+      id: '/basha/$listingId_/edit'
+      path: '/basha/$listingId/edit'
+      fullPath: '/basha/$listingId/edit'
+      preLoaderRoute: typeof BashaListingIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blood/donors/$donorId': {
+      id: '/blood/donors/$donorId'
+      path: '/blood/donors/$donorId'
+      fullPath: '/blood/donors/$donorId'
+      preLoaderRoute: typeof BloodDonorsDonorIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blood/requests/$requestId': {
+      id: '/blood/requests/$requestId'
+      path: '/blood/requests/$requestId'
+      fullPath: '/blood/requests/$requestId'
+      preLoaderRoute: typeof BloodRequestsRequestIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blood/requests/new': {
+      id: '/blood/requests/new'
+      path: '/blood/requests/new'
+      fullPath: '/blood/requests/new'
+      preLoaderRoute: typeof BloodRequestsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preowned/$listingId_/edit': {
+      id: '/preowned/$listingId_/edit'
+      path: '/preowned/$listingId/edit'
+      fullPath: '/preowned/$listingId/edit'
+      preLoaderRoute: typeof PreownedListingIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sell/dashboard/': {
       id: '/sell/dashboard/'
       path: '/'
@@ -813,6 +1147,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/sell/dashboard/store'
       preLoaderRoute: typeof SellDashboardStoreRouteImport
       parentRoute: typeof SellDashboardRoute
+    }
+    '/blood/requests/$requestId_/edit': {
+      id: '/blood/requests/$requestId_/edit'
+      path: '/blood/requests/$requestId/edit'
+      fullPath: '/blood/requests/$requestId/edit'
+      preLoaderRoute: typeof BloodRequestsRequestIdEditRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/sell/dashboard/messages_/$conversationId': {
       id: '/sell/dashboard/messages_/$conversationId'
@@ -900,17 +1241,34 @@ const rootRouteChildren: RootRouteChildren = {
   OrdersRoute: OrdersRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   WishlistRoute: WishlistRoute,
+  AccountBashaRoute: AccountBashaRoute,
+  AccountBloodRoute: AccountBloodRoute,
+  AccountPreownedRoute: AccountPreownedRoute,
+  BashaListingIdRoute: BashaListingIdRoute,
+  BashaNewRoute: BashaNewRoute,
+  BloodDonorRoute: BloodDonorRoute,
   CampusCampusSlugRoute: CampusCampusSlugRoute,
   ChatConversationIdRoute: ChatConversationIdRoute,
+  PreownedListingIdRoute: PreownedListingIdRoute,
+  PreownedNewRoute: PreownedNewRoute,
   ProductsProductSlugRoute: ProductsProductSlugRoute,
   SellDashboardRoute: SellDashboardRouteWithChildren,
   SellLoginRoute: SellLoginRoute,
   SellRegisterRoute: SellRegisterRoute,
   SellStatusRoute: SellStatusRoute,
   StoresStoreSlugRoute: StoresStoreSlugRoute,
+  BashaIndexRoute: BashaIndexRoute,
+  BloodIndexRoute: BloodIndexRoute,
+  PreownedIndexRoute: PreownedIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
   SellIndexRoute: SellIndexRoute,
   StoresIndexRoute: StoresIndexRoute,
+  BashaListingIdEditRoute: BashaListingIdEditRoute,
+  BloodDonorsDonorIdRoute: BloodDonorsDonorIdRoute,
+  BloodRequestsRequestIdRoute: BloodRequestsRequestIdRoute,
+  BloodRequestsNewRoute: BloodRequestsNewRoute,
+  PreownedListingIdEditRoute: PreownedListingIdEditRoute,
+  BloodRequestsRequestIdEditRoute: BloodRequestsRequestIdEditRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

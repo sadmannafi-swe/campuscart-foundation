@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Eye, EyeOff, Loader2, Store } from "lucide-react";
 import { toast } from "sonner";
@@ -6,12 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient, authErrorMessage } from "@/lib/authClient";
+import { GoogleSignInButton, googleErrorMessage } from "@/components/auth/GoogleSignInButton";
 
 export const Route = createFileRoute("/sell/login")({
+  validateSearch: (search: Record<string, unknown>): { error?: string } =>
+    typeof search["error"] === "string" ? { error: search["error"].slice(0, 60) } : {},
   head: () => ({
     meta: [
       { title: "Seller Login — CampusCart" },
-      { name: "description", content: "Login to your CampusCart seller account and manage your university store." },
+      {
+        name: "description",
+        content: "Login to your CampusCart seller account and manage your university store.",
+      },
       { property: "og:title", content: "Seller Login — CampusCart" },
       { property: "og:description", content: "Login to your CampusCart seller account." },
       { name: "robots", content: "noindex" },
@@ -26,6 +32,12 @@ export default function SellerLogin() {
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
+  const { error: googleError } = Route.useSearch();
+
+  useEffect(() => {
+    const message = googleErrorMessage(googleError);
+    if (message) toast.error(message, { id: "google-sign-in" });
+  }, [googleError]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -60,11 +72,16 @@ export default function SellerLogin() {
           <span className="grid size-20 place-items-center rounded-3xl bg-primary-soft text-primary">
             <Store className="size-10" aria-hidden="true" />
           </span>
-          <h1 className="mt-4 text-xl font-extrabold">Welcome Back!</h1>
+          <h1 className="mt-4 text-xl font-semibold">Welcome Back!</h1>
           <p className="mt-1 text-sm text-muted-foreground">Login to your seller account</p>
         </div>
 
         <div className="card-surface mt-6 p-4 sm:p-6">
+          <GoogleSignInButton
+            callbackURL="/sell/status"
+            errorCallbackURL="/sell/login"
+            className="mb-5"
+          />
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="seller-email">Email</Label>

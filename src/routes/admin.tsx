@@ -8,6 +8,7 @@ import type { AdminApplication, AdminOrder, StoreOrderSummary } from "@shared/ty
 import { api, apiPost } from "@/lib/api";
 import { storeStatusMeta, useUniversities, type StoreStatus } from "@/lib/seller";
 import { cn } from "@/lib/utils";
+import { CampusModeration } from "@/components/admin/CampusModeration";
 import { useAuth } from "@/lib/auth";
 import { formatPrice } from "@/lib/format";
 import { orderStatusMeta, shortOrderId } from "@/lib/orders";
@@ -70,14 +71,20 @@ function AdminPage() {
       <div className="grid min-h-screen place-items-center px-4">
         <div className="card-surface max-w-sm p-6 text-center">
           <ShieldCheck className="mx-auto size-10 text-primary" aria-hidden="true" />
-          <h1 className="mt-3 text-base font-bold">Admin access only</h1>
+          <h1 className="mt-3 text-base font-semibold">Admin access only</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {user
               ? "Your account is not a CampusCart administrator."
               : "Log in with your CampusCart administrator account to continue."}
           </p>
           <Button asChild className="mt-4 w-full">
-            {user ? <Link to="/">Back to CampusCart</Link> : <Link to="/auth" search={{ mode: "login" }}>Log in</Link>}
+            {user ? (
+              <Link to="/">Back to CampusCart</Link>
+            ) : (
+              <Link to="/auth" search={{ mode: "login" }}>
+                Log in
+              </Link>
+            )}
           </Button>
         </div>
       </div>
@@ -123,7 +130,11 @@ function AdminConsole() {
       sellerId: string;
       status: StoreStatus;
       reason?: string | null;
-    }) => apiPost(`/admin/stores/${data.storeId}/status`, { status: data.status, reason: data.reason ?? null }),
+    }) =>
+      apiPost(`/admin/stores/${data.storeId}/status`, {
+        status: data.status,
+        reason: data.reason ?? null,
+      }),
     onSuccess: () => {
       toast.success("Application updated.");
       void queryClient.invalidateQueries({ queryKey: ["cc-admin-applications"] });
@@ -138,10 +149,9 @@ function AdminConsole() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto w-full max-w-3xl px-4 py-8">
-        <h1 className="text-xl font-extrabold">Seller Applications</h1>
+        <h1 className="text-xl font-semibold">Seller Applications</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Verify student sellers and control which stores are public in each university
-          marketplace.
+          Verify student sellers and control which stores are public in each university marketplace.
         </p>
 
         <div className="mt-5 flex gap-2 overflow-x-auto">
@@ -178,134 +188,165 @@ function AdminConsole() {
         )}
 
         <ul className="mt-5 space-y-3">
-          {visible.map(({ store, seller, studentId, studentIdImageUrl, logoUrl, universityName }) => {
-            const uni = universities.find((u) => u.slug === store.university_slug);
-            const meta = storeStatusMeta[store.status];
-            return (
-              <li key={store.id} className="card-surface p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <StoreLogo url={logoUrl} name={store.name} />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-bold">{store.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {universityName ?? uni?.name ?? store.university_slug} · {store.category}
-                      </p>
+          {visible.map(
+            ({ store, seller, studentId, studentIdImageUrl, logoUrl, universityName }) => {
+              const uni = universities.find((u) => u.slug === store.university_slug);
+              const meta = storeStatusMeta[store.status];
+              return (
+                <li key={store.id} className="card-surface p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <StoreLogo url={logoUrl} name={store.name} />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold">{store.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {universityName ?? uni?.name ?? store.university_slug} · {store.category}
+                        </p>
+                      </div>
                     </div>
+                    <span
+                      className={cn(
+                        "rounded-full px-2.5 py-1 text-xs font-semibold",
+                        meta.className,
+                      )}
+                    >
+                      {meta.label}
+                    </span>
                   </div>
-                  <span
-                    className={cn("rounded-full px-2.5 py-1 text-xs font-semibold", meta.className)}
-                  >
-                    {meta.label}
-                  </span>
-                </div>
 
-                <p className="mt-2 text-sm text-muted-foreground">{store.description}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{store.description}</p>
 
-                <dl className="mt-3 grid gap-2 rounded-xl bg-muted/60 p-3 text-xs sm:grid-cols-2">
-                  <Detail label="Seller" value={seller?.full_name ?? "—"} />
-                  <Detail label="Email" value={seller?.email ?? "—"} />
-                  <Detail label="Phone" value={seller?.phone ?? "—"} />
-                  <Detail label="Store contact" value={store.contact_number} />
-                  <Detail label="University" value={universityName ?? uni?.name ?? store.university_slug} />
-                  <Detail
-                    label="Applied on"
-                    value={new Date(store.created_at).toLocaleString("en-GB", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                  />
-                  <Detail label="Student ID (admin only)" value={studentId ?? "—"} />
-                  <Detail label="Department" value={seller?.department ?? "—"} />
-                  <Detail label="Batch" value={seller?.batch ?? "—"} />
-                </dl>
+                  <dl className="mt-3 grid gap-2 rounded-xl bg-muted/60 p-3 text-xs sm:grid-cols-2">
+                    <Detail label="Seller" value={seller?.full_name ?? "—"} />
+                    <Detail label="Email" value={seller?.email ?? "—"} />
+                    <Detail label="Phone" value={seller?.phone ?? "—"} />
+                    <Detail label="Store contact" value={store.contact_number} />
+                    <Detail
+                      label="University"
+                      value={universityName ?? uni?.name ?? store.university_slug}
+                    />
+                    <Detail
+                      label="Applied on"
+                      value={new Date(store.created_at).toLocaleString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    />
+                    <Detail label="Student ID (admin only)" value={studentId ?? "—"} />
+                    <Detail label="Department" value={seller?.department ?? "—"} />
+                    <Detail label="Batch" value={seller?.batch ?? "—"} />
+                  </dl>
 
-                {store.status === "approved" && (
-                  <FeatureBlock
-                    universities={universities}
-                    disabled={feature.isPending}
-                    onChange={(kind, id, universitySlug) => feature.mutate({ kind, id, universitySlug })}
-                    store={{ id: store.id, name: store.name, home: store.university_slug, featured: store.featured_university_slug }}
-                    products={featProducts.filter((p) => p.store_id === store.id)}
-                  />
-                )}
-
-                <StoreOrders
-                  summary={orderData?.summaries[store.id]}
-                  orders={orderData?.orders.filter((o) => o.order.store_id === store.id) ?? []}
-                />
-
-                {store.status === "rejected" && store.rejection_reason && (
-                  <p className="mt-2 text-xs text-destructive">Rejection reason: {store.rejection_reason}</p>
-                )}
-
-                <div className="mt-3">
-                  <p className="text-xs text-muted-foreground">Student ID photo (admin only)</p>
-                  {studentIdImageUrl ? (
-                    <a href={studentIdImageUrl} target="_blank" rel="noreferrer noopener">
-                      <img src={studentIdImageUrl} alt="Student ID" className="mt-1 max-h-48 rounded-xl border border-border object-contain" />
-                    </a>
-                  ) : (
-                    <p className="text-xs font-semibold">Not submitted</p>
-                  )}
-                </div>
-
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {store.status !== "approved" && (
-                    <Button
-                      size="sm"
-                      disabled={update.isPending}
-                      onClick={() =>
-                        update.mutate({
-                          storeId: store.id,
-                          sellerId: store.seller_id,
-                          status: "approved",
-                        })
-                      }
-                    >
-                      <CheckCircle2 className="mr-1.5 size-4" aria-hidden="true" />
-                      Approve
-                    </Button>
-                  )}
-                  {store.status !== "rejected" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={update.isPending}
-                      onClick={() => {
-                        const reason = window.prompt("Reason for rejection (shown to the seller)");
-                        if (reason === null) return;
-                        update.mutate({
-                          storeId: store.id,
-                          sellerId: store.seller_id,
-                          status: "rejected",
-                          reason: reason.trim() || null,
-                        });
-                      }}
-                    >
-                      <XCircle className="mr-1.5 size-4" aria-hidden="true" />
-                      Reject
-                    </Button>
-                  )}
                   {store.status === "approved" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={update.isPending}
-                      onClick={() =>
-                        update.mutate({
-                          storeId: store.id,
-                          sellerId: store.seller_id,
-                          status: "suspended",
-                        })
+                    <FeatureBlock
+                      universities={universities}
+                      disabled={feature.isPending}
+                      onChange={(kind, id, universitySlug) =>
+                        feature.mutate({ kind, id, universitySlug })
                       }
-                    >
-                      <EyeOff className="mr-1.5 size-4" aria-hidden="true" />
-                      Unpublish / Suspend
-                    </Button>
+                      store={{
+                        id: store.id,
+                        name: store.name,
+                        home: store.university_slug,
+                        featured: store.featured_university_slug,
+                      }}
+                      products={featProducts.filter((p) => p.store_id === store.id)}
+                    />
                   )}
-                </div>
-              </li>
-            );
-          })}
+
+                  <StoreOrders
+                    summary={orderData?.summaries[store.id]}
+                    orders={orderData?.orders.filter((o) => o.order.store_id === store.id) ?? []}
+                  />
+
+                  {store.status === "rejected" && store.rejection_reason && (
+                    <p className="mt-2 text-xs text-destructive">
+                      Rejection reason: {store.rejection_reason}
+                    </p>
+                  )}
+
+                  <div className="mt-3">
+                    <p className="text-xs text-muted-foreground">Student ID photo (admin only)</p>
+                    {studentIdImageUrl ? (
+                      <a href={studentIdImageUrl} target="_blank" rel="noreferrer noopener">
+                        <img
+                          src={studentIdImageUrl}
+                          alt="Student ID"
+                          className="mt-1 max-h-48 rounded-xl border border-border object-contain"
+                        />
+                      </a>
+                    ) : (
+                      <p className="text-xs font-semibold">Not submitted</p>
+                    )}
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {store.status !== "approved" && (
+                      <Button
+                        size="sm"
+                        disabled={update.isPending}
+                        onClick={() =>
+                          update.mutate({
+                            storeId: store.id,
+                            sellerId: store.seller_id,
+                            status: "approved",
+                          })
+                        }
+                      >
+                        <CheckCircle2 className="mr-1.5 size-4" aria-hidden="true" />
+                        Approve
+                      </Button>
+                    )}
+                    {store.status !== "rejected" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={update.isPending}
+                        onClick={() => {
+                          const reason = window.prompt(
+                            "Reason for rejection (shown to the seller)",
+                          );
+                          if (reason === null) return;
+                          update.mutate({
+                            storeId: store.id,
+                            sellerId: store.seller_id,
+                            status: "rejected",
+                            reason: reason.trim() || null,
+                          });
+                        }}
+                      >
+                        <XCircle className="mr-1.5 size-4" aria-hidden="true" />
+                        Reject
+                      </Button>
+                    )}
+                    {store.status === "approved" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={update.isPending}
+                        onClick={() =>
+                          update.mutate({
+                            storeId: store.id,
+                            sellerId: store.seller_id,
+                            status: "suspended",
+                          })
+                        }
+                      >
+                        <EyeOff className="mr-1.5 size-4" aria-hidden="true" />
+                        Unpublish / Suspend
+                      </Button>
+                    )}
+                  </div>
+                </li>
+              );
+            },
+          )}
         </ul>
+
+        <CampusModeration />
 
         <p className="mt-8 text-center text-xs text-muted-foreground">
           <Link to="/" className="hover:text-primary">
@@ -320,9 +361,14 @@ function AdminConsole() {
 function StoreLogo({ url, name }: { url: string | null; name: string }) {
   const img = useImageFallback(url);
   return img.showImage && url ? (
-    <img src={url} alt={`${name} logo`} onError={img.onError} className="size-12 shrink-0 rounded-xl border border-border object-cover" />
+    <img
+      src={url}
+      alt={`${name} logo`}
+      onError={img.onError}
+      className="size-12 shrink-0 rounded-xl border border-border object-cover"
+    />
   ) : (
-    <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary-soft text-sm font-bold text-primary">
+    <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary-soft text-sm font-semibold text-primary">
       {name.slice(0, 2).toUpperCase()}
     </span>
   );
@@ -337,30 +383,69 @@ function Detail({ label, value }: { label: string; value: string }) {
   );
 }
 
-function StoreOrders({ summary, orders }: { summary?: StoreOrderSummary | undefined; orders: AdminOrder[] }) {
-  const s = summary ?? { total: 0, pending: 0, confirmed: 0, processing: 0, shipped: 0, delivered: 0, cancelled: 0, deliveredSales: 0 };
+function StoreOrders({
+  summary,
+  orders,
+}: {
+  summary?: StoreOrderSummary | undefined;
+  orders: AdminOrder[];
+}) {
+  const s = summary ?? {
+    total: 0,
+    pending: 0,
+    confirmed: 0,
+    processing: 0,
+    shipped: 0,
+    delivered: 0,
+    cancelled: 0,
+    deliveredSales: 0,
+  };
   const cells: Array<[string, string | number]> = [
-    ["Total Orders", s.total], ["Pending", s.pending], ["Confirmed", s.confirmed], ["Processing", s.processing],
-    ["Shipped", s.shipped], ["Delivered", s.delivered], ["Cancelled", s.cancelled], ["Delivered Sales", formatPrice(s.deliveredSales)],
+    ["Total Orders", s.total],
+    ["Pending", s.pending],
+    ["Confirmed", s.confirmed],
+    ["Processing", s.processing],
+    ["Shipped", s.shipped],
+    ["Delivered", s.delivered],
+    ["Cancelled", s.cancelled],
+    ["Delivered Sales", formatPrice(s.deliveredSales)],
   ];
   return (
     <details className="mt-3 rounded-xl border border-border p-3 text-xs">
-      <summary className="cursor-pointer font-semibold">Orders ({s.total}) · Delivered sales {formatPrice(s.deliveredSales)}</summary>
+      <summary className="cursor-pointer font-semibold">
+        Orders ({s.total}) · Delivered sales {formatPrice(s.deliveredSales)}
+      </summary>
       <dl className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {cells.map(([k, v]) => <Detail key={k} label={k} value={String(v)} />)}
+        {cells.map(([k, v]) => (
+          <Detail key={k} label={k} value={String(v)} />
+        ))}
       </dl>
-      <p className="mt-1 text-[11px] text-muted-foreground">Delivered sales count product amounts only.</p>
+      <p className="mt-1 text-[11px] text-muted-foreground">
+        Delivered sales count product amounts only.
+      </p>
       {orders.length > 0 && (
         <ul className="mt-2 divide-y divide-border">
           {orders.map(({ order, items }) => (
             <li key={order.id} className="py-2">
               <div className="flex justify-between gap-2">
-                <span className="font-semibold">{shortOrderId(order.id)} · {order.customer_name} · {order.customer_phone}</span>
-                <span className={cn("rounded-full px-2 py-0.5 font-semibold", orderStatusMeta[order.status].className)}>{orderStatusMeta[order.status].label}</span>
+                <span className="font-semibold">
+                  {shortOrderId(order.id)} · {order.customer_name} · {order.customer_phone}
+                </span>
+                <span
+                  className={cn(
+                    "rounded-full px-2 py-0.5 font-semibold",
+                    orderStatusMeta[order.status].className,
+                  )}
+                >
+                  {orderStatusMeta[order.status].label}
+                </span>
               </div>
-              <p className="text-muted-foreground">{items.map((i) => `${i.product_name} ×${i.quantity}`).join(", ")}</p>
               <p className="text-muted-foreground">
-                {new Date(order.created_at).toLocaleDateString("en-GB")} · {order.university_slug.toUpperCase()} · Total {formatPrice(Number(order.subtotal))}
+                {items.map((i) => `${i.product_name} ×${i.quantity}`).join(", ")}
+              </p>
+              <p className="text-muted-foreground">
+                {new Date(order.created_at).toLocaleDateString("en-GB")} ·{" "}
+                {order.university_slug.toUpperCase()} · Total {formatPrice(Number(order.subtotal))}
               </p>
             </li>
           ))}
@@ -373,46 +458,110 @@ function StoreOrders({ summary, orders }: { summary?: StoreOrderSummary | undefi
 type FeatUni = { slug: string; short_name: string };
 type FeatItem = { id: string; name: string; home: string; featured: string | null };
 
-function FeatureRow({ kind, item, universities, disabled, onChange }: {
-  kind: "store" | "product"; item: FeatItem; universities: FeatUni[]; disabled: boolean;
+function FeatureRow({
+  kind,
+  item,
+  universities,
+  disabled,
+  onChange,
+}: {
+  kind: "store" | "product";
+  item: FeatItem;
+  universities: FeatUni[];
+  disabled: boolean;
   onChange: (kind: "store" | "product", id: string, slug: string | null) => void;
 }) {
   const [target, setTarget] = useState(item.featured ?? item.home);
   return (
     <div className="flex flex-wrap items-center gap-2 py-1.5">
       <span className="min-w-0 flex-1 truncate font-semibold">
-        {kind === "store" ? "Store: " : ""}{item.name}
-        {item.featured && <span className="ml-1.5 rounded-full bg-accent-soft px-2 py-0.5 text-accent">Featured · {item.featured.toUpperCase()}</span>}
+        {kind === "store" ? "Store: " : ""}
+        {item.name}
+        {item.featured && (
+          <span className="ml-1.5 rounded-full bg-accent-soft px-2 py-0.5 text-accent">
+            Featured · {item.featured.toUpperCase()}
+          </span>
+        )}
       </span>
-      <select value={target} onChange={(e) => setTarget(e.target.value)} className="h-8 rounded-lg border border-border bg-background px-2" aria-label="Target marketplace">
-        {universities.map((u) => <option key={u.slug} value={u.slug}>{u.short_name}</option>)}
+      <select
+        value={target}
+        onChange={(e) => setTarget(e.target.value)}
+        className="h-8 rounded-lg border border-border bg-background px-2"
+        aria-label="Target marketplace"
+      >
+        {universities.map((u) => (
+          <option key={u.slug} value={u.slug}>
+            {u.short_name}
+          </option>
+        ))}
       </select>
-      <Button size="sm" variant="outline" disabled={disabled} onClick={() => onChange(kind, item.id, target)}>
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={disabled}
+        onClick={() => onChange(kind, item.id, target)}
+      >
         {item.featured ? "Update" : "Feature"}
       </Button>
       {item.featured && (
-        <Button size="sm" variant="ghost" disabled={disabled} onClick={() => onChange(kind, item.id, null)}>Unfeature</Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          disabled={disabled}
+          onClick={() => onChange(kind, item.id, null)}
+        >
+          Unfeature
+        </Button>
       )}
     </div>
   );
 }
 
-function FeatureBlock({ store, products, universities, disabled, onChange }: {
+function FeatureBlock({
+  store,
+  products,
+  universities,
+  disabled,
+  onChange,
+}: {
   store: FeatItem;
-  products: Array<{ id: string; name: string; university_slug: string; featured_university_slug: string | null }>;
-  universities: FeatUni[]; disabled: boolean;
+  products: Array<{
+    id: string;
+    name: string;
+    university_slug: string;
+    featured_university_slug: string | null;
+  }>;
+  universities: FeatUni[];
+  disabled: boolean;
   onChange: (kind: "store" | "product", id: string, slug: string | null) => void;
 }) {
   return (
     <details className="mt-3 rounded-xl border border-border p-3 text-xs">
       <summary className="cursor-pointer font-semibold">Featured content</summary>
-      <FeatureRow kind="store" item={store} universities={universities} disabled={disabled} onChange={onChange} />
+      <FeatureRow
+        kind="store"
+        item={store}
+        universities={universities}
+        disabled={disabled}
+        onChange={onChange}
+      />
       {products.length === 0 ? (
         <p className="py-1 text-muted-foreground">No active products.</p>
       ) : (
         products.map((p) => (
-          <FeatureRow key={p.id} kind="product" universities={universities} disabled={disabled} onChange={onChange}
-            item={{ id: p.id, name: p.name, home: p.university_slug, featured: p.featured_university_slug }} />
+          <FeatureRow
+            key={p.id}
+            kind="product"
+            universities={universities}
+            disabled={disabled}
+            onChange={onChange}
+            item={{
+              id: p.id,
+              name: p.name,
+              home: p.university_slug,
+              featured: p.featured_university_slug,
+            }}
+          />
         ))
       )}
     </details>

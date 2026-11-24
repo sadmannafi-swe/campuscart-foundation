@@ -22,13 +22,27 @@ export const Route = createFileRoute("/stores/$storeSlug")({
     const store = getStoreBySlug(params.storeSlug);
     if (store) return { store, products: getProductsByStore(store.id), liveId: null };
     // seller-created stores are addressed by their id
-    if (UUID_RE.test(params.storeSlug)) return { store: null, products: [], liveId: params.storeSlug };
+    if (UUID_RE.test(params.storeSlug))
+      return { store: null, products: [], liveId: params.storeSlug };
     throw notFound();
   },
   head: ({ loaderData }) => {
     if (!loaderData || !loaderData.store) {
-      if (loaderData?.liveId) return { meta: [{ title: "Campus store — CampusCart" }, { name: "description", content: "A verified student store on CampusCart." }, { property: "og:title", content: "Campus store — CampusCart" }, { property: "og:description", content: "A verified student store on CampusCart." }] };
-      return { meta: [{ title: "Store unavailable — DIU CampusCart" }, { name: "robots", content: "noindex" }] };
+      if (loaderData?.liveId)
+        return {
+          meta: [
+            { title: "Campus store — CampusCart" },
+            { name: "description", content: "A verified student store on CampusCart." },
+            { property: "og:title", content: "Campus store — CampusCart" },
+            { property: "og:description", content: "A verified student store on CampusCart." },
+          ],
+        };
+      return {
+        meta: [
+          { title: "Store unavailable — DIU CampusCart" },
+          { name: "robots", content: "noindex" },
+        ],
+      };
     }
     const { store } = loaderData;
     return {
@@ -53,25 +67,55 @@ function LiveStorePage({ id }: { id: string }) {
   const { data: live = [] } = useLiveProducts();
   const { data: row, isLoading } = useLiveStore(id);
   if (isLoading) {
-    return <SiteLayout><div className="grid place-items-center py-20"><Loader2 className="size-6 animate-spin text-primary" /></div></SiteLayout>;
+    return (
+      <SiteLayout>
+        <div className="grid place-items-center py-20">
+          <Loader2 className="size-6 animate-spin text-primary" />
+        </div>
+      </SiteLayout>
+    );
   }
   if (!row) {
-    return <SiteLayout><div className="container-page py-8"><BackButton className="mb-3" /><EmptyState title="Store unavailable" description="This store isn't open on CampusCart right now." /></div></SiteLayout>;
+    return (
+      <SiteLayout>
+        <div className="container-page py-8">
+          <BackButton className="mb-3" />
+          <EmptyState
+            title="Store unavailable"
+            description="This store isn't open on CampusCart right now."
+          />
+        </div>
+      </SiteLayout>
+    );
   }
   const products = live.filter((p) => p.storeId === id);
   const store: Store = {
-    id: row.id, slug: row.id, name: row.name, categorySlug: row.category, categoryName: row.category,
-    description: row.description, rating: 0, reviewCount: 0, productCount: products.length, status: "open",
-    location: "On campus", responseTime: "Usually within a day",
-    joinedAt: new Date(row.created_at).toLocaleDateString("en-GB", { month: "short", year: "numeric" }),
-    verified: true, featured: false, accentFrom: "from-primary-soft", accentTo: "to-accent-soft",
+    id: row.id,
+    slug: row.id,
+    name: row.name,
+    categorySlug: row.category,
+    categoryName: row.category,
+    description: row.description,
+    rating: 0,
+    reviewCount: 0,
+    productCount: products.length,
+    status: "open",
+    location: "On campus",
+    responseTime: "Usually within a day",
+    joinedAt: new Date(row.created_at).toLocaleDateString("en-GB", {
+      month: "short",
+      year: "numeric",
+    }),
+    verified: true,
+    featured: false,
+    accentFrom: "from-primary-soft",
+    accentTo: "to-accent-soft",
     initials: row.name.slice(0, 2).toUpperCase(),
   };
   return <StoreView store={store} products={products} />;
 }
 
 function StoreView({ store, products }: { store: Store; products: Product[] }) {
-
   const info = [
     { icon: MapPin, label: "Location", value: store.location },
     { icon: Clock, label: "Response", value: store.responseTime },
@@ -84,21 +128,28 @@ function StoreView({ store, products }: { store: Store; products: Product[] }) {
       <div className="container-page py-8">
         <BackButton className="mb-3" />
         <PageBreadcrumb
-          items={[{ label: "Home", to: "/" }, { label: "Stores", to: "/stores" }, { label: store.name }]}
+          items={[
+            { label: "Home", to: "/" },
+            { label: "Stores", to: "/stores" },
+            { label: store.name },
+          ]}
         />
 
         <section className="card-surface overflow-hidden">
           <div className={cn("h-32 bg-gradient-to-r sm:h-44", store.accentFrom, store.accentTo)} />
           <div className="px-5 pb-6 sm:px-8">
             <div className="-mt-12 grid grid-cols-[auto_minmax(0,1fr)] items-end gap-4 sm:-mt-14">
-              <div className="grid size-24 shrink-0 place-items-center rounded-3xl border border-border bg-surface text-2xl font-extrabold text-primary shadow-sm sm:size-28">
+              <div className="grid size-24 shrink-0 place-items-center rounded-3xl border border-border bg-surface text-2xl font-semibold text-primary shadow-sm sm:size-28">
                 {store.initials}
               </div>
               <div className="min-w-0 pb-1">
-                <h1 className="flex items-center gap-2 text-xl font-extrabold sm:text-3xl">
+                <h1 className="flex items-center gap-2 text-xl font-semibold sm:text-3xl">
                   <span className="truncate">{store.name}</span>
                   {store.verified && (
-                    <BadgeCheck className="size-5 shrink-0 text-accent" aria-label="Verified store" />
+                    <BadgeCheck
+                      className="size-5 shrink-0 text-accent"
+                      aria-label="Verified store"
+                    />
                   )}
                 </h1>
                 <p className="text-sm text-muted-foreground">{store.categoryName}</p>
@@ -135,7 +186,7 @@ function StoreView({ store, products }: { store: Store; products: Product[] }) {
         </section>
 
         <section className="mt-10">
-          <h2 className="text-xl font-bold sm:text-2xl">Products from {store.name}</h2>
+          <h2 className="text-xl font-semibold sm:text-2xl">Products from {store.name}</h2>
           <div className="mt-5">
             {products.length === 0 ? (
               <EmptyState

@@ -1,5 +1,6 @@
+import { useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Heart } from "lucide-react";
+import { Heart, Plus } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/lib/types";
 import { getStoreById } from "@/data/marketplace";
@@ -8,25 +9,48 @@ import { CategoryIcon } from "@/components/common/CategoryIcon";
 import { categories } from "@/data/marketplace";
 import { cn } from "@/lib/utils";
 import { useImageFallback } from "@/lib/useImageFallback";
+import { cart } from "@/lib/cart";
+import { flyToCart, useTilt } from "@/lib/motion";
+
+/** Each category gets one quiet tint, so a photo-less listing still reads at a glance. */
+const categoryTint: Record<string, string> = {
+  textbooks: "bg-bloom-soft text-bloom-ink",
+  stationery: "bg-bloom-soft text-bloom-ink",
+  electronics: "bg-primary-soft text-primary",
+  services: "bg-primary-soft text-primary",
+  fashion: "bg-accent-soft text-accent",
+  sports: "bg-accent-soft text-accent",
+  food: "bg-secondary text-warning",
+  hostel: "bg-secondary text-muted-foreground",
+};
 
 export function ProductCard({ product, className }: { product: Product; className?: string }) {
   const store = getStoreById(product.storeId);
   const category = categories.find((c) => c.slug === product.categorySlug);
   const discount = discountPercent(product.price, product.originalPrice);
   const img = useImageFallback(product.image);
+  const [saved, setSaved] = useState(false);
+  const addRef = useRef<HTMLButtonElement>(null);
+  const tilt = useTilt<HTMLElement>(5);
+  const quickAdd = product.inStock && !(product.variants && product.variants.length > 0);
 
   return (
     <article
+      ref={tilt}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-xl border border-border bg-surface transition-shadow hover:shadow-[var(--shadow-card-hover)]",
+        "group relative flex flex-col overflow-hidden rounded-[16px] border border-border bg-surface transition-[transform,box-shadow,border-color] duration-300 ease-[var(--ease-bloom)] [transform:perspective(900px)_rotateX(var(--rx,0deg))_rotateY(var(--ry,0deg))] hover:[transform:perspective(900px)_rotateX(var(--rx,0deg))_rotateY(var(--ry,0deg))_translateY(-4px)] hover:border-foreground/15 hover:shadow-[var(--shadow-card-hover)]",
         className,
       )}
     >
+      {/* soft sheen that follows the pointer while the card tilts */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[1] opacity-0 transition-opacity duration-300 [background:radial-gradient(240px_circle_at_var(--gx,50%)_var(--gy,50%),rgb(255_255_255/0.22),transparent_60%)] group-hover:opacity-100"
+      />
       <div
         className={cn(
-          "grid aspect-4/3 place-items-center overflow-hidden bg-gradient-to-br",
-          product.accentFrom,
-          product.accentTo,
+          "relative grid aspect-4/3 place-items-center overflow-hidden",
+          categoryTint[product.categorySlug] ?? "bg-muted text-muted-foreground",
         )}
       >
         {img.showImage ? (
@@ -35,45 +59,77 @@ export function ProductCard({ product, className }: { product: Product; classNam
             alt={product.name}
             loading="lazy"
             onError={img.onError}
-            className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="size-full object-cover transition-transform duration-700 ease-[var(--ease-bloom)] group-hover:scale-[1.04]"
           />
         ) : (
-          <CategoryIcon
-            name={category?.icon ?? "Tag"}
-            className="size-8 text-primary/70 transition-transform duration-300 group-hover:scale-105"
-          />
+          <>
+            <span
+              className="absolute -right-6 -top-6 size-28 rounded-full border-[14px] border-current opacity-[0.07]"
+              aria-hidden="true"
+            />
+            <CategoryIcon
+              name={category?.icon ?? "Tag"}
+              className="size-10 stroke-[1.25] transition-transform duration-500 ease-[var(--ease-bloom)] group-hover:-rotate-6 group-hover:scale-110"
+            />
+          </>
         )}
-      </div>
 
-      <div className="absolute left-2 top-2 flex flex-col items-start gap-1">
-        {discount && (
-          <span className="rounded-md bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground">
-            -{discount}%
-          </span>
-        )}
-        {product.tags.includes("new") && !discount && (
-          <span className="rounded-md bg-accent px-1.5 py-0.5 text-[10px] font-bold text-accent-foreground">
-            New
-          </span>
-        )}
-        {!product.inStock && (
-          <span className="rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground">
-            Out of stock
-          </span>
+        <div className="absolute left-2.5 top-2.5 flex flex-col items-start gap-1">
+          {discount && (
+            <span className="rounded-[6px] bg-ink px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-ink-foreground">
+              −{discount}%
+            </span>
+          )}
+          {product.tags.includes("new") && !discount && (
+            <span className="rounded-[6px] bg-bloom px-1.5 py-0.5 text-[11px] font-semibold text-bloom-foreground">
+              New
+            </span>
+          )}
+          {!product.inStock && (
+            <span className="rounded-[6px] bg-surface/90 px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+              Out of stock
+            </span>
+          )}
+        </div>
+
+        {quickAdd && (
+          <button
+            ref={addRef}
+            type="button"
+            aria-label={`Add ${product.name} to cart`}
+            onClick={() => {
+              cart.add(product, 1);
+              flyToCart(addRef.current);
+              toast.success("Added to cart");
+            }}
+            className="absolute bottom-2.5 right-2.5 z-10 grid size-9 cursor-pointer place-items-center rounded-full bg-ink text-ink-foreground shadow-[0_6px_16px_oklch(0.22_0.05_265/20%)] transition-[transform,opacity,background-color] duration-300 ease-[var(--ease-bloom)] hover:bg-bloom hover:text-bloom-foreground active:scale-90 md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:focus-visible:translate-y-0 md:focus-visible:opacity-100"
+          >
+            <Plus className="size-4" aria-hidden="true" />
+          </button>
         )}
       </div>
 
       <button
         type="button"
         aria-label={`Add ${product.name} to wishlist`}
-        onClick={() => toast.success("Saved to your wishlist")}
-        className="absolute right-2 top-2 z-10 grid size-7 cursor-pointer place-items-center rounded-full bg-surface/90 text-muted-foreground shadow-sm transition-colors hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-pressed={saved}
+        onClick={() => {
+          setSaved(true);
+          toast.success("Saved to your wishlist");
+        }}
+        className="absolute right-2.5 top-2.5 z-10 grid size-8 cursor-pointer place-items-center rounded-full bg-surface/90 text-muted-foreground backdrop-blur-sm transition-[color,transform] duration-200 hover:text-destructive active:scale-90"
       >
-        <Heart className="size-3.5" aria-hidden="true" />
+        <Heart
+          className={cn(
+            "size-4 transition-transform duration-300",
+            saved && "animate-bump fill-destructive text-destructive",
+          )}
+          aria-hidden="true"
+        />
       </button>
 
-      <div className="flex flex-1 flex-col gap-1 p-2.5">
-        <h3 className="line-clamp-2 min-h-8 text-[13px] font-semibold leading-tight">
+      <div className="flex flex-1 flex-col gap-1.5 p-3">
+        <h3 className="line-clamp-2 min-h-10 text-sm font-medium leading-snug">
           <Link to="/products/$productSlug" params={{ productSlug: product.slug }}>
             <span className="absolute inset-0" aria-hidden="true" />
             {product.name}
@@ -81,19 +137,26 @@ export function ProductCard({ product, className }: { product: Product; classNam
         </h3>
 
         <div className="flex items-baseline gap-1.5">
-          <span className="price-lg text-sm text-foreground">{formatPrice(product.price)}</span>
+          <span className="price-lg text-base text-foreground">{formatPrice(product.price)}</span>
           {product.originalPrice && (
-            <span className="text-[11px] text-muted-foreground line-through">
+            <span className="text-xs tabular-nums text-muted-foreground line-through">
               {formatPrice(product.originalPrice)}
             </span>
           )}
         </div>
 
-        <div className="mt-auto flex items-center gap-1.5 pt-0.5 text-[11px] text-muted-foreground">
-          <span className="shrink-0 whitespace-nowrap font-semibold text-warning">
-            {product.reviewCount > 0 ? `★ ${product.rating.toFixed(1)}` : "New listing"}
+        <div className="mt-auto flex items-center gap-1.5 text-xs text-muted-foreground">
+          <span className="shrink-0 whitespace-nowrap">
+            {product.reviewCount > 0 ? (
+              <>
+                <span className="text-bloom-ink">★</span>{" "}
+                <span className="tabular-nums text-foreground">{product.rating.toFixed(1)}</span>
+              </>
+            ) : (
+              "New listing"
+            )}
           </span>
-          <span className="shrink-0 text-border">|</span>
+          <span className="shrink-0 text-foreground/20">·</span>
           <span className="truncate">{product.storeName ?? store?.name}</span>
         </div>
       </div>
