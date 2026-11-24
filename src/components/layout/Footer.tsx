@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
+import { Code2, Facebook, Instagram, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 
 const columns = [
@@ -88,6 +88,21 @@ export function Footer() {
           <p>© {new Date().getFullYear()} DIU CampusCart. Your Campus. Your Marketplace.</p>
           <p>Built for Daffodil International University students.</p>
         </div>
+      </div>
+
+      <div className="border-t border-border/60">
+        <p className="dev-credit container-page flex items-center justify-center gap-1.5 py-3.5 text-xs text-muted-foreground">
+          <Code2 className="dev-credit__mark size-3.5 text-primary" aria-hidden="true" />
+          <span>Developed by</span>
+          <a
+            href="https://sadmannafi.com"
+            target="_blank"
+            rel="noopener"
+            className="dev-credit__name rounded-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          >
+            Sadman Nahial Nafi
+          </a>
+        </p>
       </div>
     </footer>
   );
