@@ -147,6 +147,8 @@ export function zodMessage(err: ZodError): string {
 }
 
 export function errorHandler(err: unknown, _req: Request, res: Response, _next: NextFunction) {
+  // An error must never be cached, even if the route had already chosen a CDN cache header.
+  if (!res.headersSent) res.set("cache-control", "no-store");
   if (err instanceof HttpError) return res.status(err.status).json({ error: err.message });
   if (err instanceof ZodError) {
     return res.status(400).json({ error: zodMessage(err) });
@@ -172,3 +174,16 @@ export function marketplaceParam(value: unknown): string {
   return value;
 }
 export const uuid = z.string().uuid();
+
+/**
+ * Cache-Control for responses that are identical for every visitor (no cookies,
+ * no user data). Browsers always revalidate (max-age=0); Vercel's CDN may serve
+ * the response for 30 s and keep serving it for up to 60 s more while it fetches a
+ * fresh copy in the background. Everything else under /api stays `no-store`.
+ *
+ * Use it ONLY on GET routes that never read the session, cookies or the
+ * Authorization header, and whose output depends on nothing but the URL.
+ */
+export const PUBLIC_CDN_CACHE = "public, max-age=0, s-maxage=30, stale-while-revalidate=60";
+/** Same, for data that only changes with a deploy. */
+export const STATIC_CDN_CACHE = "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400";

@@ -1,4 +1,11 @@
-import { MongoClient, type Collection, type Db, type Document } from "mongodb";
+import { attachDatabasePool } from "@vercel/functions/db-connections";
+import {
+  MongoClient,
+  type Collection,
+  type Db,
+  type Document,
+  type IndexDescription,
+} from "mongodb";
 import type {
   BashaFacilities,
   BashaRoommate,
@@ -31,13 +38,28 @@ export function getMongoUri(): string {
   return uri;
 }
 
+/**
+ * Pool sizing for serverless: one instance serves many concurrent requests, and a
+ * query to Atlas in the same region takes a few milliseconds, so a small pool is
+ * plenty. Keeping it small (and closing idle sockets) keeps the total across all
+ * warm instances well under the cluster's connection limit (M0: 500).
+ */
+export const POOL_OPTIONS = {
+  maxPoolSize: 5,
+  minPoolSize: 0,
+  maxIdleTimeMS: 10_000,
+  waitQueueTimeoutMS: 10_000,
+  serverSelectionTimeoutMS: 8000,
+  appName: "campuscart",
+} as const;
+
 export function getClient(): MongoClient {
   if (!client) {
-    client = new MongoClient(getMongoUri(), {
-      maxPoolSize: 10,
-      serverSelectionTimeoutMS: 8000,
-      appName: "campuscart",
-    });
+    client = new MongoClient(getMongoUri(), POOL_OPTIONS);
+    // On Vercel (Fluid compute) keep the instance alive just long enough to close
+    // idle connections before it is suspended, so they don't pile up on Atlas.
+    // Outside Vercel this is a no-op.
+    attachDatabasePool(client);
   }
   return client;
 }
@@ -470,43 +492,98 @@ async function ensureValidators() {
 
 const INDEX_RETRY_MS = 60_000;
 
-/** Create indexes once per process (idempotent on the server). */
+type IndexSpec = { collection: string; key: IndexDescription["key"]; unique?: boolean };
+const ix = (collection: string, key: Record<string, 1 | -1>, unique?: boolean): IndexSpec => ({
+  collection,
+  key,
+  ...(unique ? { unique } : {}),
+});
+
+/** Every index the app relies on (core marketplace first, then the campus modules). */
+export const INDEX_SPECS: IndexSpec[] = [
+  ix("sellers", { user_id: 1 }, true),
+  ix("stores", { seller_id: 1 }, true),
+  ix("stores", { status: 1, university_slug: 1 }),
+  ix("products", { store_id: 1, created_at: -1 }),
+  ix("products", { is_active: 1, created_at: -1 }),
+  ix("orders", { buyer_id: 1, created_at: -1 }),
+  ix("orders", { seller_user_id: 1, created_at: -1 }),
+  ix("reviews", { order_id: 1, product_id: 1 }, true),
+  ix("reviews", { product_id: 1, created_at: -1 }),
+  ix("notifications", { user_id: 1, audience: 1, created_at: -1 }),
+  ix("conversations", { buyer_id: 1, product_id: 1 }, true),
+  ix("conversations", { seller_user_id: 1, last_message_at: -1 }),
+  ix("messages", { conversation_id: 1, created_at: 1 }),
+  ix("email_outbox", { kind: 1, order_id: 1 }, true),
+  ix("email_outbox", { status: 1, created_at: 1 }),
+  ix("preowned_listings", { university_slug: 1, moderation: 1, status: 1, created_at: -1 }),
+  ix("preowned_listings", { owner_id: 1, created_at: -1 }),
+  ix("blood_requests", { university_slug: 1, moderation: 1, status: 1, created_at: -1 }),
+  ix("blood_requests", { owner_id: 1, created_at: -1 }),
+  ix("donor_profiles", { owner_id: 1 }, true),
+  ix("donor_profiles", { university_slug: 1, moderation: 1, availability: 1, blood_group: 1 }),
+  ix("bashalagbe_listings", { university_slug: 1, moderation: 1, status: 1, created_at: -1 }),
+  ix("bashalagbe_listings", { owner_id: 1, created_at: -1 }),
+  ix("reports", { reporter_id: 1, target_type: 1, target_id: 1 }, true),
+  ix("reports", { status: 1, created_at: -1 }),
+];
+
+const keyOf = (key: unknown) => JSON.stringify(key);
+
+/**
+ * The indexes from INDEX_SPECS that don't exist yet. Reads only: one listIndexes
+ * per collection, all in parallel. A missing collection simply has none yet.
+ */
+export async function missingIndexes(): Promise<IndexSpec[]> {
+  const database = getDb();
+  const names = [...new Set(INDEX_SPECS.map((s) => s.collection))];
+  const existing = new Map<string, Set<string>>();
+  await Promise.all(
+    names.map(async (name) => {
+      try {
+        const list = await database.collection(name).listIndexes().toArray();
+        existing.set(name, new Set(list.map((i) => keyOf(i["key"]))));
+      } catch (err) {
+        // 26 = NamespaceNotFound: the collection doesn't exist yet.
+        if ((err as { code?: number }).code !== 26) throw err;
+        existing.set(name, new Set());
+      }
+    }),
+  );
+  return INDEX_SPECS.filter((s) => !existing.get(s.collection)?.has(keyOf(s.key)));
+}
+
+/** Module collections whose schema validator is missing or out of date. */
+async function validatorsNeeded(): Promise<boolean> {
+  const list = await getDb().listCollections({}, { nameOnly: false }).toArray();
+  const current = new Map(
+    list.map((c) => [c.name, (c as { options?: { validator?: unknown } }).options?.validator]),
+  );
+  return Object.entries(validators).some(
+    ([name, v]) => !current.has(name) || !sameValidator(current.get(name), v),
+  );
+}
+
+/**
+ * Makes sure the indexes exist, once per process. On a database that is already
+ * set up this costs two parallel rounds of reads (listCollections + listIndexes)
+ * and writes nothing; it only creates what is missing (a new database, or an
+ * index added in a later release). createIndex is idempotent on the server, so
+ * two instances racing here is harmless.
+ */
 export function ensureIndexes(): Promise<void> {
   indexesReady ??= (async () => {
-    await Promise.all([
-      col.sellers().createIndex({ user_id: 1 }, { unique: true }),
-      col.stores().createIndex({ seller_id: 1 }, { unique: true }),
-      col.stores().createIndex({ status: 1, university_slug: 1 }),
-      col.products().createIndex({ store_id: 1, created_at: -1 }),
-      col.products().createIndex({ is_active: 1, created_at: -1 }),
-      col.orders().createIndex({ buyer_id: 1, created_at: -1 }),
-      col.orders().createIndex({ seller_user_id: 1, created_at: -1 }),
-      col.reviews().createIndex({ order_id: 1, product_id: 1 }, { unique: true }),
-      col.reviews().createIndex({ product_id: 1, created_at: -1 }),
-      col.notifications().createIndex({ user_id: 1, audience: 1, created_at: -1 }),
-      col.conversations().createIndex({ buyer_id: 1, product_id: 1 }, { unique: true }),
-      col.conversations().createIndex({ seller_user_id: 1, last_message_at: -1 }),
-      col.messages().createIndex({ conversation_id: 1, created_at: 1 }),
-      col.emailOutbox().createIndex({ kind: 1, order_id: 1 }, { unique: true }),
-      col.emailOutbox().createIndex({ status: 1, created_at: 1 }),
-    ]);
-    await ensureValidators();
-    await Promise.all([
-      col.preowned().createIndex({ university_slug: 1, moderation: 1, status: 1, created_at: -1 }),
-      col.preowned().createIndex({ owner_id: 1, created_at: -1 }),
-      col
-        .bloodRequests()
-        .createIndex({ university_slug: 1, moderation: 1, status: 1, created_at: -1 }),
-      col.bloodRequests().createIndex({ owner_id: 1, created_at: -1 }),
-      col.donors().createIndex({ owner_id: 1 }, { unique: true }),
-      col
-        .donors()
-        .createIndex({ university_slug: 1, moderation: 1, availability: 1, blood_group: 1 }),
-      col.basha().createIndex({ university_slug: 1, moderation: 1, status: 1, created_at: -1 }),
-      col.basha().createIndex({ owner_id: 1, created_at: -1 }),
-      col.reports().createIndex({ reporter_id: 1, target_type: 1, target_id: 1 }, { unique: true }),
-      col.reports().createIndex({ status: 1, created_at: -1 }),
-    ]);
+    const [missing, needValidators] = await Promise.all([missingIndexes(), validatorsNeeded()]);
+    // Validators go first so a new module collection is created with its validator
+    // (createIndex would otherwise create it without one).
+    if (needValidators) await ensureValidators();
+    await Promise.all(
+      missing.map((s) =>
+        getDb()
+          .collection(s.collection)
+          .createIndex(s.key, s.unique ? { unique: true } : {}),
+      ),
+    );
   })().catch((err) => {
     // Retry on a later request, but not on every request while the cause persists.
     setTimeout(() => (indexesReady = undefined), INDEX_RETRY_MS).unref?.();
