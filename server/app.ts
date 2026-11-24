@@ -82,7 +82,13 @@ export function createApp() {
     if (!process.env["MONGODB_URI"]) {
       return res.status(503).json({ error: "Service is not configured yet (database missing)." });
     }
-    await ensureIndexes();
+    // Indexes are set-up work: if they can't be created (permissions, a transient
+    // Atlas error) the request must still be served, never answered with a 500.
+    try {
+      await ensureIndexes();
+    } catch (err) {
+      console.error("[db] ensureIndexes failed; serving the request anyway:", err);
+    }
     return next();
   });
 
