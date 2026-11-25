@@ -79,6 +79,18 @@ function SellerPaymentsPage() {
               </div>
             </div>
           )}
+          {data.methods.length === 0 && (
+            <div
+              role="status"
+              className="rounded-2xl border border-warning/40 bg-warning/10 p-4 text-sm"
+            >
+              <p className="font-semibold">Payments are paused for a moment</p>
+              <p className="mt-0.5 text-foreground/80">
+                CampusCart hasn't switched on its bKash/Nagad numbers yet, so payments can't be
+                submitted right now. Your requests are kept — come back soon and tap Pay.
+              </p>
+            </div>
+          )}
           <PlatformFeeSection data={data} onPay={setTarget} />
           <PromotionsSection data={data} onPay={setTarget} />
           <HistorySection data={data} />

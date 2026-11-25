@@ -89,6 +89,11 @@ function PaymentsAdmin() {
   const [storeId, setStoreId] = useState<string | null>(null);
   const { data: overview } = useAdminPaymentsOverview();
   const { runBilling } = useAdminPaymentActions();
+  const { data: config } = useAdminPaymentConfig();
+  const noMethods =
+    !!config &&
+    !(config.bkash_enabled && config.bkash_number) &&
+    !(config.nagad_enabled && config.nagad_number);
   const tabs: Array<{ id: Tab; label: string }> = [
     {
       id: "pending",
@@ -134,6 +139,20 @@ function PaymentsAdmin() {
             Run billing check
           </Button>
         </div>
+
+        {noMethods && (
+          <button
+            type="button"
+            onClick={() => setTab("config")}
+            className="mt-4 flex w-full items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-left text-sm text-destructive"
+          >
+            <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+            <span>
+              <span className="font-semibold">Sellers can't pay right now.</span> No bKash or Nagad
+              number is switched on. Open bKash / Nagad, switch a number on and Save.
+            </span>
+          </button>
+        )}
 
         <div role="tablist" className="mt-5 flex gap-2 overflow-x-auto pb-1">
           {tabs.map((t) => (
@@ -1028,50 +1047,114 @@ function ConfigPanel() {
       });
   }, [data]);
   if (isLoading) return <Loader2 className="mx-auto my-10 size-5 animate-spin text-primary" />;
-  const row = (key: "bkash" | "nagad", label: string) => (
-    <div className="card-surface p-4">
-      <div className="flex items-center justify-between gap-3">
+  const label = { bkash: "bKash", nagad: "Nagad" } as const;
+  // What sellers see right now (from the saved settings, not the unsaved form).
+  const live = (["bkash", "nagad"] as const).filter(
+    (k) => data?.[`${k}_enabled`] && data?.[`${k}_number`],
+  );
+  const dirty =
+    !!data &&
+    (form.bkash_number !== data.bkash_number ||
+      form.nagad_number !== data.nagad_number ||
+      form.bkash_enabled !== data.bkash_enabled ||
+      form.nagad_enabled !== data.nagad_enabled);
+  const row = (key: "bkash" | "nagad") => {
+    const on = form[`${key}_enabled`];
+    const number = form[`${key}_number`].trim();
+    return (
+      <div className="card-surface p-4">
         <Label htmlFor={`${key}-num`} className="text-sm font-semibold">
-          {label} personal number
+          {label[key]} personal number
         </Label>
-        <label className="flex items-center gap-2 text-xs text-muted-foreground">
-          {form[`${key}_enabled`] ? "Enabled" : "Disabled"}
+        <Input
+          id={`${key}-num`}
+          inputMode="tel"
+          placeholder="01XXXXXXXXX"
+          value={form[`${key}_number`]}
+          onChange={(e) => {
+            const v = e.target.value;
+            setForm((f) => {
+              const had = f[`${key}_number`].trim() !== "";
+              const has = v.trim() !== "";
+              // Adding a number switches the method on; clearing it switches it off.
+              const enabled = !had && has ? true : had && !has ? false : f[`${key}_enabled`];
+              return { ...f, [`${key}_number`]: v, [`${key}_enabled`]: enabled };
+            });
+          }}
+          className="mt-2 font-mono text-base"
+        />
+        <label
+          className={cn(
+            "mt-3 flex items-center justify-between gap-3 rounded-xl px-3 py-2 text-sm",
+            on ? "bg-accent-soft text-accent" : "bg-muted text-muted-foreground",
+          )}
+        >
+          <span className="font-medium">
+            Sellers can pay with {label[key]}: {on ? "On" : "Off"}
+          </span>
           <Switch
-            checked={form[`${key}_enabled`]}
+            checked={on}
+            aria-label={`Sellers can pay with ${label[key]}`}
             onCheckedChange={(v) => setForm((f) => ({ ...f, [`${key}_enabled`]: v }))}
           />
         </label>
+        {number && !on && (
+          <p className="mt-2 flex items-start gap-1.5 text-xs text-destructive">
+            <AlertTriangle className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
+            Switched off — sellers can't see this number or pay with {label[key]}.
+          </p>
+        )}
       </div>
-      <Input
-        id={`${key}-num`}
-        inputMode="tel"
-        placeholder="01XXXXXXXXX"
-        value={form[`${key}_number`]}
-        onChange={(e) => setForm((f) => ({ ...f, [`${key}_number`]: e.target.value }))}
-        className="mt-2 font-mono text-base"
-      />
-    </div>
-  );
+    );
+  };
   return (
     <div className="max-w-lg space-y-3">
-      <p className="text-sm text-muted-foreground">
-        Sellers see only enabled methods, on their payment page. Buyers never see these numbers.
+      <div
+        className={cn(
+          "rounded-xl p-3 text-sm",
+          live.length ? "bg-accent-soft text-accent" : "bg-destructive/10 text-destructive",
+        )}
+      >
+        {live.length ? (
+          <>
+            <span className="font-semibold">Sellers can pay with: </span>
+            {live.map((k) => `${label[k]} (${data?.[`${k}_number`]})`).join(" and ")}
+          </>
+        ) : (
+          <span className="font-semibold">
+            Sellers can't pay yet — add a number and switch it on, then Save.
+          </span>
+        )}
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Only methods that are switched on appear on sellers' payment pages. Buyers never see these
+        numbers.
       </p>
-      {row("bkash", "bKash")}
-      {row("nagad", "Nagad")}
-      <div className="flex items-center gap-3">
+      {row("bkash")}
+      {row("nagad")}
+      <div className="flex flex-wrap items-center gap-3">
         <Button
-          disabled={saveConfig.isPending}
+          disabled={saveConfig.isPending || !dirty}
           onClick={() =>
             saveConfig.mutate(form, {
-              onSuccess: () => toast.success("Payment numbers saved."),
+              onSuccess: () => {
+                const on = (["bkash", "nagad"] as const).filter(
+                  (k) => form[`${k}_enabled`] && form[`${k}_number`].trim(),
+                );
+                if (on.length)
+                  toast.success(
+                    `Saved. Sellers can now pay with ${on.map((k) => label[k]).join(" and ")}.`,
+                  );
+                else toast.warning("Saved, but no method is switched on — sellers can't pay.");
+              },
               onError: (e) => toast.error(errMsg(e, "Could not save.")),
             })
           }
         >
           {saveConfig.isPending && <Loader2 className="size-4 animate-spin" />} Save
         </Button>
-        {data?.updated_at && (
+        {dirty && <span className="text-xs text-warning-foreground">Unsaved changes</span>}
+        {data?.updated_at && !dirty && (
           <span className="text-xs text-muted-foreground">
             Last changed {dhakaDateTime(data.updated_at)}
           </span>
