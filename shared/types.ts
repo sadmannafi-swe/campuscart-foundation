@@ -62,8 +62,16 @@ export interface Store {
   rejection_reason: string | null;
   approved_at: string | null;
   featured_university_slug: string | null;
+  /** Set while the store is unpublished only because a platform fee is overdue. */
+  fee_suspension?: FeeSuspension | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface FeeSuspension {
+  previous_status: StoreStatus;
+  invoice_ids: string[];
+  suspended_at: string;
 }
 
 export interface SellerProduct {
@@ -524,4 +532,222 @@ export interface AdminModuleRow {
   university_slug: string;
   open_reports: number;
   created_at: string;
+}
+
+// ---- Seller payments: platform fee, featured promotions, admin verification ----------
+
+/** Platform fee: 5% of delivered sales. Billing starts with January 2027 (Dhaka time). */
+export const PLATFORM_FEE_PERCENT = 5;
+export const BILLING_START_MONTH = "2027-01";
+export const BILLING_TIMEZONE = "Asia/Dhaka";
+
+export type PromotionPackageId = "starter" | "growth" | "premium" | "business";
+export interface PromotionPackage {
+  id: PromotionPackageId;
+  name: string;
+  days: number;
+  price: number;
+  max_products: number;
+}
+export const PROMOTION_PACKAGES: PromotionPackage[] = [
+  { id: "starter", name: "Starter Boost", days: 3, price: 39, max_products: 3 },
+  { id: "growth", name: "Growth Boost", days: 7, price: 79, max_products: 7 },
+  { id: "premium", name: "Premium Boost", days: 15, price: 149, max_products: 15 },
+  { id: "business", name: "Business Boost", days: 30, price: 249, max_products: 30 },
+];
+
+export type PaymentMethod = "bkash" | "nagad";
+export type PaymentType = "platform_fee" | "promotion";
+/** Stored invoice state; "overdue" is reported separately (unpaid after the deadline). */
+export type InvoiceStatus = "pending" | "submitted" | "rejected" | "paid" | "not_due" | "waived";
+/** What the dashboards show: the stored state, with overdue/not-due resolved. */
+export type PaymentDisplayStatus =
+  "not_due" | "pending" | "submitted" | "paid" | "overdue" | "rejected" | "waived";
+export type SubmissionStatus = "pending_verification" | "confirmed" | "rejected";
+export type PromotionStatus =
+  | "awaiting_payment"
+  | "payment_submitted"
+  | "payment_rejected"
+  | "active"
+  | "expired"
+  | "cancelled";
+
+export interface PlatformInvoice {
+  id: string;
+  store_id: string;
+  billing_month: string; // YYYY-MM (Dhaka)
+  period_start: string; // ISO, inclusive
+  period_end: string; // ISO, exclusive
+  eligible_sales: number;
+  order_count: number;
+  commission_percent: number;
+  fee: number;
+  due_at: string; // ISO: end of the 10th of the next month, Dhaka
+  status: InvoiceStatus;
+  display_status: PaymentDisplayStatus;
+  overdue: boolean;
+  paid_amount: number | null;
+  paid_at: string | null;
+  payment_submission_id: string | null;
+  created_at: string;
+}
+
+export interface SellerPromotion {
+  id: string;
+  package_id: PromotionPackageId;
+  package_name: string;
+  price: number;
+  duration_days: number;
+  duration_hours: number;
+  product_ids: string[];
+  products: { id: string; name: string }[];
+  status: PromotionStatus;
+  /** "scheduled" = approved, starts when the store's current promotion ends. */
+  live_state: "not_started" | "scheduled" | "live" | "ended";
+  starts_at: string | null;
+  expires_at: string | null;
+  created_at: string;
+}
+
+/** A seller's own view of a payment they submitted (no admin notes or ids). */
+export interface SellerPaymentSubmission {
+  id: string;
+  type: PaymentType;
+  label: string;
+  invoice_id: string | null;
+  promotion_id: string | null;
+  method: PaymentMethod;
+  sender_phone: string;
+  receiver_number: string;
+  trx_id: string;
+  expected_amount: number;
+  submitted_amount: number;
+  status: SubmissionStatus;
+  rejection_reason: string | null;
+  submitted_at: string;
+  verified_at: string | null;
+}
+
+export interface PaymentMethodOption {
+  method: PaymentMethod;
+  number: string;
+}
+
+export interface SellerPaymentsOverview {
+  store_status: StoreStatus;
+  fee_suspended: boolean;
+  billing_starts: string; // YYYY-MM
+  current_month: {
+    month: string;
+    period_start: string | null; // null while before billing starts
+    sales: number;
+    estimated_fee: number;
+    billable: boolean;
+  };
+  invoices: PlatformInvoice[];
+  methods: PaymentMethodOption[];
+  packages: PromotionPackage[];
+  promotions: SellerPromotion[];
+  submissions: SellerPaymentSubmission[];
+}
+
+export interface AdminPaymentSubmission extends SellerPaymentSubmission {
+  store_id: string;
+  store_name: string;
+  seller_id: string;
+  seller_name: string;
+  seller_email: string;
+  billing_month: string | null;
+  package_id: PromotionPackageId | null;
+  package_name: string | null;
+  products: { id: string; name: string }[];
+  amount_difference: number;
+  verified_amount: number | null;
+  verified_by: string | null;
+  admin_note: string | null;
+}
+
+export interface AdminPromotion extends SellerPromotion {
+  store_id: string;
+  store_name: string;
+  approved_by: string | null;
+  approved_at: string | null;
+}
+
+export interface AdminStorePaymentRow {
+  store_id: string;
+  store_name: string;
+  seller_name: string;
+  seller_email: string;
+  university_slug: string;
+  store_created_at: string;
+  store_status: StoreStatus;
+  fee_suspended: boolean;
+  current_month_sales: number;
+  previous_month: string;
+  previous_month_sales: number;
+  previous_month_fee: number;
+  payment_status: PaymentDisplayStatus;
+  last_payment_at: string | null;
+  has_pending_submission: boolean;
+  active_promotion: { package_name: string; expires_at: string } | null;
+}
+
+export interface AdminPaymentsOverview {
+  now: string;
+  current_month: string;
+  previous_month: string;
+  stores: AdminStorePaymentRow[];
+  pending_count: number;
+}
+
+export interface MonthlySales {
+  month: string;
+  period_start: string | null;
+  period_end: string;
+  billable: boolean;
+  eligible_sales: number;
+  order_count: number;
+  fee: number;
+  invoice: PlatformInvoice | null;
+}
+
+export interface PaymentAuditEntry {
+  id: string;
+  actor_id: string;
+  actor_name: string;
+  store_id: string | null;
+  target_type: "invoice" | "submission" | "promotion" | "store" | "config";
+  target_id: string | null;
+  action: string;
+  previous_status: string | null;
+  new_status: string | null;
+  note: string | null;
+  created_at: string;
+}
+
+export interface AdminStorePayments {
+  store: {
+    id: string;
+    name: string;
+    status: StoreStatus;
+    fee_suspended: boolean;
+    created_at: string;
+    university_slug: string;
+  };
+  seller: { id: string; name: string; email: string; phone: string };
+  months: MonthlySales[];
+  invoices: PlatformInvoice[];
+  submissions: AdminPaymentSubmission[];
+  promotions: AdminPromotion[];
+  audit: PaymentAuditEntry[];
+}
+
+export interface PaymentConfig {
+  bkash_number: string;
+  nagad_number: string;
+  bkash_enabled: boolean;
+  nagad_enabled: boolean;
+  updated_by: string | null;
+  updated_at: string | null;
 }

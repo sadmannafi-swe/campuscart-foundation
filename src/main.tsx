@@ -19,6 +19,15 @@ const router = createRouter({
   defaultViewTransition: true,
 });
 
+// A navigation that starts while the previous page's cross-fade is still running (a
+// redirect, a quick double tap) makes the browser skip that animation and reject its
+// promise. Nothing is wrong — the new page still shows — so don't report it as an error.
+window.addEventListener("unhandledrejection", (e) => {
+  const r = e.reason as { name?: string; message?: string } | null;
+  if (r?.name === "AbortError" && /Transition was skipped/.test(r.message ?? ""))
+    e.preventDefault();
+});
+
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;

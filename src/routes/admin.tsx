@@ -150,6 +150,18 @@ function AdminConsole() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto w-full max-w-3xl px-4 py-8">
+        <Link
+          to="/admin/payments"
+          className="card-surface mb-6 flex items-center justify-between gap-3 p-4 transition-shadow hover:shadow-[var(--shadow-card-hover)]"
+        >
+          <span>
+            <span className="block text-sm font-semibold">Payment Management</span>
+            <span className="block text-xs text-muted-foreground">
+              Platform fees, featured promotions, bKash/Nagad verification
+            </span>
+          </span>
+          <span className="text-sm font-medium text-primary">Open →</span>
+        </Link>
         <EventManager />
 
         <h1 className="text-xl font-semibold">Seller Applications</h1>

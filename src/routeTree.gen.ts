@@ -28,6 +28,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AccountBashaRouteImport } from './routes/account_.basha'
 import { Route as AccountBloodRouteImport } from './routes/account_.blood'
 import { Route as AccountPreownedRouteImport } from './routes/account_.preowned'
+import { Route as AdminPaymentsRouteImport } from './routes/admin_.payments'
 import { Route as BashaIndexRouteImport } from './routes/basha.index'
 import { Route as BashaListingIdRouteImport } from './routes/basha.$listingId'
 import { Route as BashaNewRouteImport } from './routes/basha.new'
@@ -59,6 +60,7 @@ import { Route as SellDashboardHelpRouteImport } from './routes/sell.dashboard.h
 import { Route as SellDashboardMessagesRouteImport } from './routes/sell.dashboard.messages'
 import { Route as SellDashboardNotificationsRouteImport } from './routes/sell.dashboard.notifications'
 import { Route as SellDashboardOrdersRouteImport } from './routes/sell.dashboard.orders'
+import { Route as SellDashboardPaymentsRouteImport } from './routes/sell.dashboard.payments'
 import { Route as SellDashboardReviewsRouteImport } from './routes/sell.dashboard.reviews'
 import { Route as SellDashboardSettingsRouteImport } from './routes/sell.dashboard.settings'
 import { Route as SellDashboardStoreRouteImport } from './routes/sell.dashboard.store'
@@ -161,6 +163,11 @@ const AccountBloodRoute = AccountBloodRouteImport.update({
 const AccountPreownedRoute = AccountPreownedRouteImport.update({
   id: '/account_/preowned',
   path: '/account/preowned',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
+  id: '/admin_/payments',
+  path: '/admin/payments',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BashaIndexRoute = BashaIndexRouteImport.update({
@@ -319,6 +326,11 @@ const SellDashboardOrdersRoute = SellDashboardOrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => SellDashboardRoute,
 } as any)
+const SellDashboardPaymentsRoute = SellDashboardPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => SellDashboardRoute,
+} as any)
 const SellDashboardReviewsRoute = SellDashboardReviewsRouteImport.update({
   id: '/reviews',
   path: '/reviews',
@@ -385,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/account/basha': typeof AccountBashaRoute
   '/account/blood': typeof AccountBloodRoute
   '/account/preowned': typeof AccountPreownedRoute
+  '/admin/payments': typeof AdminPaymentsRoute
   '/basha/$listingId': typeof BashaListingIdRoute
   '/basha/new': typeof BashaNewRoute
   '/blood/donor': typeof BloodDonorRoute
@@ -415,6 +428,7 @@ export interface FileRoutesByFullPath {
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
   '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
+  '/sell/dashboard/payments': typeof SellDashboardPaymentsRoute
   '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
   '/sell/dashboard/settings': typeof SellDashboardSettingsRoute
   '/sell/dashboard/store': typeof SellDashboardStoreRoute
@@ -445,6 +459,7 @@ export interface FileRoutesByTo {
   '/account/basha': typeof AccountBashaRoute
   '/account/blood': typeof AccountBloodRoute
   '/account/preowned': typeof AccountPreownedRoute
+  '/admin/payments': typeof AdminPaymentsRoute
   '/basha/$listingId': typeof BashaListingIdRoute
   '/basha/new': typeof BashaNewRoute
   '/blood/donor': typeof BloodDonorRoute
@@ -474,6 +489,7 @@ export interface FileRoutesByTo {
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
   '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
+  '/sell/dashboard/payments': typeof SellDashboardPaymentsRoute
   '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
   '/sell/dashboard/settings': typeof SellDashboardSettingsRoute
   '/sell/dashboard/store': typeof SellDashboardStoreRoute
@@ -505,6 +521,7 @@ export interface FileRoutesById {
   '/account_/basha': typeof AccountBashaRoute
   '/account_/blood': typeof AccountBloodRoute
   '/account_/preowned': typeof AccountPreownedRoute
+  '/admin_/payments': typeof AdminPaymentsRoute
   '/basha/$listingId': typeof BashaListingIdRoute
   '/basha/new': typeof BashaNewRoute
   '/blood/donor': typeof BloodDonorRoute
@@ -535,6 +552,7 @@ export interface FileRoutesById {
   '/sell/dashboard/messages': typeof SellDashboardMessagesRoute
   '/sell/dashboard/notifications': typeof SellDashboardNotificationsRoute
   '/sell/dashboard/orders': typeof SellDashboardOrdersRoute
+  '/sell/dashboard/payments': typeof SellDashboardPaymentsRoute
   '/sell/dashboard/reviews': typeof SellDashboardReviewsRoute
   '/sell/dashboard/settings': typeof SellDashboardSettingsRoute
   '/sell/dashboard/store': typeof SellDashboardStoreRoute
@@ -567,6 +585,7 @@ export interface FileRouteTypes {
     | '/account/basha'
     | '/account/blood'
     | '/account/preowned'
+    | '/admin/payments'
     | '/basha/$listingId'
     | '/basha/new'
     | '/blood/donor'
@@ -597,6 +616,7 @@ export interface FileRouteTypes {
     | '/sell/dashboard/messages'
     | '/sell/dashboard/notifications'
     | '/sell/dashboard/orders'
+    | '/sell/dashboard/payments'
     | '/sell/dashboard/reviews'
     | '/sell/dashboard/settings'
     | '/sell/dashboard/store'
@@ -627,6 +647,7 @@ export interface FileRouteTypes {
     | '/account/basha'
     | '/account/blood'
     | '/account/preowned'
+    | '/admin/payments'
     | '/basha/$listingId'
     | '/basha/new'
     | '/blood/donor'
@@ -656,6 +677,7 @@ export interface FileRouteTypes {
     | '/sell/dashboard/messages'
     | '/sell/dashboard/notifications'
     | '/sell/dashboard/orders'
+    | '/sell/dashboard/payments'
     | '/sell/dashboard/reviews'
     | '/sell/dashboard/settings'
     | '/sell/dashboard/store'
@@ -686,6 +708,7 @@ export interface FileRouteTypes {
     | '/account_/basha'
     | '/account_/blood'
     | '/account_/preowned'
+    | '/admin_/payments'
     | '/basha/$listingId'
     | '/basha/new'
     | '/blood/donor'
@@ -716,6 +739,7 @@ export interface FileRouteTypes {
     | '/sell/dashboard/messages'
     | '/sell/dashboard/notifications'
     | '/sell/dashboard/orders'
+    | '/sell/dashboard/payments'
     | '/sell/dashboard/reviews'
     | '/sell/dashboard/settings'
     | '/sell/dashboard/store'
@@ -747,6 +771,7 @@ export interface RootRouteChildren {
   AccountBashaRoute: typeof AccountBashaRoute
   AccountBloodRoute: typeof AccountBloodRoute
   AccountPreownedRoute: typeof AccountPreownedRoute
+  AdminPaymentsRoute: typeof AdminPaymentsRoute
   BashaListingIdRoute: typeof BashaListingIdRoute
   BashaNewRoute: typeof BashaNewRoute
   BloodDonorRoute: typeof BloodDonorRoute
@@ -908,6 +933,13 @@ declare module '@tanstack/react-router' {
       path: '/account/preowned'
       fullPath: '/account/preowned'
       preLoaderRoute: typeof AccountPreownedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin_/payments': {
+      id: '/admin_/payments'
+      path: '/admin/payments'
+      fullPath: '/admin/payments'
+      preLoaderRoute: typeof AdminPaymentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/basha/': {
@@ -1127,6 +1159,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SellDashboardOrdersRouteImport
       parentRoute: typeof SellDashboardRoute
     }
+    '/sell/dashboard/payments': {
+      id: '/sell/dashboard/payments'
+      path: '/payments'
+      fullPath: '/sell/dashboard/payments'
+      preLoaderRoute: typeof SellDashboardPaymentsRouteImport
+      parentRoute: typeof SellDashboardRoute
+    }
     '/sell/dashboard/reviews': {
       id: '/sell/dashboard/reviews'
       path: '/reviews'
@@ -1192,6 +1231,7 @@ interface SellDashboardRouteChildren {
   SellDashboardMessagesRoute: typeof SellDashboardMessagesRoute
   SellDashboardNotificationsRoute: typeof SellDashboardNotificationsRoute
   SellDashboardOrdersRoute: typeof SellDashboardOrdersRoute
+  SellDashboardPaymentsRoute: typeof SellDashboardPaymentsRoute
   SellDashboardReviewsRoute: typeof SellDashboardReviewsRoute
   SellDashboardSettingsRoute: typeof SellDashboardSettingsRoute
   SellDashboardStoreRoute: typeof SellDashboardStoreRoute
@@ -1208,6 +1248,7 @@ const SellDashboardRouteChildren: SellDashboardRouteChildren = {
   SellDashboardMessagesRoute: SellDashboardMessagesRoute,
   SellDashboardNotificationsRoute: SellDashboardNotificationsRoute,
   SellDashboardOrdersRoute: SellDashboardOrdersRoute,
+  SellDashboardPaymentsRoute: SellDashboardPaymentsRoute,
   SellDashboardReviewsRoute: SellDashboardReviewsRoute,
   SellDashboardSettingsRoute: SellDashboardSettingsRoute,
   SellDashboardStoreRoute: SellDashboardStoreRoute,
@@ -1243,6 +1284,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountBashaRoute: AccountBashaRoute,
   AccountBloodRoute: AccountBloodRoute,
   AccountPreownedRoute: AccountPreownedRoute,
+  AdminPaymentsRoute: AdminPaymentsRoute,
   BashaListingIdRoute: BashaListingIdRoute,
   BashaNewRoute: BashaNewRoute,
   BloodDonorRoute: BloodDonorRoute,

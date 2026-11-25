@@ -19,6 +19,8 @@ import { bloodRouter } from "./routes/blood";
 import { bashaRouter } from "./routes/basha";
 import { reportsRouter } from "./routes/reports";
 import { searchRouter } from "./routes/search";
+import { adminPaymentsRouter, sellerPaymentsRouter } from "./routes/payments";
+import { runBillingSweep } from "./lib/billing";
 
 function cronAuthorized(req: Request): boolean {
   const secret = process.env["CRON_SECRET"];
@@ -118,6 +120,13 @@ export function createApp() {
   };
   app.get("/api/cron/order-emails", cron);
   app.post("/api/cron/order-emails", cron);
+  // Daily: invoice closed months, unpublish stores with overdue fees, end promotions.
+  const billingCron = async (req: Request, res: Response) => {
+    if (!cronAuthorized(req)) return res.status(401).json({ error: "Unauthorized" });
+    return res.json(await runBillingSweep(new Date(), { force: true }));
+  };
+  app.get("/api/cron/billing", billingCron);
+  app.post("/api/cron/billing", billingCron);
 
   app.use("/api", publicRouter);
   // Campus modules: public reads, owner-only writes. Mounted before the routers
@@ -127,7 +136,9 @@ export function createApp() {
   app.use("/api", bloodRouter);
   app.use("/api", bashaRouter);
   app.use("/api", reportsRouter);
+  app.use("/api/admin/payments", adminPaymentsRouter);
   app.use("/api/admin", adminRouter);
+  app.use("/api/seller", sellerPaymentsRouter);
   app.use("/api/seller", sellerRouter);
   app.use("/api", ordersRouter);
   app.use("/api", chatRouter);

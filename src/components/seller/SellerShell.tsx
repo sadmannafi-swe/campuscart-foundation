@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   Bell,
+  CreditCard,
   HelpCircle,
   LayoutGrid,
   LifeBuoy,
@@ -33,6 +34,7 @@ const menu = [
   { label: "Messages", to: "/sell/dashboard/messages" as const, icon: MessageCircle },
   { label: "Store", to: "/sell/dashboard/store" as const, icon: StoreIcon },
   { label: "Earnings", to: "/sell/dashboard/earnings" as const, icon: Wallet },
+  { label: "Payments", to: "/sell/dashboard/payments" as const, icon: CreditCard },
   { label: "Reviews", to: "/sell/dashboard/reviews" as const, icon: Star },
   { label: "Notifications", to: "/sell/dashboard/notifications" as const, icon: Bell },
   { label: "Help & Support", to: "/sell/dashboard/help" as const, icon: LifeBuoy },
@@ -168,7 +170,19 @@ export function SellerShell({ children, title }: { children: ReactNode; title: s
         </header>
 
         <main className="flex-1 px-4 pb-24 pt-4 lg:pb-8">
-          <div className="mx-auto w-full max-w-5xl">{children}</div>
+          <div className="mx-auto w-full max-w-5xl">
+            {store?.fee_suspension && !pathname.startsWith("/sell/dashboard/payments") && (
+              <Link
+                to="/sell/dashboard/payments"
+                className="mb-4 block rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm"
+              >
+                <span className="font-semibold text-destructive">Store unpublished — </span>a
+                platform fee is overdue. Tap to pay; your store is published again once the payment
+                is confirmed.
+              </Link>
+            )}
+            {children}
+          </div>
         </main>
 
         <nav

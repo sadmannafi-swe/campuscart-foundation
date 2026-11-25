@@ -18,6 +18,7 @@ import { marketplaceProducts } from "./public";
 import { orderToApi } from "./orders";
 import { publicOwners } from "../lib/modules";
 import { getTarget, moduleCollection } from "../lib/targets";
+import { audit } from "../lib/billing";
 
 export const adminRouter = Router();
 adminRouter.use(requireAdmin);
@@ -73,10 +74,23 @@ adminRouter.post("/stores/:id/status", async (req, res) => {
         // Unpublished/rejected stores can't stay featured.
         ...(body.status === "approved" ? {} : { featured_university_slug: null }),
       },
+      // An admin's decision replaces any automatic unpaid-fee suspension.
+      $unset: { fee_suspension: "" },
     },
-    { returnDocument: "after" },
+    { returnDocument: "before" },
   );
   if (!store) throw notFound("Store not found");
+  if (store.status !== body.status)
+    await audit({
+      actor_id: me(req).id,
+      store_id: store._id,
+      target_type: "store",
+      target_id: store._id,
+      action: "manual_store_status",
+      previous_status: store.status,
+      new_status: body.status,
+      note: body.reason ?? null,
+    });
   await col
     .sellers()
     .updateOne({ _id: store.seller_id }, { $set: { status: body.status, updated_at: new Date() } });

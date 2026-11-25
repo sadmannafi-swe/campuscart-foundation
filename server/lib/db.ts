@@ -15,6 +15,13 @@ import type {
   BloodRequestStatus,
   ChatKind,
   ContactPreference,
+  InvoiceStatus,
+  PaymentMethod,
+  PaymentType,
+  PromotionPackageId,
+  PromotionStatus,
+  StoreStatus,
+  SubmissionStatus,
   DonorAvailability,
   Moderation,
   PreOwnedCondition,
@@ -117,6 +124,12 @@ export interface StoreDoc {
   rejection_reason: string | null;
   approved_at: Date | null;
   featured_university_slug: string | null;
+  /** Present only while unpublished because a platform fee is overdue (cleared on payment). */
+  fee_suspension?: {
+    previous_status: StoreStatus;
+    invoice_ids: string[];
+    suspended_at: Date;
+  } | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -168,6 +181,8 @@ export interface OrderDoc {
   status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
   /** Set when the seller marks the order delivered (earnings date). */
   delivered_at?: Date | null;
+  /** Part of the subtotal given back to the buyer; deducted from fee-eligible sales. */
+  refunded_amount?: number | null;
   items: OrderItemDoc[];
   created_at: Date;
   updated_at: Date;
@@ -338,6 +353,110 @@ export interface EventDoc {
   updated_at: Date;
 }
 
+// ---- Seller payments -------------------------------------------------------------
+
+export interface PlatformInvoiceDoc {
+  _id: string;
+  store_id: string;
+  seller_id: string;
+  seller_user_id: string;
+  billing_month: string; // YYYY-MM in Asia/Dhaka
+  period_start: Date; // inclusive (never before the store was created)
+  period_end: Date; // exclusive
+  eligible_sales: number;
+  order_count: number;
+  commission_percent: number;
+  fee: number;
+  due_at: Date; // exclusive: the first instant of the 11th, Dhaka
+  status: InvoiceStatus;
+  overdue: boolean;
+  paid_amount: number | null;
+  paid_at: Date | null;
+  payment_submission_id: string | null;
+  verified_by: string | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface PaymentSubmissionDoc {
+  _id: string;
+  store_id: string;
+  seller_id: string;
+  seller_user_id: string;
+  store_name: string;
+  seller_name: string;
+  seller_email: string;
+  type: PaymentType;
+  invoice_id: string | null;
+  promotion_id: string | null;
+  billing_month: string | null;
+  package_id: PromotionPackageId | null;
+  product_ids: string[];
+  method: PaymentMethod;
+  sender_phone: string;
+  receiver_number: string;
+  trx_id: string;
+  expected_amount: number;
+  submitted_amount: number;
+  status: SubmissionStatus;
+  /** "<type>:<obligation id>" while awaiting verification: one open payment per bill. */
+  open_key?: string;
+  /** "<method>:<TrxID>" unless rejected: a transaction can pay only one thing. */
+  trx_key?: string;
+  verified_amount: number | null;
+  verified_by: string | null;
+  verified_at: Date | null;
+  rejection_reason: string | null;
+  admin_note: string | null;
+  submitted_at: Date;
+  updated_at: Date;
+}
+
+export interface PromotionDoc {
+  _id: string;
+  store_id: string;
+  seller_id: string;
+  seller_user_id: string;
+  university_slug: string;
+  package_id: PromotionPackageId;
+  package_name: string;
+  price: number;
+  duration_days: number;
+  duration_hours: number;
+  product_ids: string[];
+  status: PromotionStatus;
+  payment_submission_id: string | null;
+  starts_at: Date | null;
+  expires_at: Date | null;
+  approved_by: string | null;
+  approved_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface PaymentConfigDoc {
+  _id: string; // "default"
+  bkash_number: string;
+  nagad_number: string;
+  bkash_enabled: boolean;
+  nagad_enabled: boolean;
+  updated_by: string | null;
+  updated_at: Date | null;
+}
+
+export interface PaymentAuditDoc {
+  _id: string;
+  actor_id: string; // admin user id, or "system"
+  store_id: string | null;
+  target_type: "invoice" | "submission" | "promotion" | "store" | "config";
+  target_id: string | null;
+  action: string;
+  previous_status: string | null;
+  new_status: string | null;
+  note: string | null;
+  created_at: Date;
+}
+
 export interface ReportDoc {
   _id: string;
   target_type: ReportTarget;
@@ -368,6 +487,12 @@ export const col = {
   basha: () => getDb().collection<BashaDoc>("bashalagbe_listings"),
   reports: () => getDb().collection<ReportDoc>("reports"),
   events: () => getDb().collection<EventDoc>("marketplace_events"),
+  invoices: () => getDb().collection<PlatformInvoiceDoc>("platform_invoices"),
+  paymentSubmissions: () => getDb().collection<PaymentSubmissionDoc>("payment_submissions"),
+  promotions: () => getDb().collection<PromotionDoc>("featured_promotions"),
+  paymentConfig: () => getDb().collection<PaymentConfigDoc>("payment_config"),
+  paymentAudit: () => getDb().collection<PaymentAuditDoc>("payment_audit_log"),
+  billingRuns: () => getDb().collection<{ _id: string; created_at: Date }>("billing_runs"),
 };
 
 // ---- Schema validation for the module collections ------------------------------
@@ -508,11 +633,23 @@ async function ensureValidators() {
 
 const INDEX_RETRY_MS = 60_000;
 
-type IndexSpec = { collection: string; key: IndexDescription["key"]; unique?: boolean };
+type IndexSpec = {
+  collection: string;
+  key: IndexDescription["key"];
+  unique?: boolean;
+  /** Unique only among documents that have this field (used as a lock). */
+  partialOn?: string;
+};
 const ix = (collection: string, key: Record<string, 1 | -1>, unique?: boolean): IndexSpec => ({
   collection,
   key,
   ...(unique ? { unique } : {}),
+});
+const lockIx = (collection: string, field: string): IndexSpec => ({
+  collection,
+  key: { [field]: 1 },
+  unique: true,
+  partialOn: field,
 });
 
 /** Every index the app relies on (core marketplace first, then the campus modules). */
@@ -543,6 +680,19 @@ export const INDEX_SPECS: IndexSpec[] = [
   ix("reports", { reporter_id: 1, target_type: 1, target_id: 1 }, true),
   ix("reports", { status: 1, created_at: -1 }),
   ix("marketplace_events", { university_slug: 1, is_active: 1, updated_at: -1 }),
+  ix("orders", { store_id: 1, status: 1, delivered_at: 1 }),
+  ix("platform_invoices", { store_id: 1, billing_month: 1 }, true),
+  ix("platform_invoices", { status: 1, due_at: 1 }),
+  ix("platform_invoices", { billing_month: 1, status: 1 }),
+  ix("payment_submissions", { status: 1, submitted_at: -1 }),
+  ix("payment_submissions", { store_id: 1, submitted_at: -1 }),
+  lockIx("payment_submissions", "open_key"),
+  lockIx("payment_submissions", "trx_key"),
+  ix("featured_promotions", { store_id: 1, created_at: -1 }),
+  ix("featured_promotions", { university_slug: 1, status: 1, expires_at: 1 }),
+  ix("featured_promotions", { status: 1, expires_at: 1 }),
+  ix("payment_audit_log", { store_id: 1, created_at: -1 }),
+  ix("payment_audit_log", { created_at: -1 }),
 ];
 
 const keyOf = (key: unknown) => JSON.stringify(key);
@@ -598,7 +748,12 @@ export function ensureIndexes(): Promise<void> {
       missing.map((s) =>
         getDb()
           .collection(s.collection)
-          .createIndex(s.key, s.unique ? { unique: true } : {}),
+          .createIndex(s.key, {
+            ...(s.unique ? { unique: true } : {}),
+            ...(s.partialOn
+              ? { partialFilterExpression: { [s.partialOn]: { $exists: true } } }
+              : {}),
+          }),
       ),
     );
   })().catch((err) => {

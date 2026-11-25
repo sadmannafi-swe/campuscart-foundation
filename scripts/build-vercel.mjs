@@ -95,7 +95,11 @@ await writeFile(
         { handle: "filesystem" },
         { src: "^/(.*)$", dest: "/index.html" },
       ],
-      crons: [{ path: "/api/cron/order-emails", schedule: "17 3 * * *" }],
+      crons: [
+        { path: "/api/cron/order-emails", schedule: "17 3 * * *" },
+        // 18:05 UTC = 00:05 in Dhaka: invoices on the 1st, overdue on the 11th.
+        { path: "/api/cron/billing", schedule: "5 18 * * *" },
+      ],
     },
     null,
     2,

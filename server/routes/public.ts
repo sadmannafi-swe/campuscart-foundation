@@ -8,8 +8,17 @@ import type {
 } from "../../shared/types";
 import { col, toApi, type EventDoc, type StoreDoc } from "../lib/db";
 import { marketplaceParam, notFound, PUBLIC_CDN_CACHE } from "../lib/http";
+import { activePromotions } from "../lib/billing";
 
 export const publicRouter = Router();
+
+/**
+ * Featured = picked by an admin OR in a paid promotion that is running right now
+ * (starts_at <= now < expires_at). Promotions are never written onto the products or
+ * stores, so they stop the moment they expire and the admin's own picks are untouched.
+ */
+const featuredSlug = (manual: string | null, promoted: boolean, university: string) =>
+  promoted ? university : manual;
 
 const publicStore = (s: StoreDoc): PublicStore => ({
   id: s._id,
@@ -60,8 +69,14 @@ export async function marketplaceProducts(
     ])
     .toArray();
   const ratingBy = new Map(ratings.map((r) => [r._id, r]));
+  const promo = await activePromotions(university);
   return products.map((p) => ({
     ...toApi(p),
+    featured_university_slug: featuredSlug(
+      p.featured_university_slug,
+      promo.productKeys.has(`${p.store_id}:${p._id}`),
+      university,
+    ),
     store_name: storeById.get(p.store_id)?.name ?? "Campus seller",
     seller_id: storeById.get(p.store_id)?.seller_id ?? "",
     rating: Math.round((ratingBy.get(p._id)?.avg ?? 0) * 10) / 10,
@@ -106,10 +121,16 @@ publicRouter.get("/stores", async (req, res) => {
     agg.count += r.count;
     byStore.set(sid, agg);
   }
+  const promo = await activePromotions(university);
   const out: PublicStoreSummary[] = stores.map((s) => {
     const r = byStore.get(s._id);
     return {
       ...publicStore(s),
+      featured_university_slug: featuredSlug(
+        s.featured_university_slug,
+        promo.storeIds.has(s._id),
+        university,
+      ),
       product_count: counts.find((c) => c._id === s._id)?.n ?? 0,
       rating: r && r.count ? Math.round((r.sum / r.count) * 10) / 10 : 0,
       review_count: r?.count ?? 0,
@@ -120,13 +141,29 @@ publicRouter.get("/stores", async (req, res) => {
 
 publicRouter.get("/stores/featured", async (req, res) => {
   const university = marketplaceParam(req.query["university"]);
+  const promo = await activePromotions(university);
   const stores = await col
     .stores()
-    .find({ status: "approved", featured_university_slug: university })
+    .find({
+      status: "approved",
+      university_slug: university,
+      $or: [{ featured_university_slug: university }, { _id: { $in: [...promo.storeIds] } }],
+    })
     .sort({ updated_at: -1 })
     .limit(24)
     .toArray();
-  res.set("cache-control", PUBLIC_CDN_CACHE).json(stores.map(publicStore));
+  // Paid promotions first (they paid for the spot), then the admin's picks.
+  stores.sort((a, b) => Number(promo.storeIds.has(b._id)) - Number(promo.storeIds.has(a._id)));
+  res.set("cache-control", PUBLIC_CDN_CACHE).json(
+    stores.map((s) => ({
+      ...publicStore(s),
+      featured_university_slug: featuredSlug(
+        s.featured_university_slug,
+        promo.storeIds.has(s._id),
+        university,
+      ),
+    })),
+  );
 });
 
 publicRouter.get("/stores/:id", async (req, res) => {

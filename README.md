@@ -84,7 +84,7 @@ the **API environment variable** (`cloudinary://KEY:SECRET@CLOUD`) → `CLOUDINA
 | `GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN` | from step 3                                                            |
 | `GMAIL_SENDER`                                                  | the Gmail address that authorised the token                            |
 | `ADMIN_EMAILS`                                                  | your e-mail (comma-separated for several admins)                       |
-| `CRON_SECRET`                                                   | optional — random 16+ chars; enables the daily e-mail retry job        |
+| `CRON_SECRET`                                                   | random 16+ chars; enables the daily e-mail retry and billing jobs      |
 | `REQUIRE_EMAIL_VERIFICATION`                                    | `true` to require confirmed e-mails (needs Gmail)                      |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`                      | optional — turns on "Continue with Google" (see below)                 |
 
@@ -125,6 +125,41 @@ prices, total, buyer name, phone, delivery address, note and a link to the order
 Vercel Cron (`/api/cron/order-emails`, daily on Hobby) retries anything that
 failed. Sellers can turn the e-mails off or redirect them in **Seller Dashboard →
 Settings**.
+
+## Seller payments (platform fee & featured promotions)
+
+Sellers pay CampusCart through the admin's **personal bKash/Nagad** numbers; an
+admin verifies each payment by hand. Nothing is marked paid or activated when a
+seller submits — only an admin's confirmation does that.
+
+- **Platform fee: 5% of delivered sales per month** (Asia/Dhaka calendar). Product
+  subtotal only: delivery charges, cancelled and undelivered orders never count;
+  an order's `refunded_amount` (if any) is deducted. The first period starts on the
+  day the store was created; after that, whole calendar months.
+- **Launch:** December 2026 is free (still visible in sales history). January 2027
+  is the first billed month; its invoice appears on 1 February 2027.
+- **Deadline:** the 1st–10th of the following month. From 00:00 on the 11th an
+  unpaid fee is overdue and the store is unpublished (`fee_suspension`). The seller
+  keeps their dashboard and can still pay; once every overdue fee is confirmed the
+  store is published again automatically — unless an admin changed its status by
+  hand in the meantime.
+- **Featured promotions:** Starter 3 days ৳39 (3 products), Growth 7 days ৳79 (7),
+  Premium 15 days ৳149 (15), Business 30 days ৳249 (30). A promotion starts when an
+  admin confirms the payment (or when the store's current promotion ends) and lasts
+  exactly 24 × days hours. Featuring is checked on every public read
+  (`starts_at ≤ now < expires_at`), so it ends on time even between cron runs.
+- **Billing job** (`/api/cron/billing`, Vercel Cron daily at 00:05 Dhaka, needs
+  `CRON_SECRET`): invoices closed months, marks overdue fees, ends promotions. It
+  is idempotent (unique invoice per store and month), and the seller/admin payment
+  pages run the same check too. Admins can also press **Run billing check**.
+- **Admin:** `/admin/payments` — pending verification, all stores (filters: paid,
+  unpaid, submitted, overdue, suspended, active promotion), per-store month view and
+  history, promotions, bKash/Nagad numbers, audit log of every admin action.
+  **Set the bKash/Nagad numbers there first** — sellers see only enabled methods.
+- **Seller:** Seller Dashboard → **Payments** (`/sell/dashboard/payments`).
+
+Collections: `platform_invoices`, `payment_submissions`, `featured_promotions`,
+`payment_config`, `payment_audit_log`, `billing_runs`.
 
 ## Brand images
 
