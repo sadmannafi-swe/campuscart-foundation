@@ -1,10 +1,15 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { ConversationList } from "@/components/chat/ConversationList";
 import { ChatThread } from "@/components/chat/ChatThread";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
-import { useBuyerConversations, useConversation, useUnreadChatCounts } from "@/lib/chat";
+import {
+  conversationPlace,
+  useBuyerConversations,
+  useConversation,
+  useUnreadChatCounts,
+} from "@/lib/chat";
 
 export const Route = createFileRoute("/chat_/$conversationId")({
   head: () => ({
@@ -24,11 +29,18 @@ export const Route = createFileRoute("/chat_/$conversationId")({
 function BuyerChatPage() {
   const { conversationId } = Route.useParams();
   const { user, loading } = useAuth();
-  const { data: conversation, isLoading } = useConversation(conversationId);
+  const {
+    data: conversation,
+    isLoading,
+    isError,
+    refetch,
+  } = useConversation(conversationId, user?.id);
   const { data: conversations = [] } = useBuyerConversations(user?.id);
   const { data: unread = {} } = useUnreadChatCounts(user?.id);
 
-  const owned = !!user && !!conversation && conversation.buyer_id === user.id;
+  // The personal inbox lists chats the user started AND chats others started about the
+  // user's Pre-Owned / blood / BashaLagbe posts, so both participants read them here.
+  const place = user && conversation ? conversationPlace(conversation, user.id) : "none";
 
   return (
     <SiteLayout>
@@ -44,7 +56,23 @@ function BuyerChatPage() {
               </Link>
             </Button>
           </div>
-        ) : !conversation || !owned ? (
+        ) : isError ? (
+          <div className="py-16 text-center">
+            <h1 className="text-xl font-semibold">Couldn't load this conversation</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Check your connection and try again.
+            </p>
+            <Button className="mt-4" onClick={() => void refetch()}>
+              Try again
+            </Button>
+          </div>
+        ) : place === "seller" ? (
+          <Navigate
+            to="/sell/dashboard/messages/$conversationId"
+            params={{ conversationId }}
+            replace
+          />
+        ) : !conversation || place !== "inbox" ? (
           <div className="py-16 text-center">
             <h1 className="text-xl font-semibold">Conversation unavailable</h1>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -72,7 +100,8 @@ function BuyerChatPage() {
                 emptyText="No conversations yet."
               />
             </aside>
-            <div className="card-surface h-[calc(100dvh-10rem)] overflow-hidden lg:h-[calc(100dvh-13rem)]">
+            {/* phones: fill the space between the header and the bottom bar so the composer is never under it */}
+            <div className="card-surface h-[calc(100dvh-12.75rem-env(safe-area-inset-bottom))] min-h-[20rem] overflow-hidden lg:h-[calc(100dvh-13rem)]">
               <ChatThread
                 conversation={conversation}
                 viewerId={user.id}

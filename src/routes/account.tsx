@@ -25,6 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImagePicker } from "@/components/common/ImagePicker";
+import { SignInMethods } from "@/components/auth/SignInMethods";
 import { apiPatch } from "@/lib/api";
 import { useAuth, type BuyerProfile } from "@/lib/auth";
 import { useUnreadChatCounts } from "@/lib/chat";
@@ -261,6 +262,8 @@ function AccountPage() {
                 ))}
               </div>
             </div>
+
+            <SignInMethods />
 
             <Button
               variant="outline"

@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { Home, MessageCircle, Package, ShoppingBag, ShoppingCart, User } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useUnreadChatCounts } from "@/lib/chat";
+import { useTypingOnTouch } from "@/lib/useTypingOnTouch";
+import { cn } from "@/lib/utils";
 
 /** Exactly six items. Pre-Owned took the place of Categories (still in the header menu). */
 const items = [
@@ -16,12 +18,17 @@ const items = [
 export function MobileBottomNav() {
   const { user } = useAuth();
   const { data: unreadCounts } = useUnreadChatCounts(user?.id);
+  // hidden while the on-screen keyboard is up, so it never covers the field being typed in
+  const typing = useTypingOnTouch();
   const unreadTotal = unreadCounts ? Object.values(unreadCounts).reduce((sum, n) => sum + n, 0) : 0;
 
   return (
     <nav
       aria-label="Mobile navigation"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
+      className={cn(
+        "fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden",
+        typing && "hidden",
+      )}
     >
       <ul className="grid grid-cols-6">
         {items.map(({ label, to, icon: Icon }) => (

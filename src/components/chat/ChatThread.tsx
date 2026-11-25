@@ -299,8 +299,12 @@ export function ChatThread({
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Type a message…"
           maxLength={1000}
+          enterKeyHint="send"
+          autoComplete="off"
+          aria-label="Message"
+          // 16px on phones: iOS Safari zooms into inputs with smaller text
           className={cn(
-            "h-10 min-w-0 flex-1 rounded-full border border-border bg-background px-4 text-sm outline-none focus-visible:ring-2",
+            "h-10 min-w-0 flex-1 rounded-full border border-border bg-background px-4 text-base outline-none focus-visible:ring-2 lg:text-sm",
             styles.ring,
           )}
         />

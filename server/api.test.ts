@@ -943,14 +943,47 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
       const aliceSellerInbox = (await alice.get("/api/chat/conversations?role=seller"))
         .body as Array<{ id: string }>;
       expect(aliceSellerInbox.map((c) => c.id)).not.toContain(open.body.id);
+      // the owner sees an unread message and can open the conversation from the inbox
+      expect((await alice.get("/api/chat/unread")).body[open.body.id]).toBe(1);
+      const aliceView = await alice.get(`/api/chat/conversations/${open.body.id}`);
+      expect(aliceView.status).toBe(200);
+      expect(aliceView.body).toMatchObject({
+        id: open.body.id,
+        kind: "preowned",
+        buyer_id: bobId,
+        seller_user_id: aliceId,
+        buyer_name: "Bob Karim",
+      });
+      expect(
+        (await alice.get(`/api/chat/conversations/${open.body.id}/messages`)).body.map(
+          (m: { body: string }) => m.body,
+        ),
+      ).toEqual(["Is it still available?"]);
+      await post(alice, `/api/chat/conversations/${open.body.id}/read`);
+      expect((await alice.get("/api/chat/unread")).body[open.body.id]).toBeUndefined();
       expect(
         (await post(alice, `/api/chat/conversations/${open.body.id}/messages`, { body: "Yes" }))
           .status,
       ).toBe(201);
-      // strangers can't read it
+      // the buyer gets the reply, both see the same history in order
+      expect((await bob.get("/api/chat/unread")).body[open.body.id]).toBe(1);
+      for (const viewer of [alice, bob]) {
+        const history = (await viewer.get(`/api/chat/conversations/${open.body.id}/messages`))
+          .body as Array<{ body: string; sender_id: string }>;
+        expect(history.map((m) => [m.body, m.sender_id])).toEqual([
+          ["Is it still available?", bobId],
+          ["Yes", aliceId],
+        ]);
+      }
+      // strangers can't read it, open it or write to it
       expect((await sellerA.get(`/api/chat/conversations/${open.body.id}/messages`)).status).toBe(
         403,
       );
+      expect((await sellerA.get(`/api/chat/conversations/${open.body.id}`)).status).toBe(403);
+      expect(
+        (await post(sellerA, `/api/chat/conversations/${open.body.id}/messages`, { body: "x" }))
+          .status,
+      ).toBe(403);
     });
 
     let reqId: string;

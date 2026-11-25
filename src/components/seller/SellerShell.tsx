@@ -24,6 +24,7 @@ import { useAuth } from "@/lib/auth";
 import { useNotifications } from "@/lib/notifications";
 import { cn } from "@/lib/utils";
 import { useImageFallback } from "@/lib/useImageFallback";
+import { useTypingOnTouch } from "@/lib/useTypingOnTouch";
 
 const menu = [
   { label: "Dashboard", to: "/sell/dashboard" as const, icon: LayoutGrid },
@@ -74,6 +75,7 @@ export function SellerShell({ children, title }: { children: ReactNode; title: s
   const { data: notes = [] } = useNotifications(user?.id, "seller");
   const unread = notes.filter((n) => !n.read_at).length;
   const navigate = useNavigate();
+  const typing = useTypingOnTouch();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -171,7 +173,10 @@ export function SellerShell({ children, title }: { children: ReactNode; title: s
 
         <nav
           aria-label="Seller navigation"
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur lg:hidden"
+          className={cn(
+            "fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface/95 backdrop-blur lg:hidden",
+            typing && "hidden",
+          )}
         >
           <ul className="grid grid-cols-5">
             {bottomNav.map(({ label, to, icon: Icon }) => (

@@ -3,7 +3,7 @@ import type {
   ChatConversation as ChatConversationT,
   ChatMessage as ChatMessageT,
 } from "@shared/types";
-import { api, apiPost } from "@/lib/api";
+import { api, ApiError, apiPost } from "@/lib/api";
 
 export type ChatConversation = ChatConversationT;
 export type ChatMessage = ChatMessageT;
@@ -42,12 +42,44 @@ export function useSellerConversations(userId: string | undefined) {
   });
 }
 
-export function useConversation(conversationId: string | undefined) {
+/**
+ * One conversation. Resolves to `null` only when the API says it doesn't exist or
+ * isn't the viewer's (404/403); any other failure (offline, server error) stays an
+ * error so the page can offer a retry instead of claiming the chat is gone.
+ */
+export function useConversation(conversationId: string | undefined, userId?: string) {
   return useQuery({
-    queryKey: ["chat-conversation", conversationId],
+    queryKey: ["chat-conversation", conversationId, userId],
     enabled: !!conversationId,
-    queryFn: () => api<ChatConversation>(`/chat/conversations/${conversationId}`).catch(() => null),
+    retry: (count, err) => !(err instanceof ApiError && err.status < 500) && count < 2,
+    queryFn: async () => {
+      try {
+        return await api<ChatConversation>(`/chat/conversations/${conversationId}`);
+      } catch (err) {
+        if (err instanceof ApiError && (err.status === 403 || err.status === 404)) return null;
+        throw err;
+      }
+    },
   });
+}
+
+const MODULE_KINDS = new Set(["preowned", "blood_request", "donor", "basha"]);
+
+/**
+ * Where a participant reads a conversation (the API enforces who is a participant):
+ * - "inbox": the personal inbox (/chat) — the person who started it, and the owner
+ *   of a Pre-Owned / blood / donor / BashaLagbe post someone messaged about;
+ * - "seller": the store dashboard — the store owner of a Marketplace product chat;
+ * - "none": not a participant.
+ */
+export function conversationPlace(
+  conversation: Pick<ChatConversation, "buyer_id" | "seller_user_id" | "kind">,
+  userId: string,
+): "inbox" | "seller" | "none" {
+  if (conversation.buyer_id === userId) return "inbox";
+  if (conversation.seller_user_id === userId)
+    return conversation.kind && MODULE_KINDS.has(conversation.kind) ? "inbox" : "seller";
+  return "none";
 }
 
 export function useChatMessages(conversationId: string | undefined) {

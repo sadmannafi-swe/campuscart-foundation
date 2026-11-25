@@ -3,8 +3,10 @@ import { ObjectId } from "mongodb";
 import { z } from "zod";
 import type { Profile, UploadKind } from "../../shared/types";
 import { assertOwnPrivateId, signedPrivateUrl, signUpload } from "../lib/cloudinary";
-import { col, toApi } from "../lib/db";
-import { me, parse, requireUser } from "../lib/http";
+import { fromNodeHeaders } from "better-auth/node";
+import { getAuth, googleConfig } from "../lib/auth";
+import { col, getDb, toApi } from "../lib/db";
+import { badRequest, me, parse, requireUser } from "../lib/http";
 import { savePersonalDetails } from "../lib/profile";
 
 export const accountRouter = Router();
@@ -27,6 +29,43 @@ accountRouter.get("/me", async (req, res) => {
     student_id: (doc?.["studentId"] as string) || null,
   };
   res.json(profile);
+});
+
+/** How this account can sign in. Google and e-mail/password resolve to the same user. */
+async function signInMethods(userId: string) {
+  const accounts = await getDb()
+    .collection("account")
+    .find({ userId: { $in: [userKey(userId), userId] } } as never, {
+      projection: { providerId: 1 },
+    })
+    .toArray();
+  const providers = new Set(accounts.map((a) => String(a["providerId"])));
+  return {
+    password: providers.has("credential"),
+    google: providers.has("google"),
+    google_available: googleConfig() !== null,
+  };
+}
+
+accountRouter.get("/me/sign-in-methods", async (req, res) => {
+  res.json(await signInMethods(me(req).id));
+});
+
+/**
+ * Lets someone who signed up with Google add a password, so e-mail + password also
+ * logs in to the same account. Only for accounts without one: changing an existing
+ * password goes through the password-reset flow, which proves the old one or the inbox.
+ */
+accountRouter.post("/me/password", async (req, res) => {
+  const u = me(req);
+  const { new_password } = parse(z.object({ new_password: z.string().min(8).max(128) }), req.body);
+  if ((await signInMethods(u.id)).password)
+    throw badRequest("This account already has a password. Use “Forgot password” to change it.");
+  await getAuth().api.setPassword({
+    body: { newPassword: new_password },
+    headers: fromNodeHeaders(req.headers),
+  });
+  res.json(await signInMethods(u.id));
 });
 
 const profilePatch = z.object({

@@ -20,7 +20,7 @@ export function useGoogleSignIn() {
 export function googleErrorMessage(code: string | undefined): string | null {
   if (!code) return null;
   if (code === "account_not_linked")
-    return "This e-mail already has a CampusCart account. Log in with your e-mail and password.";
+    return "This e-mail already has a CampusCart account. Log in with your password once to connect Google to it — after that, “Continue with Google” works too.";
   if (code === "access_denied") return "Google sign-in was cancelled.";
   return "Google sign-in didn't work. Please try again or use your e-mail and password.";
 }

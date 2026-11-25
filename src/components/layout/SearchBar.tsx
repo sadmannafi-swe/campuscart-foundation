@@ -170,7 +170,7 @@ export function SearchBar({
               if (e.key === "Escape") setOpen(false);
             }}
             placeholder={placeholder ?? "Search products, stores or categories"}
-            className="h-10 w-full rounded-full bg-transparent pl-10 pr-24 text-sm outline-none placeholder:text-muted-foreground"
+            className="h-10 w-full rounded-full bg-transparent pl-10 pr-24 text-base outline-none placeholder:text-muted-foreground md:text-sm"
           />
 
           <button

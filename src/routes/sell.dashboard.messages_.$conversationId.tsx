@@ -1,10 +1,15 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { SellerShell } from "@/components/seller/SellerShell";
 import { ConversationList } from "@/components/chat/ConversationList";
 import { ChatThread } from "@/components/chat/ChatThread";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
-import { useConversation, useSellerConversations, useUnreadChatCounts } from "@/lib/chat";
+import {
+  conversationPlace,
+  useConversation,
+  useSellerConversations,
+  useUnreadChatCounts,
+} from "@/lib/chat";
 
 export const Route = createFileRoute("/sell/dashboard/messages_/$conversationId")({
   head: () => ({
@@ -24,17 +29,32 @@ export const Route = createFileRoute("/sell/dashboard/messages_/$conversationId"
 function SellerChatPage() {
   const { conversationId } = Route.useParams();
   const { user } = useAuth();
-  const { data: conversation, isLoading } = useConversation(conversationId);
+  const {
+    data: conversation,
+    isLoading,
+    isError,
+    refetch,
+  } = useConversation(conversationId, user?.id);
   const { data: conversations = [] } = useSellerConversations(user?.id);
   const { data: unread = {} } = useUnreadChatCounts(user?.id);
 
-  const owned = !!user && !!conversation && conversation.seller_user_id === user.id;
+  const place = user && conversation ? conversationPlace(conversation, user.id) : "none";
 
   return (
     <SellerShell title="Buyer Chat">
       {isLoading ? (
         <p className="py-16 text-center text-sm text-muted-foreground">Loading…</p>
-      ) : !conversation || !owned ? (
+      ) : isError ? (
+        <div className="py-16 text-center">
+          <h2 className="text-xl font-semibold">Couldn't load this conversation</h2>
+          <p className="mt-2 text-sm text-muted-foreground">Check your connection and try again.</p>
+          <Button className="mt-4" onClick={() => void refetch()}>
+            Try again
+          </Button>
+        </div>
+      ) : place === "inbox" ? (
+        <Navigate to="/chat/$conversationId" params={{ conversationId }} replace />
+      ) : !conversation || place !== "seller" ? (
         <div className="py-16 text-center">
           <h2 className="text-xl font-semibold">Conversation unavailable</h2>
           <p className="mt-2 text-sm text-muted-foreground">

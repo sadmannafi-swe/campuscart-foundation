@@ -13,6 +13,7 @@ import { apiPatch } from "@/lib/api";
 import { uploadImage } from "@/lib/uploads";
 import { useAuth } from "@/lib/auth";
 import { GoogleSignInButton, googleErrorMessage } from "@/components/auth/GoogleSignInButton";
+import { rememberGoogleConnect } from "@/components/auth/SignInMethods";
 
 type AuthMode = "login" | "signup";
 
@@ -51,6 +52,14 @@ function AuthPage() {
   }, [loading, user, navigate]);
 
   useEffect(() => {
+    // Google proved the mailbox, but the existing account is protected by its password:
+    // once the user logs in with it, the account page connects Google to that same account.
+    // (Explained inline above the form, so no error toast for this case.)
+    if (googleError === "account_not_linked") {
+      rememberGoogleConnect();
+      setTab("login");
+      return;
+    }
     const message = googleErrorMessage(googleError);
     if (message) toast.error(message, { id: "google-sign-in" });
   }, [googleError]);
@@ -73,6 +82,13 @@ function AuthPage() {
               errorCallbackURL={`/auth?mode=${tab}`}
               className="mb-5"
             />
+            {googleError === "account_not_linked" && (
+              <p className="mb-4 rounded-lg bg-primary-soft/60 p-3 text-xs text-foreground">
+                This e-mail already has a CampusCart account. Log in with your password below —
+                we&apos;ll connect your Google account to it, so next time “Continue with Google”
+                takes you straight in.
+              </p>
+            )}
             <Tabs value={tab} onValueChange={(v) => setTab(v as AuthMode)}>
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Log in</TabsTrigger>
