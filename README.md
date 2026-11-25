@@ -32,11 +32,11 @@ scripts/         dev runner, Vercel build output, make-admin
 
 ## Features
 
-| Area    | What it does                                                                                                                                                                                                                                |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Buyers  | Browse/search/filter products and stores, cart, Buy Now, checkout (cash on delivery/pickup), order tracking, cancel while pending, wishlist, purchase-verified reviews, chat with the seller, order notifications (bell + `/notifications`) |
-| Sellers | Register with university + student ID, store approval flow, products with photos, orders (forward-only status), earnings, reviews, messages, **e-mail for every new order**                                                                 |
-| Admins  | `/admin`: approve / reject / unpublish stores, view seller identity (incl. private student ID photo), all orders per store, feature stores/products per university                                                                          |
+| Area    | What it does                                                                                                                                                                                                                      |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Buyers  | Browse/search/filter products and stores, cart, Buy Now, checkout (cash on delivery/pickup), order tracking, cancel while pending, purchase-verified reviews, chat with the seller, order notifications (bell + `/notifications`) |
+| Sellers | Register with university + student ID, store approval flow, products with photos, orders (forward-only status), earnings, reviews, messages, **e-mail for every new order**                                                       |
+| Admins  | `/admin`: approve / reject / unpublish stores, view seller identity (incl. private student ID photo), all orders per store, feature stores/products per university                                                                |
 
 Business rules are enforced by the API, never the UI: prices come from the
 database, one order per store inside a MongoDB transaction, you can't order from

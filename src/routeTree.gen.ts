@@ -25,7 +25,6 @@ import { Route as OffersRouteImport } from './routes/offers'
 import { Route as OrderConfirmationRouteImport } from './routes/order-confirmation'
 import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as AccountBashaRouteImport } from './routes/account_.basha'
 import { Route as AccountBloodRouteImport } from './routes/account_.blood'
 import { Route as AccountPreownedRouteImport } from './routes/account_.preowned'
@@ -147,11 +146,6 @@ const OrdersRoute = OrdersRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const WishlistRoute = WishlistRouteImport.update({
-  id: '/wishlist',
-  path: '/wishlist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountBashaRoute = AccountBashaRouteImport.update({
@@ -388,7 +382,6 @@ export interface FileRoutesByFullPath {
   '/order-confirmation': typeof OrderConfirmationRoute
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/wishlist': typeof WishlistRoute
   '/account/basha': typeof AccountBashaRoute
   '/account/blood': typeof AccountBloodRoute
   '/account/preowned': typeof AccountPreownedRoute
@@ -449,7 +442,6 @@ export interface FileRoutesByTo {
   '/order-confirmation': typeof OrderConfirmationRoute
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/wishlist': typeof WishlistRoute
   '/account/basha': typeof AccountBashaRoute
   '/account/blood': typeof AccountBloodRoute
   '/account/preowned': typeof AccountPreownedRoute
@@ -510,7 +502,6 @@ export interface FileRoutesById {
   '/order-confirmation': typeof OrderConfirmationRoute
   '/orders': typeof OrdersRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/wishlist': typeof WishlistRoute
   '/account_/basha': typeof AccountBashaRoute
   '/account_/blood': typeof AccountBloodRoute
   '/account_/preowned': typeof AccountPreownedRoute
@@ -573,7 +564,6 @@ export interface FileRouteTypes {
     | '/order-confirmation'
     | '/orders'
     | '/reset-password'
-    | '/wishlist'
     | '/account/basha'
     | '/account/blood'
     | '/account/preowned'
@@ -634,7 +624,6 @@ export interface FileRouteTypes {
     | '/order-confirmation'
     | '/orders'
     | '/reset-password'
-    | '/wishlist'
     | '/account/basha'
     | '/account/blood'
     | '/account/preowned'
@@ -694,7 +683,6 @@ export interface FileRouteTypes {
     | '/order-confirmation'
     | '/orders'
     | '/reset-password'
-    | '/wishlist'
     | '/account_/basha'
     | '/account_/blood'
     | '/account_/preowned'
@@ -756,7 +744,6 @@ export interface RootRouteChildren {
   OrderConfirmationRoute: typeof OrderConfirmationRoute
   OrdersRoute: typeof OrdersRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  WishlistRoute: typeof WishlistRoute
   AccountBashaRoute: typeof AccountBashaRoute
   AccountBloodRoute: typeof AccountBloodRoute
   AccountPreownedRoute: typeof AccountPreownedRoute
@@ -900,13 +887,6 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/wishlist': {
-      id: '/wishlist'
-      path: '/wishlist'
-      fullPath: '/wishlist'
-      preLoaderRoute: typeof WishlistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/account_/basha': {
@@ -1260,7 +1240,6 @@ const rootRouteChildren: RootRouteChildren = {
   OrderConfirmationRoute: OrderConfirmationRoute,
   OrdersRoute: OrdersRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  WishlistRoute: WishlistRoute,
   AccountBashaRoute: AccountBashaRoute,
   AccountBloodRoute: AccountBloodRoute,
   AccountPreownedRoute: AccountPreownedRoute,

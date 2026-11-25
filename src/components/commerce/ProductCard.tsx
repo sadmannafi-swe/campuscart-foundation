@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { Heart, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/lib/types";
 import { getStoreById } from "@/data/marketplace";
@@ -29,7 +29,6 @@ export function ProductCard({ product, className }: { product: Product; classNam
   const category = categories.find((c) => c.slug === product.categorySlug);
   const discount = discountPercent(product.price, product.originalPrice);
   const img = useImageFallback(product.image);
-  const [saved, setSaved] = useState(false);
   const addRef = useRef<HTMLButtonElement>(null);
   const tilt = useTilt<HTMLElement>(5);
   const quickAdd = product.inStock && !(product.variants && product.variants.length > 0);
@@ -108,25 +107,6 @@ export function ProductCard({ product, className }: { product: Product; classNam
           </button>
         )}
       </div>
-
-      <button
-        type="button"
-        aria-label={`Add ${product.name} to wishlist`}
-        aria-pressed={saved}
-        onClick={() => {
-          setSaved(true);
-          toast.success("Saved to your wishlist");
-        }}
-        className="absolute right-2.5 top-2.5 z-10 grid size-8 cursor-pointer place-items-center rounded-full bg-surface/90 text-muted-foreground backdrop-blur-sm transition-[color,transform] duration-200 hover:text-destructive active:scale-90"
-      >
-        <Heart
-          className={cn(
-            "size-4 transition-transform duration-300",
-            saved && "animate-bump fill-destructive text-destructive",
-          )}
-          aria-hidden="true"
-        />
-      </button>
 
       <div className="flex flex-1 flex-col gap-1.5 p-3">
         <h3 className="line-clamp-2 min-h-10 text-sm font-medium leading-snug">

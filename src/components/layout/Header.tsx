@@ -4,7 +4,6 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Bell,
   Droplet,
-  Heart,
   Home as HomeIcon,
   Menu,
   MessageCircle,
@@ -141,12 +140,6 @@ export function Header() {
               <Search />
             </Button>
 
-            <Button variant="ghost" size="icon" asChild className="hidden sm:inline-flex">
-              <Link to="/wishlist" aria-label="Wishlist">
-                <Heart />
-              </Link>
-            </Button>
-
             <Button variant="ghost" size="icon" asChild className="relative">
               <Link to="/cart" aria-label="Cart" data-cart-target="">
                 <ShoppingCart />
@@ -180,9 +173,6 @@ export function Header() {
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/orders">Orders</Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/wishlist">Wishlist</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       onSelect={async () => {
@@ -228,7 +218,6 @@ export function Header() {
                   {[
                     { label: "Home", to: "/diu" as const },
                     ...primaryLinks,
-                    { label: "Wishlist", to: "/wishlist" as const },
                     { label: "Orders", to: "/orders" as const },
                     { label: "Profile", to: "/account" as const },
                   ].map((link) => (

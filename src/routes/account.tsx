@@ -3,7 +3,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import {
   Bell,
   Droplet,
-  Heart,
   HeartHandshake,
   Home,
   Loader2,
@@ -76,7 +75,6 @@ const campusLinks = [
 const quickLinks = [
   { label: "Orders", to: "/orders" as const, icon: Package },
   { label: "Notifications", to: "/notifications" as const, icon: Bell },
-  { label: "Wishlist", to: "/wishlist" as const, icon: Heart },
   { label: "Cart", to: "/cart" as const, icon: ShoppingCart },
 ];
 
@@ -112,7 +110,7 @@ function AccountPage() {
             <EmptyState
               icon={<User className="size-6" aria-hidden="true" />}
               title="Sign in to your CampusCart account"
-              description="Log in to track orders, save wishlist items and keep your cart across devices."
+              description="Log in to track orders, chat with sellers and keep your cart across devices."
               action={
                 <div className="flex flex-wrap justify-center gap-2">
                   <Button asChild>

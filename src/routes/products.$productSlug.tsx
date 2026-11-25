@@ -1,15 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  BadgeCheck,
-  Check,
-  Heart,
-  MessageCircle,
-  Minus,
-  Plus,
-  ShieldCheck,
-  Truck,
-} from "lucide-react";
+import { BadgeCheck, Check, MessageCircle, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { flyToCart } from "@/lib/motion";
 import { SiteLayout } from "@/components/layout/SiteLayout";
@@ -422,14 +413,6 @@ function StaticProductDetails({
                 }
               >
                 Buy Now
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                aria-label="Add to wishlist"
-                onClick={() => toast.success("Saved to your wishlist")}
-              >
-                <Heart />
               </Button>
             </div>
 

@@ -19,7 +19,6 @@ const columns = [
     links: [
       { label: "Profile", to: "/account" as const },
       { label: "Orders", to: "/orders" as const },
-      { label: "Wishlist", to: "/wishlist" as const },
       { label: "Cart", to: "/cart" as const },
     ],
   },
