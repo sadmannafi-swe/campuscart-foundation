@@ -1,11 +1,12 @@
 import { Router } from "express";
 import type {
+  PublicEvent,
   PublicProduct,
   PublicReview,
   PublicStore,
   PublicStoreSummary,
 } from "../../shared/types";
-import { col, toApi, type StoreDoc } from "../lib/db";
+import { col, toApi, type EventDoc, type StoreDoc } from "../lib/db";
 import { marketplaceParam, notFound, PUBLIC_CDN_CACHE } from "../lib/http";
 
 export const publicRouter = Router();
@@ -162,4 +163,41 @@ publicRouter.get("/products/:id/reviews", async (req, res) => {
     created_at: r.created_at.toISOString(),
   }));
   return res.json(out);
+});
+
+// ---- Homepage event -----------------------------------------------------------------
+
+/** The event with only its products that are still live, in the admin's order. */
+async function publicEvent(e: EventDoc): Promise<PublicEvent> {
+  const found = e.product_ids.length
+    ? await marketplaceProducts(e.university_slug, { _id: { $in: e.product_ids } })
+    : [];
+  const byId = new Map(found.map((p) => [p.id, p]));
+  return {
+    id: e._id,
+    university_slug: e.university_slug,
+    title: e.title,
+    description: e.description,
+    banner_url: e.banner_url,
+    products: e.product_ids.map((id) => byId.get(id)).filter((p): p is PublicProduct => !!p),
+  };
+}
+
+/** The marketplace's active event (or null): the homepage banner and its product row. */
+publicRouter.get("/events/active", async (req, res) => {
+  const university = marketplaceParam(req.query["university"]);
+  const e = await col
+    .events()
+    .findOne({ university_slug: university, is_active: true }, { sort: { updated_at: -1 } });
+  res.set("cache-control", PUBLIC_CDN_CACHE).json(e ? await publicEvent(e) : null);
+});
+
+/** An event page. Only an active event is public. */
+publicRouter.get("/events/:id", async (req, res) => {
+  const university = marketplaceParam(req.query["university"]);
+  const e = await col
+    .events()
+    .findOne({ _id: req.params["id"], university_slug: university, is_active: true });
+  if (!e) throw notFound("This event has ended");
+  res.set("cache-control", PUBLIC_CDN_CACHE).json(await publicEvent(e));
 });

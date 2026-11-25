@@ -506,6 +506,123 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
     expect((await post(buyer, "/api/uploads/sign", { kind: "anything" })).status).toBe(400);
   });
 
+  it("homepage events: admin-only, real products only, one active event per marketplace", async () => {
+    const adminId = await userIdOf(adminAgent);
+    const banner = (name: string) => `${CLOUD}/campuscart/event/${adminId}/${name}.jpg`;
+    // regular users can't manage events or sign event-banner uploads
+    expect((await buyer.get("/api/admin/events")).status).toBe(403);
+    expect((await post(buyer, "/api/admin/uploads/sign-event")).status).toBe(403);
+    expect((await post(buyer, "/api/uploads/sign", { kind: "event" })).status).toBe(400);
+    expect(
+      (
+        await post(buyer, "/api/admin/events", {
+          university_slug: "diu",
+          title: "Hack",
+          banner_url: banner("x"),
+        })
+      ).status,
+    ).toBe(403);
+    expect((await post(adminAgent, "/api/admin/uploads/sign-event")).body.folder).toBe(
+      `campuscart/event/${adminId}`,
+    );
+    // nothing active yet
+    const none = await request(app).get("/api/events/active?university=diu");
+    expect(none.status).toBe(200);
+    expect(none.body).toBeNull();
+
+    const base = { university_slug: "diu", title: "Eid Bazaar", description: "Festive picks" };
+    // banner must be the admin's own upload; products must be live listings in DIU
+    expect(
+      (
+        await post(adminAgent, "/api/admin/events", {
+          ...base,
+          banner_url: "https://evil.example/banner.jpg",
+        })
+      ).status,
+    ).toBe(400);
+    expect(
+      (
+        await post(adminAgent, "/api/admin/events", {
+          ...base,
+          banner_url: banner("eid"),
+          product_ids: [productA], // Store A is suspended
+        })
+      ).status,
+    ).toBe(400);
+
+    const e1 = await post(adminAgent, "/api/admin/events", {
+      ...base,
+      banner_url: banner("eid"),
+      product_ids: [productB],
+      is_active: true,
+    });
+    expect(e1.status, JSON.stringify(e1.body)).toBe(201);
+    expect(e1.body).not.toHaveProperty("created_by");
+    const active = await request(app).get("/api/events/active?university=diu");
+    expect(active.headers["cache-control"]).toMatch(/s-maxage=30/);
+    expect(active.body).toMatchObject({
+      id: e1.body.id,
+      title: "Eid Bazaar",
+      description: "Festive picks",
+      banner_url: banner("eid"),
+    });
+    expect(active.body.products.map((p: { id: string }) => p.id)).toEqual([productB]);
+    expect(active.body.products[0]).not.toHaveProperty("user_id_private");
+    expect((await request(app).get("/api/events/active?university=nsu")).body).toBeNull();
+    // the event page shows the same products
+    expect(
+      (await request(app).get(`/api/events/${e1.body.id}?university=diu`)).body.products,
+    ).toHaveLength(1);
+
+    // a second active event replaces the first on the homepage
+    const e2 = await post(adminAgent, "/api/admin/events", {
+      ...base,
+      title: "Exam Week Deals",
+      banner_url: banner("exam"),
+      is_active: true,
+    });
+    expect(e2.status).toBe(201);
+    expect((await request(app).get("/api/events/active?university=diu")).body.id).toBe(e2.body.id);
+    const list = (await adminAgent.get("/api/admin/events")).body as Array<{
+      id: string;
+      is_active: boolean;
+    }>;
+    expect(list.filter((e) => e.is_active).map((e) => e.id)).toEqual([e2.body.id]);
+
+    // deactivate → no banner event; its page is gone; reactivate the first
+    expect(
+      (await patch(adminAgent, `/api/admin/events/${e2.body.id}`, { is_active: false })).status,
+    ).toBe(200);
+    expect((await request(app).get("/api/events/active?university=diu")).body).toBeNull();
+    expect((await request(app).get(`/api/events/${e2.body.id}?university=diu`)).status).toBe(404);
+    const upd = await patch(adminAgent, `/api/admin/events/${e1.body.id}`, {
+      title: "Eid Bazaar 2026",
+      is_active: true,
+    });
+    expect(upd.body).toMatchObject({
+      title: "Eid Bazaar 2026",
+      is_active: true,
+      banner_url: banner("eid"),
+    });
+    expect((await request(app).get("/api/events/active?university=diu")).body.title).toBe(
+      "Eid Bazaar 2026",
+    );
+    // regular users can't edit or delete
+    expect(
+      (await patch(buyer, `/api/admin/events/${e1.body.id}`, { is_active: false })).status,
+    ).toBe(403);
+    expect(
+      (await buyer.delete(`/api/admin/events/${e1.body.id}`).set("origin", ORIGIN)).status,
+    ).toBe(403);
+    // admin deletes
+    expect(
+      (await adminAgent.delete(`/api/admin/events/${e2.body.id}`).set("origin", ORIGIN)).status,
+    ).toBe(200);
+    expect((await adminAgent.get("/api/admin/events")).body).toHaveLength(1);
+    // products are referenced, never copied
+    expect(await client.db(dbName).collection("products").countDocuments({ name: "Book" })).toBe(1);
+  });
+
   it("separates university marketplaces on the server (DIU vs NSU)", async () => {
     const sellerN = await signUp("n@nsu.edu.bd", "Seller N");
     const sellerNId = await userIdOf(sellerN);

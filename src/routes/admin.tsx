@@ -9,6 +9,7 @@ import { api, apiPost } from "@/lib/api";
 import { storeStatusMeta, useUniversities, type StoreStatus } from "@/lib/seller";
 import { cn } from "@/lib/utils";
 import { CampusModeration } from "@/components/admin/CampusModeration";
+import { EventManager } from "@/components/admin/EventManager";
 import { useAuth } from "@/lib/auth";
 import { formatPrice } from "@/lib/format";
 import { orderStatusMeta, shortOrderId } from "@/lib/orders";
@@ -149,6 +150,8 @@ function AdminConsole() {
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto w-full max-w-3xl px-4 py-8">
+        <EventManager />
+
         <h1 className="text-xl font-semibold">Seller Applications</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Verify student sellers and control which stores are public in each university marketplace.

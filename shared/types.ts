@@ -262,7 +262,31 @@ export interface AdminOrder {
   items: OrderItem[];
 }
 
-export type UploadKind = "product" | "store-logo" | "avatar" | "student-id" | "preowned" | "basha";
+export type UploadKind =
+  "product" | "store-logo" | "avatar" | "student-id" | "preowned" | "basha" | "event";
+
+/** Homepage event (admin-managed). Products are references to existing listings. */
+export interface MarketplaceEvent {
+  id: string;
+  university_slug: string;
+  title: string;
+  description: string;
+  banner_url: string;
+  product_ids: string[];
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Public view of the active event: only its currently available products, in admin order. */
+export interface PublicEvent {
+  id: string;
+  university_slug: string;
+  title: string;
+  description: string;
+  banner_url: string;
+  products: PublicProduct[];
+}
 
 export interface UploadSignature {
   cloudName: string;

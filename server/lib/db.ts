@@ -323,6 +323,21 @@ export interface BashaDoc {
   updated_at: Date;
 }
 
+export interface EventDoc {
+  _id: string;
+  university_slug: string;
+  title: string;
+  description: string;
+  banner_url: string;
+  /** References to existing products (never copies), in the order the admin chose. */
+  product_ids: string[];
+  /** At most one active event per university. */
+  is_active: boolean;
+  created_by: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export interface ReportDoc {
   _id: string;
   target_type: ReportTarget;
@@ -352,6 +367,7 @@ export const col = {
   donors: () => getDb().collection<DonorProfileDoc>("donor_profiles"),
   basha: () => getDb().collection<BashaDoc>("bashalagbe_listings"),
   reports: () => getDb().collection<ReportDoc>("reports"),
+  events: () => getDb().collection<EventDoc>("marketplace_events"),
 };
 
 // ---- Schema validation for the module collections ------------------------------
@@ -526,6 +542,7 @@ export const INDEX_SPECS: IndexSpec[] = [
   ix("bashalagbe_listings", { owner_id: 1, created_at: -1 }),
   ix("reports", { reporter_id: 1, target_type: 1, target_id: 1 }, true),
   ix("reports", { status: 1, created_at: -1 }),
+  ix("marketplace_events", { university_slug: 1, is_active: 1, updated_at: -1 }),
 ];
 
 const keyOf = (key: unknown) => JSON.stringify(key);

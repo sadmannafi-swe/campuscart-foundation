@@ -11,9 +11,10 @@ import {
   type StoreOrderSummary,
 } from "../../shared/types";
 import { universityBySlug } from "../../shared/universities";
-import { signedPrivateUrl } from "../lib/cloudinary";
-import { col, toApi } from "../lib/db";
-import { badRequest, notFound, parse, requireAdmin } from "../lib/http";
+import { assertOwnImageUrl, signedPrivateUrl, signUpload } from "../lib/cloudinary";
+import { col, toApi, type EventDoc } from "../lib/db";
+import { badRequest, me, newId, notFound, parse, requireAdmin } from "../lib/http";
+import { marketplaceProducts } from "./public";
 import { orderToApi } from "./orders";
 import { publicOwners } from "../lib/modules";
 import { getTarget, moduleCollection } from "../lib/targets";
@@ -296,5 +297,102 @@ adminRouter.patch("/reports/:id", async (req, res) => {
       { $set: { status, reviewed_at: status === "open" ? null : new Date() } },
     );
   if (r.matchedCount === 0) throw notFound("Report not found");
+  res.json({ ok: true });
+});
+
+// ---- Homepage events -------------------------------------------------------------
+// An event is a banner + a list of EXISTING products (by id) shown on a university's
+// homepage. At most one event per university is active; activating one turns the
+// others off. Admin-only (this router requires an admin).
+
+const eventToApi = (e: EventDoc) => {
+  const { created_by: _by, ...rest } = e;
+  return toApi(rest);
+};
+
+/** Banner uploads go to the admin's own Cloudinary folder (campuscart/event/<id>). */
+adminRouter.post("/uploads/sign-event", (req, res) => {
+  res.json(signUpload("event", me(req).id));
+});
+
+adminRouter.get("/events", async (_req, res) => {
+  const list = await col.events().find({}).sort({ is_active: -1, updated_at: -1 }).toArray();
+  res.json(list.map(eventToApi));
+});
+
+const eventBody = z.object({
+  university_slug: z.string().trim().min(2).max(40),
+  title: z.string().trim().min(3).max(100),
+  description: z.string().trim().max(500).default(""),
+  banner_url: z.string().trim().max(500),
+  product_ids: z.array(z.string().uuid()).max(60).default([]),
+  is_active: z.boolean().default(false),
+});
+
+/** Every id must be a live listing of an approved store in that marketplace. */
+async function checkEventProducts(university: string, ids: string[]): Promise<string[]> {
+  const unique = [...new Set(ids)];
+  if (unique.length === 0) return [];
+  const found = await marketplaceProducts(university, { _id: { $in: unique } });
+  const ok = new Set(found.map((p) => p.id));
+  if (unique.some((id) => !ok.has(id)))
+    throw badRequest("Some selected products aren't available in this marketplace any more.");
+  return unique;
+}
+
+async function deactivateOthers(university: string, keepId: string) {
+  await col
+    .events()
+    .updateMany(
+      { university_slug: university, is_active: true, _id: { $ne: keepId } },
+      { $set: { is_active: false, updated_at: new Date() } },
+    );
+}
+
+adminRouter.post("/events", async (req, res) => {
+  const body = parse(eventBody, req.body);
+  if (!universityBySlug(body.university_slug)) throw badRequest("Unknown university");
+  const now = new Date();
+  const doc: EventDoc = {
+    _id: newId(),
+    university_slug: body.university_slug,
+    title: body.title,
+    description: body.description,
+    banner_url: assertOwnImageUrl(body.banner_url, "event", me(req).id),
+    product_ids: await checkEventProducts(body.university_slug, body.product_ids),
+    is_active: body.is_active,
+    created_by: me(req).id,
+    created_at: now,
+    updated_at: now,
+  };
+  await col.events().insertOne(doc);
+  if (doc.is_active) await deactivateOthers(doc.university_slug, doc._id);
+  res.status(201).json(eventToApi(doc));
+});
+
+adminRouter.patch("/events/:id", async (req, res) => {
+  const existing = await col.events().findOne({ _id: req.params["id"] });
+  if (!existing) throw notFound("Event not found");
+  const body = parse(eventBody.partial(), req.body);
+  const university = body.university_slug ?? existing.university_slug;
+  if (!universityBySlug(university)) throw badRequest("Unknown university");
+  const set: Partial<EventDoc> = { updated_at: new Date(), university_slug: university };
+  if (body.title !== undefined) set.title = body.title;
+  if (body.description !== undefined) set.description = body.description;
+  // a new banner must be this admin's own upload; keeping the current one is always fine
+  if (body.banner_url !== undefined && body.banner_url !== existing.banner_url)
+    set.banner_url = assertOwnImageUrl(body.banner_url, "event", me(req).id);
+  if (body.product_ids !== undefined)
+    set.product_ids = await checkEventProducts(university, body.product_ids);
+  if (body.is_active !== undefined) set.is_active = body.is_active;
+  await col.events().updateOne({ _id: existing._id }, { $set: set });
+  const updated = (await col.events().findOne({ _id: existing._id }))!;
+  if (updated.is_active) await deactivateOthers(updated.university_slug, updated._id);
+  res.json(eventToApi(updated));
+});
+
+adminRouter.delete("/events/:id", async (req, res) => {
+  const r = await col.events().deleteOne({ _id: req.params["id"] });
+  if (r.deletedCount === 0) throw notFound("Event not found");
   res.json({ ok: true });
 });
