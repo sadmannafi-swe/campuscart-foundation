@@ -1,15 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
-import {
-  ArrowRight,
-  BadgeCheck,
-  Droplet,
-  Home as HomeIcon,
-  ShoppingBag,
-  ShoppingCart,
-  Store as StoreIcon,
-} from "lucide-react";
+import { BadgeCheck, Store as StoreIcon } from "lucide-react";
 import { SiteLayout } from "@/components/layout/SiteLayout";
+import { ShortcutTiles } from "@/components/home/ShortcutTiles";
 import { ProductRail } from "@/components/commerce/ProductRail";
 import { ProductGrid } from "@/components/commerce/ProductGrid";
 import { Button } from "@/components/ui/button";
@@ -41,13 +34,6 @@ export const Route = createFileRoute("/diu")({
 
 const CAMPUS_BANNER = "/brand/diu-campus-banner.jpg";
 
-const shortcuts = [
-  { label: "Shop Now", to: "/products" as const, icon: ShoppingCart },
-  { label: "Pre-Owned", to: "/preowned" as const, icon: ShoppingBag },
-  { label: "Blood Donor", to: "/blood" as const, icon: Droplet },
-  { label: "BasaLagbe", to: "/basha" as const, icon: HomeIcon },
-];
-
 /**
  * DIU marketplace home, in this order: banner (the admin's active event, or the
  * campus) · four shortcuts · the event's products (only while an event is active) ·
@@ -67,27 +53,7 @@ function HomePage() {
       <div className="container-page space-y-5 pb-10 pt-3 sm:space-y-6 sm:pt-4">
         <HomeBanner event={event ?? null} loading={loadingEvent} />
 
-        <nav aria-label="Shortcuts" className="grid grid-cols-2 gap-2.5 sm:gap-3">
-          {shortcuts.map(({ label, to, icon: Icon }, i) => (
-            <Link
-              key={label}
-              to={to}
-              style={{ "--i": i } as React.CSSProperties}
-              className="hero-shortcut group flex h-14 items-center gap-2.5 rounded-[16px] border border-border bg-surface px-3 text-foreground shadow-[var(--shadow-card)] transition-[transform,box-shadow,border-color] duration-200 hover:border-bloom hover:shadow-[var(--shadow-card-hover)] active:scale-[0.98] sm:h-16"
-            >
-              <span className="grid size-9 shrink-0 place-items-center rounded-[11px] bg-ink text-bloom transition-colors duration-200 group-hover:bg-bloom group-hover:text-bloom-foreground">
-                <Icon className="size-[18px]" aria-hidden="true" />
-              </span>
-              <span className="min-w-0 truncate text-[15px] font-semibold sm:text-base">
-                {label}
-              </span>
-              <ArrowRight
-                className="ml-auto hidden size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 sm:block"
-                aria-hidden="true"
-              />
-            </Link>
-          ))}
-        </nav>
+        <ShortcutTiles />
 
         {event && event.products.length > 0 && (
           <HomeSection

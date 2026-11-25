@@ -932,7 +932,7 @@ html[data-theme-switch] header {
 /* The photo eases in from a slight zoom, then drifts very slowly (a gentle Ken Burns);
    a soft light sweeps across now and then. Motion is off with reduced motion. */
 .hero-banner {
-  animation: hero-rise 700ms var(--ease-bloom) both;
+  animation: hero-rise 700ms var(--ease-bloom) backwards;
 }
 .hero-banner .hero-photo {
   transform-origin: 55% 45%;
@@ -952,7 +952,7 @@ html[data-theme-switch] header {
   animation: hero-sheen 8s ease-in-out 1.4s infinite;
 }
 .hero-shortcut {
-  animation: hero-rise 600ms var(--ease-bloom) both;
+  animation: hero-rise 600ms var(--ease-bloom) backwards;
   animation-delay: calc(180ms + var(--i, 0) * 80ms);
 }
 @keyframes hero-rise {
@@ -1014,5 +1014,555 @@ html[data-theme-switch] header {
   }
   .hero-banner .hero-photo.hero-pan {
     object-position: 50% 45%;
+  }
+}
+
+/* ---- Homepage shortcut tiles: per-tile animated icons and scenes ------------- */
+/* Loops are slow and small; hover (or press) makes them livelier. SVG parts animate
+   around their own box. Turned off with reduced motion (end of this block). */
+.sc-tile svg * {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.sc-scene {
+  opacity: 0.9;
+}
+
+/* Shop Now: items drop into the cart, the cart bumps, wheels roll, coins rise. */
+.sc-shop-item1 {
+  animation: sc-drop 3.6s var(--ease-bloom) infinite;
+}
+.sc-shop-item2 {
+  animation: sc-drop 3.6s var(--ease-bloom) 0.45s infinite;
+}
+.sc-shop-cart {
+  animation: sc-cart-bump 3.6s ease-out infinite;
+}
+.sc-wheel {
+  animation: sc-spin 1.6s linear infinite;
+}
+.sc-shop-speed {
+  opacity: 0;
+  transition: opacity 200ms;
+}
+.sc-shop:hover .sc-shop-cart,
+.sc-shop:active .sc-shop-cart {
+  animation: sc-cart-go 700ms var(--ease-bloom) infinite alternate;
+}
+.sc-shop:hover .sc-wheel {
+  animation-duration: 0.5s;
+}
+.sc-shop:hover .sc-shop-speed {
+  opacity: 0.7;
+  animation: sc-speed 500ms linear infinite;
+}
+.sc-coin {
+  position: absolute;
+  bottom: -14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--bloom-ink);
+  opacity: 0;
+  animation: sc-rise 3.2s ease-out var(--d, 0s) infinite;
+}
+.sc-spark {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--bloom);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  opacity: 0;
+  animation: sc-twinkle 3s ease-in-out var(--d, 0s) infinite;
+}
+@keyframes sc-drop {
+  0% {
+    transform: translateY(-11px);
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  26%,
+  80% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  92%,
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+}
+@keyframes sc-cart-bump {
+  0%,
+  24%,
+  40%,
+  100% {
+    transform: translateY(0);
+  }
+  29% {
+    transform: translateY(1.2px);
+  }
+}
+@keyframes sc-cart-go {
+  from {
+    transform: translateX(-1px) rotate(-3deg);
+  }
+  to {
+    transform: translateX(2px) rotate(2deg);
+  }
+}
+@keyframes sc-speed {
+  from {
+    transform: translateX(1px);
+  }
+  to {
+    transform: translateX(-2px);
+  }
+}
+@keyframes sc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes sc-rise {
+  0% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-62px) scale(1);
+    opacity: 0;
+  }
+}
+@keyframes sc-twinkle {
+  0%,
+  100% {
+    transform: scale(0.3) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1) rotate(90deg);
+    opacity: 0.75;
+  }
+}
+
+/* Pre-Owned: the reuse arrows turn around the bag, the price tag swings, leaves drift. */
+.sc-cycle {
+  animation: sc-spin 7s linear infinite;
+}
+.sc-preowned:hover .sc-cycle,
+.sc-preowned:active .sc-cycle {
+  animation-duration: 1.6s;
+}
+.sc-tag {
+  transform-box: view-box !important;
+  transform-origin: 14.3px 9.6px !important;
+  animation: sc-swing 2.4s ease-in-out infinite;
+}
+.sc-tag-face {
+  fill: var(--surface);
+}
+.sc-leaf {
+  position: absolute;
+  left: 100%;
+  width: 9px;
+  height: 9px;
+  border-radius: 0 100% 0 100%;
+  background: var(--preowned);
+  opacity: 0;
+  animation: sc-leaf 6s ease-in-out var(--d, 0s) infinite;
+}
+@keyframes sc-swing {
+  0%,
+  100% {
+    transform: rotate(-14deg);
+  }
+  50% {
+    transform: rotate(16deg);
+  }
+}
+@keyframes sc-leaf {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.35;
+  }
+  50% {
+    transform: translate(-90px, 8px) rotate(160deg);
+  }
+  85% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translate(-190px, -4px) rotate(320deg);
+    opacity: 0;
+  }
+}
+
+/* Blood Donor: the drop beats like a heart, a drop falls in, rings ripple, an ECG traces. */
+.sc-heart {
+  animation: sc-beat 1.6s ease-in-out infinite;
+}
+.sc-blood:hover .sc-heart,
+.sc-blood:active .sc-heart {
+  animation-duration: 0.85s;
+}
+.sc-cross {
+  stroke: var(--blood-soft);
+}
+.sc-falling-drop {
+  animation: sc-fall 3.2s ease-in infinite;
+}
+.sc-blood .sc-badge::before,
+.sc-blood .sc-badge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1.5px solid var(--blood);
+  opacity: 0;
+  animation: sc-ripple 3.2s ease-out infinite;
+}
+.sc-blood .sc-badge::after {
+  animation-delay: 1.6s;
+}
+.sc-ecg {
+  stroke: var(--blood);
+  opacity: 0.35;
+}
+.sc-ecg path {
+  stroke-dasharray: 34 100;
+  animation: sc-trace 2.8s linear infinite;
+}
+.sc-blood:hover .sc-ecg {
+  opacity: 0.6;
+}
+@keyframes sc-beat {
+  0%,
+  40%,
+  100% {
+    transform: scale(1);
+  }
+  12% {
+    transform: scale(1.14);
+  }
+  24% {
+    transform: scale(0.97);
+  }
+  32% {
+    transform: scale(1.08);
+  }
+}
+@keyframes sc-fall {
+  0%,
+  55% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  62% {
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+  86%,
+  100% {
+    transform: translateY(9px) scale(0.4);
+    opacity: 0;
+  }
+}
+@keyframes sc-ripple {
+  from {
+    transform: scale(1);
+    opacity: 0.45;
+  }
+  to {
+    transform: scale(1.3);
+    opacity: 0;
+  }
+}
+@keyframes sc-trace {
+  from {
+    stroke-dashoffset: 34;
+  }
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+/* BasaLagbe: window lights switch on in turn, chimney smoke rises, a TO-LET sign
+   swings and a key bobs. */
+.sc-window {
+  fill: currentColor;
+  stroke: none;
+  opacity: 0.15;
+  animation: sc-light 4s ease-in-out infinite;
+}
+.sc-window2 {
+  animation-delay: 1s;
+}
+.sc-basha:hover .sc-window,
+.sc-basha:active .sc-window {
+  animation: none;
+  opacity: 1;
+  fill: var(--bloom);
+}
+.sc-smoke circle {
+  opacity: 0;
+  animation: sc-smoke 2.4s ease-out var(--d, 0s) infinite;
+}
+.sc-tolet {
+  position: absolute;
+  top: 5px;
+  right: 34px;
+  padding: 1px 4px;
+  border: 1px solid var(--basha);
+  border-radius: 3px;
+  background: var(--basha-soft);
+  color: var(--basha);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  opacity: 0.75;
+  transform-origin: 50% -5px;
+  animation: sc-swing-sign 3s ease-in-out infinite;
+}
+.sc-tolet::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -6px;
+  width: 1px;
+  height: 6px;
+  background: var(--basha);
+}
+.sc-key {
+  right: 8px;
+  bottom: 6px;
+  width: 16px;
+  height: 16px;
+  color: var(--basha);
+  opacity: 0.3;
+  animation: sc-key 3.4s ease-in-out infinite;
+}
+.sc-basha:hover .sc-key {
+  opacity: 0.7;
+  animation: sc-key-turn 900ms var(--ease-bloom) infinite alternate;
+}
+@keyframes sc-light {
+  0%,
+  20%,
+  100% {
+    opacity: 0.15;
+  }
+  35%,
+  75% {
+    opacity: 1;
+  }
+}
+@keyframes sc-smoke {
+  0% {
+    transform: translate(0, 0) scale(0.6);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate(2.5px, -6px) scale(1.5);
+    opacity: 0;
+  }
+}
+@keyframes sc-swing-sign {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+@keyframes sc-key {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-10deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(8deg);
+  }
+}
+@keyframes sc-key-turn {
+  from {
+    transform: rotate(-30deg);
+  }
+  to {
+    transform: rotate(30deg);
+  }
+}
+
+/* ---- Search bar: moving light, glowing focus ring, lively icon and button ---- */
+@property --sb-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.sb-field {
+  isolation: isolate;
+}
+/* a soft light sweeps along the bar every few seconds */
+.sb-field::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in oklch, var(--bloom) 22%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 250% 100%;
+  background-position: 140% 0;
+  animation: sb-sweep 7s ease-in-out 1.5s infinite;
+}
+/* the rotating navy-yellow ring around the bar while it is focused */
+.sb-field::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -2;
+  border-radius: inherit;
+  padding: 2px;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  background: conic-gradient(
+    from var(--sb-angle),
+    var(--primary),
+    var(--bloom),
+    var(--accent),
+    var(--bloom),
+    var(--primary)
+  );
+  opacity: 0;
+  transition: opacity 250ms;
+  animation: sb-ring 3s linear infinite;
+}
+.sb-field[data-focused="true"]::before {
+  opacity: 1;
+}
+.sb-field[data-focused="true"]::after {
+  animation: none;
+}
+.sb-icon {
+  animation: sb-look 5s ease-in-out 2s infinite;
+}
+.sb-field[data-focused="true"] .sb-icon {
+  color: var(--primary);
+  animation: sb-scan 1.4s ease-in-out infinite;
+}
+.sb-hint-word {
+  color: var(--foreground);
+  font-weight: 500;
+}
+.sb-caret {
+  display: inline-block;
+  width: 1.5px;
+  height: 1em;
+  margin-left: 1px;
+  vertical-align: -0.15em;
+  background: var(--bloom-ink);
+  animation: sb-blink 1s steps(1) infinite;
+}
+.sb-button {
+  position: absolute;
+  overflow: hidden;
+}
+.sb-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 35%,
+    rgb(255 255 255 / 0.35) 50%,
+    transparent 65%
+  );
+  background-size: 250% 100%;
+  background-position: 140% 0;
+  animation: sb-sweep 4.5s ease-in-out 2.5s infinite;
+}
+@keyframes sb-sweep {
+  0%,
+  60% {
+    background-position: 140% 0;
+  }
+  100% {
+    background-position: -40% 0;
+  }
+}
+@keyframes sb-ring {
+  to {
+    --sb-angle: 360deg;
+  }
+}
+@keyframes sb-look {
+  0%,
+  80%,
+  100% {
+    transform: none;
+  }
+  86% {
+    transform: translateX(1.5px) rotate(-12deg);
+  }
+  93% {
+    transform: translateX(-1px) rotate(8deg);
+  }
+}
+@keyframes sb-scan {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1.05);
+  }
+  25% {
+    transform: translate(1.5px, -1px) scale(1.12);
+  }
+  75% {
+    transform: translate(-1px, 1px) scale(1.05);
+  }
+}
+@keyframes sb-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-tile *,
+  .sc-tile *::before,
+  .sc-tile *::after,
+  .sb-field::before,
+  .sb-field::after,
+  .sb-icon,
+  .sb-caret,
+  .sb-button::after {
+    animation: none !important;
+  }
+  .sc-coin,
+  .sc-spark,
+  .sc-leaf {
+    display: none;
   }
 }

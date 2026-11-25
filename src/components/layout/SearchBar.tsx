@@ -15,6 +15,54 @@ interface SearchBarProps {
 }
 
 const STORAGE_KEY = "campuscart:recent-searches";
+/** Words the empty search bar types out in turn, as a hint of what can be found. */
+const HINT_WORDS = [
+  "textbooks",
+  "laptops",
+  "jerseys",
+  "class notes",
+  "hostel essentials",
+  "headphones",
+  "campus stores",
+];
+
+/**
+ * Types each hint word, pauses, erases it and moves to the next. Runs only while
+ * `active` (the bar is empty and not focused) and never with reduced motion, in which
+ * case it returns null and the normal placeholder is shown.
+ */
+function useTypedHint(active: boolean): string | null {
+  const [text, setText] = useState<string | null>(null);
+  useEffect(() => {
+    if (!active || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      setText(null);
+      return;
+    }
+    let word = 0;
+    let len = 0;
+    let deleting = false;
+    let timer: ReturnType<typeof setTimeout>;
+    const tick = () => {
+      const target = HINT_WORDS[word] ?? "";
+      len += deleting ? -1 : 1;
+      setText(target.slice(0, len));
+      let delay = deleting ? 45 : 85;
+      if (!deleting && len === target.length) {
+        deleting = true;
+        delay = 1600;
+      } else if (deleting && len === 0) {
+        deleting = false;
+        word = (word + 1) % HINT_WORDS.length;
+        delay = 350;
+      }
+      timer = setTimeout(tick, delay);
+    };
+    setText("");
+    timer = setTimeout(tick, 600);
+    return () => clearTimeout(timer);
+  }, [active]);
+  return text;
+}
 const popularSearches = ["Notes", "Jersey", "Backpack", "Textbook", "Water bottle", "Headphones"];
 
 function readRecents(): string[] {
@@ -97,6 +145,7 @@ export function SearchBar({
   const { products } = useCatalogProducts();
   const { stores } = useLiveStores();
   const suggestions = buildSuggestions(value, products, stores);
+  const hint = useTypedHint(!value && !focused);
 
   function runSearch(term: string) {
     const q = term.trim();
@@ -134,15 +183,25 @@ export function SearchBar({
         </label>
 
         <div
+          data-focused={focused}
           className={cn(
-            "relative flex items-center rounded-full border border-border bg-surface transition-[border-color,box-shadow] duration-200",
-            focused && "border-primary/40 ring-4 ring-bloom/25",
+            "sb-field relative flex items-center rounded-full border border-border bg-surface transition-[border-color,box-shadow] duration-200",
+            focused && "border-transparent ring-4 ring-bloom/25",
           )}
         >
           <Search
-            className="pointer-events-none absolute left-3.5 size-4 text-muted-foreground"
+            className="sb-icon pointer-events-none absolute left-3.5 size-4 text-muted-foreground"
             aria-hidden="true"
           />
+          {hint !== null && (
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 left-10 right-24 flex items-center overflow-hidden whitespace-nowrap text-base text-muted-foreground md:text-sm"
+            >
+              Search&nbsp;<span className="sb-hint-word">{hint}</span>
+              <span className="sb-caret" />
+            </span>
+          )}
 
           <input
             id={inputId}
@@ -170,12 +229,15 @@ export function SearchBar({
               if (e.key === "Escape") setOpen(false);
             }}
             placeholder={placeholder ?? "Search products, stores or categories"}
-            className="h-10 w-full rounded-full bg-transparent pl-10 pr-24 text-base outline-none placeholder:text-muted-foreground md:text-sm"
+            className={cn(
+              "h-10 w-full rounded-full bg-transparent pl-10 pr-24 text-base outline-none placeholder:text-muted-foreground md:text-sm",
+              hint !== null && "placeholder:text-transparent",
+            )}
           />
 
           <button
             type="submit"
-            className="absolute right-1.5 inline-flex h-8 items-center rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+            className="sb-button right-1.5 inline-flex h-8 items-center rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground transition-[background-color,transform] hover:bg-primary/90 active:scale-95"
           >
             Search
           </button>
