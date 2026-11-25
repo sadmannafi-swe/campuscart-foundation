@@ -979,6 +979,23 @@ html[data-theme-switch] header {
     transform: scale(1.08) translate3d(-1.5%, 1%, 0);
   }
 }
+/* The campus photo is taller than the banner: the view also pans slowly from the
+   university sign at the top down to the entrance and back. */
+.hero-banner .hero-photo.hero-pan {
+  object-position: 50% 18%;
+  animation:
+    hero-photo-in 1100ms var(--ease-bloom) both,
+    hero-drift 24s ease-in-out 1100ms infinite alternate,
+    hero-pan 16s ease-in-out 1100ms infinite alternate;
+}
+@keyframes hero-pan {
+  from {
+    object-position: 50% 18%;
+  }
+  to {
+    object-position: 50% 78%;
+  }
+}
 @keyframes hero-sheen {
   0%,
   55% {
@@ -994,5 +1011,8 @@ html[data-theme-switch] header {
   .hero-banner::after,
   .hero-shortcut {
     animation: none !important;
+  }
+  .hero-banner .hero-photo.hero-pan {
+    object-position: 50% 45%;
   }
 }

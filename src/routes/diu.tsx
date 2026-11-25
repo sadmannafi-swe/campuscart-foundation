@@ -226,7 +226,7 @@ function HomeBanner({ event, loading }: { event: HomeEvent | null; loading: bool
         <img
           src={CAMPUS_BANNER}
           alt="Daffodil International University campus"
-          className="hero-photo size-full object-cover object-[50%_40%]"
+          className="hero-photo hero-pan size-full object-cover"
           fetchPriority="high"
         />
       </div>
