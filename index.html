@@ -10,12 +10,10 @@
     />
     <meta name="theme-color" content="#f7f4ec" />
     <script>
-      // Apply the saved (or device) theme before the first paint, so there is no flash.
+      // Light by default; dark only when the visitor chose it. Applied before the first paint, so there is no flash.
       (function () {
         try {
-          var saved = localStorage.getItem("campuscart.theme");
-          var dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
-          if (dark) {
+          if (localStorage.getItem("campuscart.theme") === "dark") {
             document.documentElement.classList.add("dark");
             document.documentElement.style.colorScheme = "dark";
             document.querySelector('meta[name="theme-color"]').setAttribute("content", "#1b2133");

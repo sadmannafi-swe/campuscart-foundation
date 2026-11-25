@@ -73,16 +73,16 @@ function HomePage() {
               key={label}
               to={to}
               style={{ "--i": i } as React.CSSProperties}
-              className="hero-shortcut group flex h-14 items-center gap-2.5 rounded-[16px] bg-ink px-3 text-ink-foreground transition-[transform,background-color] duration-200 hover:bg-ink/90 active:scale-[0.98] dark:border dark:border-border sm:h-16"
+              className="hero-shortcut group flex h-14 items-center gap-2.5 rounded-[16px] border border-border bg-surface px-3 text-foreground shadow-[var(--shadow-card)] transition-[transform,box-shadow,border-color] duration-200 hover:border-bloom hover:shadow-[var(--shadow-card-hover)] active:scale-[0.98] sm:h-16"
             >
-              <span className="grid size-9 shrink-0 place-items-center rounded-[11px] bg-bloom text-bloom-foreground">
+              <span className="grid size-9 shrink-0 place-items-center rounded-[11px] bg-ink text-bloom transition-colors duration-200 group-hover:bg-bloom group-hover:text-bloom-foreground">
                 <Icon className="size-[18px]" aria-hidden="true" />
               </span>
               <span className="min-w-0 truncate text-[15px] font-semibold sm:text-base">
                 {label}
               </span>
               <ArrowRight
-                className="ml-auto hidden size-4 shrink-0 text-ink-foreground/50 transition-transform group-hover:translate-x-0.5 sm:block"
+                className="ml-auto hidden size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 sm:block"
                 aria-hidden="true"
               />
             </Link>

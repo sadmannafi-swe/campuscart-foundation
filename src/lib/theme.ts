@@ -76,27 +76,10 @@ export function setTheme(theme: Theme, origin?: { x: number; y: number }) {
   });
 }
 
+// Every visitor starts in light mode; dark applies only after they pick it (setTheme).
 function subscribe(cb: () => void) {
   window.addEventListener(EVENT, cb);
-  // follow the device setting until the user picks a theme
-  const media = window.matchMedia?.("(prefers-color-scheme: dark)");
-  const onSystem = () => {
-    let saved: string | null = null;
-    try {
-      saved = localStorage.getItem(KEY);
-    } catch {
-      /* ignore */
-    }
-    if (!saved) {
-      paint(media.matches ? "dark" : "light");
-      cb();
-    }
-  };
-  media?.addEventListener("change", onSystem);
-  return () => {
-    window.removeEventListener(EVENT, cb);
-    media?.removeEventListener("change", onSystem);
-  };
+  return () => window.removeEventListener(EVENT, cb);
 }
 
 export function useTheme(): Theme {
