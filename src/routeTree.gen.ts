@@ -36,6 +36,7 @@ import { Route as BloodIndexRouteImport } from './routes/blood.index'
 import { Route as BloodDonorRouteImport } from './routes/blood.donor'
 import { Route as CampusCampusSlugRouteImport } from './routes/campus.$campusSlug'
 import { Route as ChatConversationIdRouteImport } from './routes/chat_.$conversationId'
+import { Route as EventsEventIdRouteImport } from './routes/events.$eventId'
 import { Route as PreownedIndexRouteImport } from './routes/preowned.index'
 import { Route as PreownedListingIdRouteImport } from './routes/preowned.$listingId'
 import { Route as PreownedNewRouteImport } from './routes/preowned.new'
@@ -201,6 +202,11 @@ const CampusCampusSlugRoute = CampusCampusSlugRouteImport.update({
 const ChatConversationIdRoute = ChatConversationIdRouteImport.update({
   id: '/chat_/$conversationId',
   path: '/chat/$conversationId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsEventIdRoute = EventsEventIdRouteImport.update({
+  id: '/events/$eventId',
+  path: '/events/$eventId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PreownedIndexRoute = PreownedIndexRouteImport.update({
@@ -391,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/blood/donor': typeof BloodDonorRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/chat/$conversationId': typeof ChatConversationIdRoute
+  '/events/$eventId': typeof EventsEventIdRoute
   '/preowned/$listingId': typeof PreownedListingIdRoute
   '/preowned/new': typeof PreownedNewRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
@@ -451,6 +458,7 @@ export interface FileRoutesByTo {
   '/blood/donor': typeof BloodDonorRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/chat/$conversationId': typeof ChatConversationIdRoute
+  '/events/$eventId': typeof EventsEventIdRoute
   '/preowned/$listingId': typeof PreownedListingIdRoute
   '/preowned/new': typeof PreownedNewRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
@@ -511,6 +519,7 @@ export interface FileRoutesById {
   '/blood/donor': typeof BloodDonorRoute
   '/campus/$campusSlug': typeof CampusCampusSlugRoute
   '/chat_/$conversationId': typeof ChatConversationIdRoute
+  '/events/$eventId': typeof EventsEventIdRoute
   '/preowned/$listingId': typeof PreownedListingIdRoute
   '/preowned/new': typeof PreownedNewRoute
   '/products/$productSlug': typeof ProductsProductSlugRoute
@@ -573,6 +582,7 @@ export interface FileRouteTypes {
     | '/blood/donor'
     | '/campus/$campusSlug'
     | '/chat/$conversationId'
+    | '/events/$eventId'
     | '/preowned/$listingId'
     | '/preowned/new'
     | '/products/$productSlug'
@@ -633,6 +643,7 @@ export interface FileRouteTypes {
     | '/blood/donor'
     | '/campus/$campusSlug'
     | '/chat/$conversationId'
+    | '/events/$eventId'
     | '/preowned/$listingId'
     | '/preowned/new'
     | '/products/$productSlug'
@@ -692,6 +703,7 @@ export interface FileRouteTypes {
     | '/blood/donor'
     | '/campus/$campusSlug'
     | '/chat_/$conversationId'
+    | '/events/$eventId'
     | '/preowned/$listingId'
     | '/preowned/new'
     | '/products/$productSlug'
@@ -753,6 +765,7 @@ export interface RootRouteChildren {
   BloodDonorRoute: typeof BloodDonorRoute
   CampusCampusSlugRoute: typeof CampusCampusSlugRoute
   ChatConversationIdRoute: typeof ChatConversationIdRoute
+  EventsEventIdRoute: typeof EventsEventIdRoute
   PreownedListingIdRoute: typeof PreownedListingIdRoute
   PreownedNewRoute: typeof PreownedNewRoute
   ProductsProductSlugRoute: typeof ProductsProductSlugRoute
@@ -964,6 +977,13 @@ declare module '@tanstack/react-router' {
       path: '/chat/$conversationId'
       fullPath: '/chat/$conversationId'
       preLoaderRoute: typeof ChatConversationIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events/$eventId': {
+      id: '/events/$eventId'
+      path: '/events/$eventId'
+      fullPath: '/events/$eventId'
+      preLoaderRoute: typeof EventsEventIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/preowned/': {
@@ -1249,6 +1269,7 @@ const rootRouteChildren: RootRouteChildren = {
   BloodDonorRoute: BloodDonorRoute,
   CampusCampusSlugRoute: CampusCampusSlugRoute,
   ChatConversationIdRoute: ChatConversationIdRoute,
+  EventsEventIdRoute: EventsEventIdRoute,
   PreownedListingIdRoute: PreownedListingIdRoute,
   PreownedNewRoute: PreownedNewRoute,
   ProductsProductSlugRoute: ProductsProductSlugRoute,

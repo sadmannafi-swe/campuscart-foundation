@@ -54,7 +54,7 @@ export function signUpload(kind: UploadKind, userId: string): UploadSignature {
 /** Accept only public delivery URLs from our cloud, inside the user's folder for that kind. */
 export function assertOwnImageUrl(
   url: string,
-  kind: "product" | "store-logo" | "preowned" | "basha",
+  kind: "product" | "store-logo" | "preowned" | "basha" | "event",
   userId: string,
 ): string {
   const c = getCloudinaryConfig();
