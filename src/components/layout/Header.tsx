@@ -17,6 +17,8 @@ import { SearchBar } from "@/components/layout/SearchBar";
 import { CategoryIcon } from "@/components/common/CategoryIcon";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { MatchToggle } from "@/components/theme/MatchToggle";
+import { useTheme } from "@/lib/theme";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -100,6 +102,10 @@ export function Header() {
                 </Link>
               ))}
             </nav>
+
+            <span className="mr-1.5 hidden items-center sm:inline-flex">
+              <MatchToggle size={9} />
+            </span>
 
             <Button variant="ghost" size="icon" asChild className="relative">
               <Link to="/chat" aria-label="Messages">
@@ -217,7 +223,8 @@ export function Header() {
                 <SheetHeader>
                   <SheetTitle className="text-left">Browse CampusCart</SheetTitle>
                 </SheetHeader>
-                <nav className="mt-6 space-y-1" aria-label="Mobile">
+                <ThemeRow />
+                <nav className="mt-4 space-y-1" aria-label="Mobile">
                   {[
                     { label: "Home", to: "/diu" as const },
                     ...primaryLinks,
@@ -320,5 +327,23 @@ export function Header() {
         </div>
       </div>
     </header>
+  );
+}
+
+/** Phone menu: the light/dark match switch, larger and labelled. */
+function ThemeRow() {
+  const theme = useTheme();
+  return (
+    <div className="mt-5 flex items-center justify-between gap-3 rounded-xl border border-border px-3 py-3">
+      <div className="min-w-0">
+        <p className="text-sm font-medium">Appearance</p>
+        <p className="text-xs text-muted-foreground">
+          {theme === "light"
+            ? "Light — blow out the match for dark"
+            : "Dark — strike the match for light"}
+        </p>
+      </div>
+      <MatchToggle size={12} />
+    </div>
   );
 }

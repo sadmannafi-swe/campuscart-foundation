@@ -9,6 +9,20 @@
       content="The multi-vendor marketplace for university students in Bangladesh."
     />
     <meta name="theme-color" content="#f7f4ec" />
+    <script>
+      // Apply the saved (or device) theme before the first paint, so there is no flash.
+      (function () {
+        try {
+          var saved = localStorage.getItem("campuscart.theme");
+          var dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+          if (dark) {
+            document.documentElement.classList.add("dark");
+            document.documentElement.style.colorScheme = "dark";
+            document.querySelector('meta[name="theme-color"]').setAttribute("content", "#1b2133");
+          }
+        } catch (e) {}
+      })();
+    </script>
     <meta property="og:type" content="website" />
     <meta property="og:title" content="CampusCart — Your Campus. Your Marketplace." />
     <meta property="og:description" content="Textbooks, gadgets, hostel gear and student services from verified students at your university." />

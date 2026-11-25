@@ -4,6 +4,8 @@
  */
 export const brandAssets = {
   logo: "/brand/campuscart-logo.png",
+  /** Same logo with cream lettering, for dark mode. */
+  logoDark: "/brand/campuscart-logo-dark.png",
   mainLogo: "/brand/campuscart-main-logo.png",
   diu: "/brand/diu.png",
   nsu: "/brand/nsu.png",

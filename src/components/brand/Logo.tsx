@@ -14,16 +14,28 @@ interface LogoProps {
 const sizes = { sm: "h-9", md: "h-11", lg: "h-16" } as const;
 
 export function Logo({ className, size = "md", asLink = true }: LogoProps) {
+  // Navy lettering in light mode, cream lettering in dark mode.
   const image = (
-    <BrandImage
-      fallback="CampusCart"
-      fallbackNode={<Wordmark campus="DIU" />}
-      src={brandAssets.logo}
-      alt="DIU CampusCart — Your Campus. Your Marketplace."
-      className={cn("w-auto object-contain", sizes[size], className)}
-      width={512}
-      height={512}
-    />
+    <>
+      <BrandImage
+        fallback="CampusCart"
+        fallbackNode={<Wordmark campus="DIU" />}
+        src={brandAssets.logo}
+        alt="DIU CampusCart — Your Campus. Your Marketplace."
+        className={cn("w-auto object-contain dark:hidden", sizes[size], className)}
+        width={512}
+        height={512}
+      />
+      <BrandImage
+        fallback="CampusCart"
+        fallbackNode={<Wordmark campus="DIU" />}
+        src={brandAssets.logoDark}
+        alt="DIU CampusCart — Your Campus. Your Marketplace."
+        className={cn("hidden w-auto object-contain dark:block", sizes[size], className)}
+        width={512}
+        height={512}
+      />
+    </>
   );
 
   if (!asLink) return image;

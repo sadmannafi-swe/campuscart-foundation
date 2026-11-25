@@ -558,3 +558,372 @@
     transition: none;
   }
 }
+
+/* ---- Light/dark switch: a match on a matchbox striker ------------------- */
+.match-toggle {
+  --w: 6.4em;
+  --h: 3em;
+  --head: 1.9em;
+  --pad: 0.45em;
+  --travel: calc(var(--w) - var(--head) - 2 * var(--pad));
+  --strike: cubic-bezier(0.62, 0, 0.32, 1);
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: var(--w);
+  height: var(--h);
+  padding: 0;
+  border: 0;
+  border-radius: 0.95em;
+  background: none;
+  font-size: 10px;
+  cursor: pointer;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+}
+.match-toggle:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 3px;
+}
+.match-toggle .mt-box {
+  position: absolute;
+  inset: 0;
+  border-radius: 0.95em;
+  background: linear-gradient(180deg, #30271f, #1c1612);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.07),
+    0 0.15em 0.5em rgb(0 0 0 / 0.35);
+  transition: box-shadow 600ms ease;
+}
+.match-toggle .mt-strip {
+  position: absolute;
+  inset: 0.6em 0.3em;
+  border-radius: 0.55em;
+  background-color: #4b362a;
+  background-image:
+    radial-gradient(rgb(255 236 210 / 0.13) 0.5px, transparent 0.7px),
+    radial-gradient(rgb(0 0 0 / 0.4) 0.5px, transparent 0.7px);
+  background-size:
+    3px 3px,
+    4px 4px;
+  background-position:
+    0 0,
+    1px 2px;
+  box-shadow: inset 0 0.1em 0.25em rgb(0 0 0 / 0.6);
+}
+/* the stick: a long piece of wood whose end follows the head (both move with
+   transforms, so they stay locked together); clipped where it leaves the box */
+.match-toggle .mt-stickclip {
+  position: absolute;
+  z-index: 1;
+  left: -0.25em;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.match-toggle .mt-stick {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--pad) + 0.25em + var(--head) / 2 - 12em);
+  width: 12em;
+  height: 0.62em;
+  border-radius: 0.3em;
+  background: linear-gradient(180deg, #f6e4bd, #d8b482 60%, #c49c68);
+  box-shadow: 0 0.06em 0.12em rgb(0 0 0 / 0.35);
+  transform: translate(0, -50%);
+  transition: transform 460ms var(--strike);
+}
+.match-toggle .mt-head {
+  position: absolute;
+  z-index: 2;
+  left: var(--pad);
+  top: 50%;
+  width: var(--head);
+  height: var(--head);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 34% 30%,
+    #ff9a83 0%,
+    #e2432e 32%,
+    #a8190f 72%,
+    #6a0b06 100%
+  );
+  box-shadow:
+    0 0.12em 0.3em rgb(0 0 0 / 0.55),
+    inset -0.12em -0.18em 0.3em rgb(0 0 0 / 0.3);
+  transform: translate(0, -50%);
+  transition: transform 460ms var(--strike);
+}
+.match-toggle .mt-char {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #8a6450 0%, #43271b 45%, #1d0f09 100%);
+  box-shadow: inset 0.25em 0.2em 0.35em rgb(255 120 40 / 0.35);
+  opacity: 0;
+  transition: opacity 350ms ease;
+}
+/* hover hint: the head leans toward the strike */
+.match-toggle[data-phase="dark"]:hover :is(.mt-head, .mt-stick) {
+  transform: translate(0.2em, -50%);
+}
+/* struck / burning / going out: the match sits at the far end of the strip */
+.match-toggle:is([data-phase="strike"], [data-phase="lit"], [data-phase="out"]) .mt-head {
+  transform: translate(var(--travel), -50%);
+}
+.match-toggle:is([data-phase="strike"], [data-phase="lit"], [data-phase="out"]) .mt-stick {
+  transform: translate(var(--travel), -50%);
+}
+.match-toggle[data-phase="return"] .mt-head {
+  transition: transform 480ms cubic-bezier(0.3, 0.7, 0.3, 1);
+}
+.match-toggle[data-phase="return"] .mt-stick {
+  transition: transform 480ms cubic-bezier(0.3, 0.7, 0.3, 1);
+}
+.match-toggle:is([data-phase="out"], [data-phase="return"]) .mt-char {
+  opacity: 1;
+  transition-duration: 200ms;
+}
+
+/* flame */
+.match-toggle .mt-flame {
+  position: absolute;
+  left: 50%;
+  bottom: 40%;
+  width: 1.45em;
+  height: 2.9em;
+  margin-left: -0.725em;
+  transform-origin: 50% 92%;
+  transform: scale(0.15);
+  opacity: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0 0.35em rgb(255 150 40 / 0.75));
+  transition:
+    opacity 220ms ease,
+    transform 230ms ease-in;
+}
+.match-toggle .mt-flame svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-origin: 50% 92%;
+}
+.match-toggle[data-phase="lit"] .mt-flame {
+  opacity: 1;
+  transform: scale(1);
+  transition: none;
+}
+.match-toggle[data-phase="lit"] .mt-flame svg {
+  animation: mt-flicker 1.6s ease-in-out infinite;
+}
+.match-toggle[data-phase="lit"] .mt-fl-inner {
+  transform-origin: 50% 90%;
+  animation: mt-flicker-core 0.9s ease-in-out infinite alternate;
+}
+.match-toggle[data-ignited][data-phase="lit"] .mt-flame {
+  animation: mt-ignite 560ms cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.match-toggle[data-phase="out"] .mt-flame {
+  transform: scale(0.1, 0.25);
+}
+@keyframes mt-ignite {
+  0% {
+    opacity: 0;
+    transform: scale(0.1);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.35, 1.55);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes mt-flicker {
+  0%,
+  100% {
+    transform: scale(1, 1) skewX(0deg);
+  }
+  20% {
+    transform: scale(0.95, 1.05) skewX(-3deg);
+  }
+  45% {
+    transform: scale(1.04, 0.95) skewX(2.5deg);
+  }
+  70% {
+    transform: scale(0.97, 1.07) skewX(-1.5deg);
+  }
+}
+@keyframes mt-flicker-core {
+  from {
+    transform: scale(0.92, 0.96);
+  }
+  to {
+    transform: scale(1.05, 1.06);
+  }
+}
+
+/* warm light around the match while it burns */
+.match-toggle .mt-glow {
+  position: absolute;
+  z-index: -1;
+  left: calc(var(--pad) + var(--head) / 2 + var(--travel));
+  top: 30%;
+  width: 10em;
+  height: 10em;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgb(255 178 70 / 0.5),
+    rgb(255 140 40 / 0.16) 42%,
+    transparent 70%
+  );
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 400ms ease;
+}
+.match-toggle[data-phase="lit"] .mt-glow {
+  opacity: 1;
+  animation: mt-glow 2.4s ease-in-out infinite;
+}
+.match-toggle[data-phase="lit"] .mt-box {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.07),
+    inset -1.2em 0 1.4em rgb(255 150 50 / 0.22),
+    0 0.15em 0.5em rgb(0 0 0 / 0.35);
+}
+@keyframes mt-glow {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* sparks thrown off along the striker */
+.match-toggle .mt-sparks i {
+  position: absolute;
+  z-index: 3;
+  left: calc(var(--pad) + var(--head) * 0.6 + var(--i) * 0.55em);
+  top: 58%;
+  width: 0.6em;
+  height: 0.1em;
+  border-radius: 1em;
+  background: linear-gradient(90deg, transparent, #ffd27a 40%, #fffbe6);
+  opacity: 0;
+  pointer-events: none;
+}
+.match-toggle[data-phase="strike"] .mt-sparks i {
+  animation: mt-spark 380ms ease-out forwards;
+  animation-delay: calc(var(--i) * 45ms + 40ms);
+}
+.match-toggle[data-phase="strike"] .mt-sparks i:nth-child(even) {
+  animation-name: mt-spark-down;
+}
+@keyframes mt-spark {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(-24deg) scaleX(0.4);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-0.9em, -1.1em) rotate(-30deg) scaleX(1);
+  }
+}
+@keyframes mt-spark-down {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) rotate(20deg) scaleX(0.4);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-0.8em, 0.9em) rotate(26deg) scaleX(1);
+  }
+}
+
+/* smoke after the flame goes out */
+.match-toggle .mt-smoke {
+  position: absolute;
+  z-index: 3;
+  left: calc(var(--pad) + var(--head) / 2 + var(--travel));
+  top: 32%;
+  pointer-events: none;
+}
+.match-toggle .mt-smoke i {
+  position: absolute;
+  left: -0.55em;
+  top: -0.55em;
+  width: 1.1em;
+  height: 1.1em;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(205 205 205 / 0.6), transparent 70%);
+  filter: blur(1px);
+  opacity: 0;
+}
+.match-toggle:is([data-phase="out"], [data-phase="return"]) .mt-smoke i {
+  animation: mt-smoke 1.15s ease-out forwards;
+}
+.match-toggle .mt-smoke i:nth-child(2) {
+  animation-delay: 160ms !important;
+  --dx: 0.5em;
+}
+.match-toggle .mt-smoke i:nth-child(3) {
+  animation-delay: 320ms !important;
+  --dx: -0.35em;
+}
+@keyframes mt-smoke {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.5);
+  }
+  20% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx, 0.15em), -3.4em) scale(2.3);
+  }
+}
+
+/* theme change: the new theme spreads from the match (see lib/theme.ts) */
+html[data-theme-switch]::view-transition-old(root),
+html[data-theme-switch]::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+html[data-theme-switch] header {
+  view-transition-name: none !important;
+}
+.theme-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at var(--gx) var(--gy),
+    rgb(255 190 95 / 0.5),
+    rgb(255 160 60 / 0.18) 22%,
+    transparent 55%
+  );
+  animation: theme-glow 1.1s ease-out forwards;
+}
+@keyframes theme-glow {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
