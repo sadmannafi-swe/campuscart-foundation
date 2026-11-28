@@ -1,14 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import {
-  ArrowRight,
-  Check,
-  Crown,
-  Globe,
-  ImageIcon,
-  ShoppingCart,
-  Star,
-  Users,
-} from "lucide-react";
+import { ArrowRight, Check, Globe, ImageIcon, ShoppingCart, Star, Users } from "lucide-react";
 import { Reveal } from "@/components/motion/Reveal";
 import { useTilt } from "@/lib/motion";
 import type { SocialKind, SocialLink, TeamMember } from "@/data/team";
@@ -114,13 +105,6 @@ export function ProfilePhoto({ member, size }: { member: TeamMember; size: "lg" 
           )}
         </span>
       </span>
-      {member.founder && (
-        <Crown
-          className="team-crown absolute -left-1 -top-1 size-9 fill-bloom text-bloom-ink sm:size-10"
-          strokeWidth={1.6}
-          aria-hidden="true"
-        />
-      )}
     </span>
   );
 }

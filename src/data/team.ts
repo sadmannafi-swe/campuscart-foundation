@@ -50,7 +50,7 @@ export const TEAM: TeamMember[] = [
   },
   {
     name: "Jowyreya Hossain",
-    photo: "/team/jowyreya.webp",
+    photo: "/team/jowyreya-2.webp",
     title: "UI/UX & Quality Assurance Contributor",
     accent: "blue",
     responsibilities: [

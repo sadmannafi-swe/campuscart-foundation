@@ -2032,11 +2032,6 @@ html[data-theme-switch] header {
     opacity: 0.7;
   }
 }
-.team-crown {
-  rotate: -24deg;
-  animation: team-bob 3.6s ease-in-out infinite;
-  filter: drop-shadow(0 3px 4px oklch(0.4 0.1 70 / 35%));
-}
 
 /* soft diagonal brush behind a contributor's profile */
 .team-brush {
@@ -2133,11 +2128,6 @@ html[data-theme-switch] header {
 @keyframes team-shimmer {
   to {
     background-position: 100% 0;
-  }
-}
-@keyframes team-bob {
-  50% {
-    transform: translateY(-3px);
   }
 }
 /* when a card reveals: the ring pops in, the photo settles from a slight zoom,
