@@ -3,6 +3,7 @@ import { useEffect, type ReactNode } from "react";
 import { BadgeCheck, Store as StoreIcon } from "lucide-react";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { ShortcutTiles } from "@/components/home/ShortcutTiles";
+import { ScrollRail } from "@/components/motion/ScrollRail";
 import { ProductRail } from "@/components/commerce/ProductRail";
 import { ProductGrid } from "@/components/commerce/ProductGrid";
 import { Button } from "@/components/ui/button";
@@ -94,13 +95,13 @@ function HomePage() {
           }
         >
           {featuredStores.length > 0 ? (
-            <div className="-mx-4 flex snap-x gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
+            <ScrollRail className="focus-group -mx-4 flex snap-x gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden">
               {featuredStores.map((s) => (
                 <Link
                   key={s.id}
                   to="/stores/$storeSlug"
                   params={{ storeSlug: s.id }}
-                  className="group flex w-64 shrink-0 snap-start items-center gap-3 rounded-[16px] border border-border bg-surface p-2.5 transition-shadow duration-200 hover:shadow-[var(--shadow-card-hover)]"
+                  className="focus-item group flex w-64 shrink-0 snap-start items-center gap-3 rounded-[16px] border border-border bg-surface p-2.5 transition-shadow duration-200 hover:shadow-[var(--shadow-card-hover)]"
                 >
                   <span className="grid size-11 shrink-0 place-items-center rounded-[12px] bg-ink text-ink-foreground transition-colors duration-200 group-hover:bg-bloom group-hover:text-bloom-foreground">
                     <StoreIcon className="size-5" aria-hidden="true" />
@@ -119,7 +120,7 @@ function HomePage() {
                   </span>
                 </Link>
               ))}
-            </div>
+            </ScrollRail>
           ) : (
             <p className="text-sm text-muted-foreground">Featured stores will appear here.</p>
           )}

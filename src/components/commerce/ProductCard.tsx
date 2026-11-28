@@ -1,6 +1,6 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/lib/types";
 import { getStoreById } from "@/data/marketplace";
@@ -30,6 +30,10 @@ export function ProductCard({ product, className }: { product: Product; classNam
   const discount = discountPercent(product.price, product.originalPrice);
   const img = useImageFallback(product.image);
   const addRef = useRef<HTMLButtonElement>(null);
+  const mediaRef = useRef<HTMLDivElement>(null);
+  const [added, setAdded] = useState(false);
+  const addedTimer = useRef<number>(0);
+  useEffect(() => () => clearTimeout(addedTimer.current), []);
   const tilt = useTilt<HTMLElement>(5);
   const quickAdd = product.inStock && !(product.variants && product.variants.length > 0);
 
@@ -37,7 +41,7 @@ export function ProductCard({ product, className }: { product: Product; classNam
     <article
       ref={tilt}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-[16px] border border-border bg-surface transition-[transform,box-shadow,border-color] duration-300 ease-[var(--ease-bloom)] [transform:perspective(900px)_rotateX(var(--rx,0deg))_rotateY(var(--ry,0deg))] hover:[transform:perspective(900px)_rotateX(var(--rx,0deg))_rotateY(var(--ry,0deg))_translateY(-4px)] hover:border-foreground/15 hover:shadow-[var(--shadow-card-hover)]",
+        "focus-item group relative flex flex-col overflow-hidden rounded-[16px] border border-border bg-surface transition-[transform,box-shadow,border-color] duration-300 ease-[var(--ease-bloom)] [transform:perspective(900px)_rotateX(var(--rx,0deg))_rotateY(var(--ry,0deg))] hover:[transform:perspective(900px)_rotateX(var(--rx,0deg))_rotateY(var(--ry,0deg))_translateY(-4px)] hover:border-foreground/15 hover:shadow-[var(--shadow-card-hover)]",
         className,
       )}
     >
@@ -47,6 +51,7 @@ export function ProductCard({ product, className }: { product: Product; classNam
         className="pointer-events-none absolute inset-0 z-[1] opacity-0 transition-opacity duration-300 [background:radial-gradient(240px_circle_at_var(--gx,50%)_var(--gy,50%),rgb(255_255_255/0.22),transparent_60%)] group-hover:opacity-100"
       />
       <div
+        ref={mediaRef}
         className={cn(
           "relative grid aspect-4/3 place-items-center overflow-hidden",
           categoryTint[product.categorySlug] ?? "bg-muted text-muted-foreground",
@@ -98,19 +103,41 @@ export function ProductCard({ product, className }: { product: Product; classNam
             aria-label={`Add ${product.name} to cart`}
             onClick={() => {
               cart.add(product, 1);
-              flyToCart(addRef.current);
+              flyToCart(addRef.current, img.showImage ? product.image : null);
               toast.success("Added to cart");
+              setAdded(true);
+              clearTimeout(addedTimer.current);
+              addedTimer.current = window.setTimeout(() => setAdded(false), 1600);
             }}
-            className="absolute bottom-2.5 right-2.5 z-10 grid size-9 cursor-pointer place-items-center rounded-full bg-ink text-ink-foreground shadow-[0_6px_16px_oklch(0.22_0.05_265/20%)] transition-[transform,opacity,background-color] duration-300 ease-[var(--ease-bloom)] hover:bg-bloom hover:text-bloom-foreground active:scale-90 md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 md:focus-visible:translate-y-0 md:focus-visible:opacity-100"
+            className={cn(
+              "absolute bottom-2.5 right-2.5 z-10 grid size-9 cursor-pointer place-items-center rounded-full shadow-[0_6px_16px_oklch(0.22_0.05_265/20%)] transition-[transform,opacity,background-color,color] duration-300 ease-[var(--ease-bloom)] active:scale-90 md:focus-visible:translate-y-0 md:focus-visible:opacity-100",
+              added
+                ? "bg-accent text-white md:translate-y-0 md:opacity-100"
+                : "bg-ink text-ink-foreground hover:bg-bloom hover:text-bloom-foreground md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100",
+            )}
           >
-            <Plus className="size-4" aria-hidden="true" />
+            {added ? (
+              <Check key="added" className="atc-pop size-4" strokeWidth={3} aria-hidden="true" />
+            ) : (
+              <Plus key="add" className="size-4" aria-hidden="true" />
+            )}
           </button>
         )}
       </div>
 
       <div className="flex flex-1 flex-col gap-1.5 p-3">
         <h3 className="line-clamp-2 min-h-10 text-sm font-medium leading-snug">
-          <Link to="/products/$productSlug" params={{ productSlug: product.slug }}>
+          <Link
+            to="/products/$productSlug"
+            params={{ productSlug: product.slug }}
+            onClick={() => {
+              // Only the tapped card's photo grows into the product page photo.
+              const el = mediaRef.current;
+              if (!el) return;
+              el.style.viewTransitionName = "product-hero";
+              window.setTimeout(() => (el.style.viewTransitionName = ""), 1200);
+            }}
+          >
             <span className="absolute inset-0" aria-hidden="true" />
             {product.name}
           </Link>

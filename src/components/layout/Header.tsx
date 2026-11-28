@@ -214,16 +214,17 @@ export function Header() {
                   <SheetTitle className="text-left">Browse CampusCart</SheetTitle>
                 </SheetHeader>
                 <ThemeRow />
-                <nav className="mt-4 space-y-1" aria-label="Mobile">
+                <nav className="cascade mt-4 space-y-1" aria-label="Mobile">
                   {[
                     { label: "Home", to: "/diu" as const },
                     ...primaryLinks,
                     { label: "Orders", to: "/orders" as const },
                     { label: "Profile", to: "/account" as const },
-                  ].map((link) => (
+                  ].map((link, i) => (
                     <Link
                       key={link.to}
                       to={link.to}
+                      style={{ "--i": i } as React.CSSProperties}
                       className="block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
                       activeProps={{ className: "bg-bloom-soft text-foreground" }}
                     >

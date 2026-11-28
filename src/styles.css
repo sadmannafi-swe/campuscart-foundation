@@ -1566,3 +1566,114 @@ html[data-theme-switch] header {
     display: none;
   }
 }
+
+/* ---- Micro-interactions (Add to Cart, Send, card focus, cascades) ------------- */
+/* Add to Cart: squeeze on press → spinner → "✓ Added" (check draws in) → back. */
+.atc-label {
+  animation: atc-swap 320ms var(--ease-bloom) both;
+}
+.atc-button[data-state="adding"] {
+  animation: atc-squeeze 420ms var(--ease-bloom);
+}
+.atc-button[data-state="added"] {
+  animation: atc-done 520ms var(--ease-bloom);
+}
+.atc-check path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: atc-draw 420ms 60ms var(--ease-bloom) forwards;
+}
+.atc-pop {
+  animation: atc-pop 420ms var(--ease-bloom);
+}
+@keyframes atc-swap {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+}
+@keyframes atc-squeeze {
+  35% {
+    transform: scale(0.94, 0.88);
+  }
+}
+@keyframes atc-done {
+  0% {
+    transform: scale(0.96);
+  }
+  55% {
+    transform: scale(1.04);
+  }
+}
+@keyframes atc-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes atc-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) rotate(-30deg);
+  }
+  60% {
+    transform: scale(1.2);
+  }
+}
+
+/* A chat message that arrives while the thread is open rises in from its side. */
+.msg-in {
+  animation: msg-in 420ms var(--ease-bloom) both;
+}
+@keyframes msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.92);
+  }
+}
+
+/* Card focus: hovering one card lifts it while the others step back (mouse only). */
+@media (hover: hover) and (pointer: fine) {
+  .focus-group .focus-item {
+    transition-property: transform, box-shadow, border-color, opacity, filter, scale;
+    transition-duration: 320ms;
+    transition-timing-function: var(--ease-bloom);
+  }
+  .focus-group .focus-item:hover {
+    scale: 1.02;
+  }
+  .focus-group:has(.focus-item:hover) .focus-item:not(:hover) {
+    opacity: 0.6;
+    filter: saturate(0.7);
+    scale: 0.97;
+  }
+}
+
+/* Lists that cascade in, one item after another (cart, menus). */
+.cascade > * {
+  animation: cascade-in 460ms var(--ease-bloom) both;
+  animation-delay: calc(80ms + var(--i, 0) * 55ms);
+}
+@keyframes cascade-in {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+}
+
+/* Product card photo → product page photo (shared element, slow in / slow out). */
+::view-transition-group(product-hero) {
+  animation-duration: 560ms;
+  animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
+}
+::view-transition-old(product-hero),
+::view-transition-new(product-hero) {
+  height: 100%;
+  object-fit: cover;
+  overflow: clip;
+  animation-duration: 560ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .focus-group:has(.focus-item:hover) .focus-item:not(:hover) {
+    scale: 1;
+  }
+}

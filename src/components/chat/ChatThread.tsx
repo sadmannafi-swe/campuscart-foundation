@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Check, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
@@ -9,6 +9,7 @@ import { liveProductSlug } from "@/lib/liveCatalog";
 import { markChatRead, sendChatMessage, useChatMessages, type ChatConversation } from "@/lib/chat";
 import { useSignedUrl } from "@/lib/seller";
 import { cn } from "@/lib/utils";
+import { flyPaperPlane } from "@/lib/motion";
 import { useImageFallback } from "@/lib/useImageFallback";
 
 export type ChatAccent = "buyer" | "seller";
@@ -167,10 +168,19 @@ export function ChatThread({
 }) {
   const styles = accentStyles[accent];
   const queryClient = useQueryClient();
-  const { data: messages = [] } = useChatMessages(conversation.id);
+  const { data: messages = [], isSuccess } = useChatMessages(conversation.id);
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const sendRef = useRef<HTMLButtonElement>(null);
+  const sentTimer = useRef<number>(0);
+  // Messages already there when the thread opened don't animate; new ones rise in.
+  const initialIds = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    if (isSuccess && !initialIds.current) initialIds.current = new Set(messages.map((m) => m.id));
+  }, [isSuccess, messages]);
+  useEffect(() => () => clearTimeout(sentTimer.current), []);
 
   useEffect(() => {
     void markChatRead(conversation.id);
@@ -184,9 +194,13 @@ export function ChatThread({
     const body = draft.trim();
     if (!body || sending) return;
     setSending(true);
+    flyPaperPlane(sendRef.current);
     try {
       await sendChatMessage(conversation.id, body);
       setDraft("");
+      setSent(true);
+      clearTimeout(sentTimer.current);
+      sentTimer.current = window.setTimeout(() => setSent(false), 1100);
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ["chat-messages", conversation.id] }),
         queryClient.invalidateQueries({ queryKey: ["chat-conversations"] }),
@@ -260,11 +274,13 @@ export function ChatThread({
         )}
         {messages.map((m) => {
           const mine = m.sender_id === viewerId;
+          const isNew = !!initialIds.current && !initialIds.current.has(m.id);
           return (
             <div key={m.id} className={cn("flex", mine ? "justify-end" : "justify-start")}>
               <div
                 className={cn(
                   "max-w-[80%] rounded-2xl px-3.5 py-2 text-sm shadow-sm",
+                  isNew && (mine ? "msg-in origin-bottom-right" : "msg-in origin-bottom-left"),
                   mine ? cn("rounded-br-md", styles.bubble) : "rounded-bl-md bg-surface",
                 )}
               >
@@ -309,13 +325,18 @@ export function ChatThread({
           )}
         />
         <Button
+          ref={sendRef}
           type="submit"
           size="icon"
-          disabled={!draft.trim() || sending}
+          disabled={!sent && (!draft.trim() || sending)}
           className={cn("size-10 shrink-0 rounded-full", styles.button)}
-          aria-label="Send message"
+          aria-label={sent ? "Message sent" : "Send message"}
         >
-          <Send className="size-4" />
+          {sent ? (
+            <Check key="sent" className="atc-pop size-4" strokeWidth={3} />
+          ) : (
+            <Send key="send" className={cn("size-4 transition-opacity", sending && "opacity-0")} />
+          )}
         </Button>
       </form>
     </div>

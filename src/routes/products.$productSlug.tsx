@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { BadgeCheck, Check, MessageCircle, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
 import { toast } from "sonner";
-import { flyToCart } from "@/lib/motion";
+import { AddToCartButton } from "@/components/motion/AddToCartButton";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { BackButton } from "@/components/common/BackButton";
 import { PageBreadcrumb } from "@/components/common/PageBreadcrumb";
@@ -135,6 +135,7 @@ function LiveProductDetails({ slug }: { slug: string }) {
         ) : (
           <div className="grid gap-8 lg:grid-cols-2">
             <div
+              style={{ viewTransitionName: "product-hero" }}
               className={cn(
                 "grid aspect-square w-full place-items-center overflow-hidden rounded-3xl border border-border bg-gradient-to-br",
                 product.accentFrom,
@@ -188,17 +189,12 @@ function LiveProductDetails({ slug }: { slug: string }) {
                 </p>
               )}
               <div className="mt-6 flex gap-3">
-                <Button
+                <AddToCartButton
                   className="flex-1 sm:flex-none"
                   disabled={!product.inStock}
-                  onClick={(e) => {
-                    cart.add(product, 1);
-                    flyToCart(e.currentTarget);
-                    toast.success("Added to cart");
-                  }}
-                >
-                  Add to Cart
-                </Button>
+                  image={img.showImage ? product.image : null}
+                  onAdd={() => cart.add(product, 1)}
+                />
                 <Button
                   variant="secondary"
                   className="flex-1 sm:flex-none"
@@ -391,18 +387,13 @@ function StaticProductDetails({
             </div>
 
             <div className="mt-6 flex flex-wrap gap-3">
-              <Button
+              <AddToCartButton
                 size="lg"
                 className="flex-1 sm:flex-none"
                 disabled={!product.inStock}
-                onClick={(e) => {
-                  cart.add(product, quantity);
-                  flyToCart(e.currentTarget);
-                  toast.success("Added to cart");
-                }}
-              >
-                Add to Cart
-              </Button>
+                image={product.image}
+                onAdd={() => cart.add(product, quantity)}
+              />
               <Button
                 size="lg"
                 variant="secondary"

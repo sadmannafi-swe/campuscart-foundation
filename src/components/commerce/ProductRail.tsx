@@ -8,7 +8,7 @@ export function ProductRail({ products, className }: { products: Product[]; clas
   return (
     <div
       className={cn(
-        "-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:gap-4 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 xl:grid-cols-6 [&::-webkit-scrollbar]:hidden",
+        "focus-group -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:gap-4 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 xl:grid-cols-6 [&::-webkit-scrollbar]:hidden",
         className,
       )}
     >

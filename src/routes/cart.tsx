@@ -43,9 +43,13 @@ function CartPage() {
           </div>
         ) : (
           <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
-            <ul className="space-y-3">
-              {items.map((item) => (
-                <li key={item.productId} className="card-surface flex gap-3 p-3">
+            <ul className="cascade space-y-3">
+              {items.map((item, i) => (
+                <li
+                  key={item.productId}
+                  style={{ "--i": i } as React.CSSProperties}
+                  className="card-surface flex gap-3 p-3"
+                >
                   <ItemThumb path={item.imagePath} alt={item.name} />
                   <div className="min-w-0 flex-1">
                     <Link
