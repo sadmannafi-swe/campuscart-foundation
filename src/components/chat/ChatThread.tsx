@@ -6,7 +6,12 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/format";
 import { liveProductSlug } from "@/lib/liveCatalog";
-import { markChatRead, sendChatMessage, useChatMessages, type ChatConversation } from "@/lib/chat";
+import {
+  markChatReadEverywhere,
+  sendChatMessage,
+  useChatMessages,
+  type ChatConversation,
+} from "@/lib/chat";
 import { useSignedUrl } from "@/lib/seller";
 import { cn } from "@/lib/utils";
 import { flyPaperPlane } from "@/lib/motion";
@@ -183,8 +188,10 @@ export function ChatThread({
   useEffect(() => () => clearTimeout(sentTimer.current), []);
 
   useEffect(() => {
-    void markChatRead(conversation.id);
-  }, [conversation.id, messages.length]);
+    // Opening the thread (and every new message while it's open) marks it read;
+    // every unread badge updates immediately.
+    void markChatReadEverywhere(queryClient, conversation.id);
+  }, [queryClient, conversation.id, messages.length]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ block: "end" });

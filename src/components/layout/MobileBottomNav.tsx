@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Home, MessageCircle, Package, ShoppingBag, ShoppingCart, User } from "lucide-react";
 import { useAuth } from "@/lib/auth";
-import { useUnreadChatCounts } from "@/lib/chat";
+import { useUnreadChatTotal } from "@/lib/chat";
 import { useTypingOnTouch } from "@/lib/useTypingOnTouch";
 import { cn } from "@/lib/utils";
 
@@ -17,10 +17,9 @@ const items = [
 
 export function MobileBottomNav() {
   const { user } = useAuth();
-  const { data: unreadCounts } = useUnreadChatCounts(user?.id);
+  const unreadTotal = useUnreadChatTotal(user?.id, "personal");
   // hidden while the on-screen keyboard is up, so it never covers the field being typed in
   const typing = useTypingOnTouch();
-  const unreadTotal = unreadCounts ? Object.values(unreadCounts).reduce((sum, n) => sum + n, 0) : 0;
 
   return (
     <nav

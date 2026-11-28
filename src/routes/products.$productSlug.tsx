@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { BadgeCheck, Check, MessageCircle, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
+import {
+  BadgeCheck,
+  Check,
+  ChevronRight,
+  MessageCircle,
+  Minus,
+  Plus,
+  ShieldCheck,
+  Store as StoreIcon,
+  Truck,
+} from "lucide-react";
 import { toast } from "sonner";
 import { AddToCartButton } from "@/components/motion/AddToCartButton";
 import { SiteLayout } from "@/components/layout/SiteLayout";
@@ -15,7 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { discountPercent, formatPrice } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { useLiveProducts } from "@/lib/liveCatalog";
+import { useLiveProducts, useLiveStores } from "@/lib/liveCatalog";
 import { cart } from "@/lib/cart";
 import { openProductChat } from "@/lib/chat";
 import { useAuth } from "@/lib/auth";
@@ -180,9 +190,10 @@ function LiveProductDetails({ slug }: { slug: string }) {
                     </>
                   )}
               </div>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Sold by <span className="font-semibold text-foreground">{product.storeName}</span>
-              </p>
+              <StoreLink
+                storeId={product.storeId}
+                fallbackName={product.storeName ?? "Campus seller"}
+              />
               {product.description && (
                 <p className="mt-4 whitespace-pre-line text-sm leading-relaxed">
                   {product.description}
@@ -322,7 +333,7 @@ function StaticProductDetails({
             <Link
               to="/stores/$storeSlug"
               params={{ storeSlug: store.slug }}
-              className="card-surface mt-6 flex items-center gap-3 p-4 transition-shadow hover:shadow-[var(--shadow-card-hover)]"
+              className="group card-surface mt-6 flex flex-wrap items-center gap-3 p-4 transition-shadow hover:shadow-[var(--shadow-card-hover)]"
             >
               <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary-soft text-sm font-semibold text-primary">
                 {store.initials}
@@ -337,6 +348,7 @@ function StaticProductDetails({
                 <span className="text-xs text-muted-foreground">{store.responseTime}</span>
               </span>
               <Rating value={store.rating} showValue />
+              <VisitStoreLabel />
             </Link>
 
             {product.variants?.map((variant) => (
@@ -478,5 +490,65 @@ function StaticProductDetails({
         )}
       </div>
     </SiteLayout>
+  );
+}
+
+function VisitStoreLabel() {
+  return (
+    <span className="flex shrink-0 items-center gap-1 rounded-full bg-primary-soft px-3 py-1.5 text-xs font-semibold text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+      <StoreIcon className="size-3.5" aria-hidden="true" />
+      Visit Store
+      <ChevronRight className="size-3.5" aria-hidden="true" />
+    </span>
+  );
+}
+
+/**
+ * The seller's store on a product page: logo, name, category, listings and rating
+ * from the live store list, linking to the store page. Shows the product's store name
+ * while the store list loads.
+ */
+function StoreLink({ storeId, fallbackName }: { storeId: string; fallbackName: string }) {
+  const { stores } = useLiveStores();
+  const store = stores.find((s) => s.id === storeId);
+  const name = store?.name ?? fallbackName;
+  const logo = useImageFallback(store?.logoUrl ?? null);
+  return (
+    <Link
+      to="/stores/$storeSlug"
+      params={{ storeSlug: storeId }}
+      aria-label={`Visit ${name}`}
+      className="group card-surface mt-3 flex items-center gap-3 p-3 transition-shadow hover:shadow-[var(--shadow-card-hover)]"
+    >
+      {logo.showImage ? (
+        <img
+          src={store?.logoUrl ?? ""}
+          alt=""
+          onError={logo.onError}
+          className="size-11 shrink-0 rounded-xl object-cover"
+        />
+      ) : (
+        <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary-soft text-sm font-semibold text-primary">
+          {name.slice(0, 2).toUpperCase()}
+        </span>
+      )}
+      <span className="min-w-0 flex-1">
+        <span className="block text-[11px] text-muted-foreground">Sold by</span>
+        <span className="flex items-center gap-1.5 text-sm font-semibold">
+          <span className="truncate">{name}</span>
+          {store?.verified && (
+            <BadgeCheck className="size-4 shrink-0 text-accent" aria-hidden="true" />
+          )}
+        </span>
+        {store && (
+          <span className="block truncate text-xs text-muted-foreground">
+            {store.categoryName} · {store.productCount} listing
+            {store.productCount === 1 ? "" : "s"}
+            {store.reviewCount > 0 && ` · ★ ${store.rating.toFixed(1)}`}
+          </span>
+        )}
+      </span>
+      <VisitStoreLabel />
+    </Link>
   );
 }

@@ -109,6 +109,7 @@ export function liveStoreToStore(s: PublicStoreSummary): Store {
     accentFrom: "from-primary-soft",
     accentTo: "to-accent-soft",
     initials: s.name.slice(0, 2).toUpperCase(),
+    logoUrl: s.logo_path,
   };
 }
 

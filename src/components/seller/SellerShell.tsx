@@ -23,6 +23,7 @@ import { authClient } from "@/lib/authClient";
 import { useSellerAccount, useSignedUrl } from "@/lib/seller";
 import { useAuth } from "@/lib/auth";
 import { useNotifications } from "@/lib/notifications";
+import { useUnreadChatTotal } from "@/lib/chat";
 import { cn } from "@/lib/utils";
 import { useImageFallback } from "@/lib/useImageFallback";
 import { useTypingOnTouch } from "@/lib/useTypingOnTouch";
@@ -76,6 +77,8 @@ export function SellerShell({ children, title }: { children: ReactNode; title: s
   const { user } = useAuth();
   const { data: notes = [] } = useNotifications(user?.id, "seller");
   const unread = notes.filter((n) => !n.read_at).length;
+  const unreadMessages = useUnreadChatTotal(user?.id, "seller");
+  const countFor = (to: string) => (to === "/sell/dashboard/messages" ? unreadMessages : 0);
   const navigate = useNavigate();
   const typing = useTypingOnTouch();
   const queryClient = useQueryClient();
@@ -107,6 +110,14 @@ export function SellerShell({ children, title }: { children: ReactNode; title: s
         >
           <Icon className="size-4" aria-hidden="true" />
           {label}
+          {countFor(to) > 0 && (
+            <span
+              className="ml-auto grid min-w-5 place-items-center rounded-full bg-destructive px-1.5 text-[11px] font-semibold text-destructive-foreground"
+              aria-label={`${countFor(to)} unread`}
+            >
+              {countFor(to) > 99 ? "99+" : countFor(to)}
+            </span>
+          )}
         </Link>
       ))}
       <button
@@ -202,7 +213,17 @@ export function SellerShell({ children, title }: { children: ReactNode; title: s
                     isActive(to) ? "text-primary" : "text-muted-foreground",
                   )}
                 >
-                  <Icon className="size-5" aria-hidden="true" />
+                  <span className="relative">
+                    <Icon className="size-5" aria-hidden="true" />
+                    {countFor(to) > 0 && (
+                      <span
+                        className="absolute -right-2 -top-1.5 grid min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-semibold leading-4 text-destructive-foreground"
+                        aria-label={`${countFor(to)} unread`}
+                      >
+                        {countFor(to) > 9 ? "9+" : countFor(to)}
+                      </span>
+                    )}
+                  </span>
                   {label}
                 </Link>
               </li>

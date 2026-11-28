@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, type QueryClient } from "@tanstack/react-query";
 import type {
   ChatConversation as ChatConversationT,
   ChatMessage as ChatMessageT,
@@ -20,6 +20,24 @@ export async function sendChatMessage(conversationId: string, body: string): Pro
 
 export async function markChatRead(conversationId: string): Promise<void> {
   await apiPost(`/chat/conversations/${conversationId}/read`);
+}
+
+/**
+ * Mark a conversation read: its unread count drops to 0 in every badge immediately,
+ * then the server is told and the counts are re-fetched to confirm.
+ */
+export async function markChatReadEverywhere(qc: QueryClient, conversationId: string) {
+  qc.setQueriesData<Record<string, number>>({ queryKey: ["chat-unread"] }, (old) => {
+    if (!old || !old[conversationId]) return old;
+    const next = { ...old };
+    delete next[conversationId];
+    return next;
+  });
+  try {
+    await markChatRead(conversationId);
+  } finally {
+    void qc.invalidateQueries({ queryKey: ["chat-unread"] });
+  }
 }
 
 /** Buyer inbox: all own conversations, newest activity first. */
@@ -92,11 +110,22 @@ export function useChatMessages(conversationId: string | undefined) {
 }
 
 /** Unread message counts per conversation for the current user. */
-export function useUnreadChatCounts(userId: string | undefined) {
+/**
+ * Unread counts per conversation for one inbox — "personal" (/chat) or "seller"
+ * (seller dashboard) — so a badge never counts messages its inbox doesn't show.
+ */
+export function useUnreadChatCounts(userId: string | undefined, inbox: "personal" | "seller") {
   return useQuery({
-    queryKey: ["chat-unread", userId],
+    queryKey: ["chat-unread", inbox, userId],
     enabled: !!userId,
     refetchInterval: 10_000,
-    queryFn: () => api<Record<string, number>>("/chat/unread"),
+    refetchOnWindowFocus: true,
+    queryFn: () => api<Record<string, number>>(`/chat/unread?inbox=${inbox}`),
   });
+}
+
+/** Total unread messages in an inbox (0 when there are none or while loading). */
+export function useUnreadChatTotal(userId: string | undefined, inbox: "personal" | "seller") {
+  const { data } = useUnreadChatCounts(userId, inbox);
+  return data ? Object.values(data).reduce((sum, n) => sum + (n > 0 ? n : 0), 0) : 0;
 }

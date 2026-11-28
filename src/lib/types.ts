@@ -33,6 +33,8 @@ export interface Store {
   accentFrom: string;
   accentTo: string;
   initials: string;
+  /** Store logo (live stores only). */
+  logoUrl?: string | null;
 }
 
 export interface ProductVariant {

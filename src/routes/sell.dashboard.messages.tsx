@@ -22,7 +22,7 @@ export const Route = createFileRoute("/sell/dashboard/messages")({
 function SellerMessagesPage() {
   const { user } = useAuth();
   const { data: conversations = [], isLoading } = useSellerConversations(user?.id);
-  const { data: unread = {} } = useUnreadChatCounts(user?.id);
+  const { data: unread = {} } = useUnreadChatCounts(user?.id, "seller");
 
   return (
     <SellerShell title="Messages">

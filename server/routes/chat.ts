@@ -150,20 +150,26 @@ async function withOwnerNames(list: ConversationDoc[]) {
   }));
 }
 
+/**
+ * Which conversations each inbox shows. Seller inbox (dashboard) = Marketplace product
+ * chats only. The personal inbox (/chat) holds the user's own chats plus module chats
+ * others started about the user's posts. Unread counts use the same filters, so a
+ * badge only ever counts messages the user can open from where the badge points.
+ */
+function inboxFilter(userId: string, inbox: "personal" | "seller") {
+  return inbox === "seller"
+    ? { seller_user_id: userId, first_message_at: { $ne: null }, kind: { $nin: MODULE_KINDS } }
+    : {
+        $or: [
+          { buyer_id: userId },
+          { seller_user_id: userId, kind: { $in: MODULE_KINDS }, first_message_at: { $ne: null } },
+        ],
+      };
+}
+
 chatRouter.get("/chat/conversations", async (req, res) => {
   const u = me(req);
-  const role = req.query["role"] === "seller" ? "seller" : "buyer";
-  // Seller inbox (dashboard) = Marketplace product chats only. The personal inbox holds
-  // the user's own chats plus module chats others started about the user's posts.
-  const filter =
-    role === "seller"
-      ? { seller_user_id: u.id, first_message_at: { $ne: null }, kind: { $nin: MODULE_KINDS } }
-      : {
-          $or: [
-            { buyer_id: u.id },
-            { seller_user_id: u.id, kind: { $in: MODULE_KINDS }, first_message_at: { $ne: null } },
-          ],
-        };
+  const filter = inboxFilter(u.id, req.query["role"] === "seller" ? "seller" : "personal");
   const list = await col
     .conversations()
     .find(filter)
@@ -236,12 +242,21 @@ chatRouter.post("/chat/conversations/:id/read", async (req, res) => {
   res.json({ ok: true });
 });
 
-/** Unread message counts per conversation for the current user. */
+/**
+ * Unread message counts per conversation for the current user, for one inbox:
+ * `?inbox=personal` (/chat) or `?inbox=seller` (seller dashboard); both when omitted.
+ * Only messages from the other person that haven't been read count.
+ */
 chatRouter.get("/chat/unread", async (req, res) => {
   const u = me(req);
+  const inbox = req.query["inbox"];
+  const filter =
+    inbox === "personal" || inbox === "seller"
+      ? inboxFilter(u.id, inbox)
+      : { $or: [inboxFilter(u.id, "personal"), inboxFilter(u.id, "seller")] };
   const convs = await col
     .conversations()
-    .find({ $or: [{ buyer_id: u.id }, { seller_user_id: u.id }] }, { projection: { _id: 1 } })
+    .find(filter, { projection: { _id: 1 } })
     .toArray();
   const rows = await col
     .messages()

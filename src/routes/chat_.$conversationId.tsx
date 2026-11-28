@@ -36,7 +36,7 @@ function BuyerChatPage() {
     refetch,
   } = useConversation(conversationId, user?.id);
   const { data: conversations = [] } = useBuyerConversations(user?.id);
-  const { data: unread = {} } = useUnreadChatCounts(user?.id);
+  const { data: unread = {} } = useUnreadChatCounts(user?.id, "personal");
 
   // The personal inbox lists chats the user started AND chats others started about the
   // user's Pre-Owned / blood / BashaLagbe posts, so both participants read them here.

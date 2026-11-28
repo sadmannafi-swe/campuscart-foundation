@@ -453,12 +453,24 @@ describe.skipIf(!MONGO)("CampusCart API", () => {
         .status,
     ).toBe(201);
     expect((await sellerA.get("/api/chat/unread")).body).toEqual({ [id]: 1 });
+    // Each inbox counts only what it shows: a buyer's message to a seller belongs to the
+    // seller dashboard inbox, never to the seller's personal /chat inbox (header badge).
+    expect((await sellerA.get("/api/chat/unread?inbox=seller")).body).toEqual({ [id]: 1 });
+    expect((await sellerA.get("/api/chat/unread?inbox=personal")).body).toEqual({});
+    // the sender has nothing unread anywhere
+    expect((await buyer.get("/api/chat/unread?inbox=personal")).body).toEqual({});
+    expect((await buyer.get("/api/chat/unread?inbox=seller")).body).toEqual({});
     expect((await sellerB.get(`/api/chat/conversations/${id}/messages`)).status).toBe(403);
     expect(
       (await post(sellerA, `/api/chat/conversations/${id}/messages`, { body: "Yes!" })).status,
     ).toBe(201);
+    // the seller's reply is unread for the buyer, in the buyer's personal inbox
+    expect((await buyer.get("/api/chat/unread?inbox=personal")).body).toEqual({ [id]: 1 });
+    await post(buyer, `/api/chat/conversations/${id}/read`);
+    expect((await buyer.get("/api/chat/unread?inbox=personal")).body).toEqual({});
     await post(sellerA, `/api/chat/conversations/${id}/read`);
     expect((await sellerA.get("/api/chat/unread")).body).toEqual({});
+    expect((await sellerA.get("/api/chat/unread?inbox=seller")).body).toEqual({});
     expect(
       (await sellerA.get("/api/chat/conversations?role=seller")).body[0].last_message_preview,
     ).toBe("Yes!");

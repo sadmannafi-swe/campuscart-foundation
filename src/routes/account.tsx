@@ -27,7 +27,7 @@ import { ImagePicker } from "@/components/common/ImagePicker";
 import { SignInMethods } from "@/components/auth/SignInMethods";
 import { apiPatch } from "@/lib/api";
 import { useAuth, type BuyerProfile } from "@/lib/auth";
-import { useUnreadChatCounts } from "@/lib/chat";
+import { useUnreadChatTotal } from "@/lib/chat";
 import { cn } from "@/lib/utils";
 import { useImageFallback } from "@/lib/useImageFallback";
 
@@ -86,8 +86,7 @@ function AccountPage() {
   const [editing, setEditing] = useState(false);
   const avatarUrl = profile?.avatar_path ?? null;
   const avatarImg = useImageFallback(avatarUrl);
-  const { data: unreadCounts } = useUnreadChatCounts(user?.id);
-  const unreadTotal = unreadCounts ? Object.values(unreadCounts).reduce((sum, n) => sum + n, 0) : 0;
+  const unreadTotal = useUnreadChatTotal(user?.id, "personal");
 
   if (loading) {
     return (

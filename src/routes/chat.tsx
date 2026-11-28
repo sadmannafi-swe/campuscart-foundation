@@ -24,7 +24,7 @@ export const Route = createFileRoute("/chat")({
 function BuyerInboxPage() {
   const { user, loading } = useAuth();
   const { data: conversations = [], isLoading } = useBuyerConversations(user?.id);
-  const { data: unread = {} } = useUnreadChatCounts(user?.id);
+  const { data: unread = {} } = useUnreadChatCounts(user?.id, "personal");
 
   return (
     <SiteLayout>

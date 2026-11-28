@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { categories } from "@/data/marketplace";
 import { useAuth } from "@/lib/auth";
-import { useUnreadChatCounts } from "@/lib/chat";
+import { useUnreadChatTotal } from "@/lib/chat";
 import { useNotifications } from "@/lib/notifications";
 
 const primaryLinks = [
@@ -44,8 +44,7 @@ export function Header() {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { count: cartCount } = useCart();
-  const { data: unreadCounts } = useUnreadChatCounts(user?.id);
-  const unreadTotal = unreadCounts ? Object.values(unreadCounts).reduce((sum, n) => sum + n, 0) : 0;
+  const unreadTotal = useUnreadChatTotal(user?.id, "personal");
   const { data: buyerNotes = [] } = useNotifications(user?.id, "buyer");
   const unreadNotes = buyerNotes.filter((n) => !n.read_at).length;
   const navigate = useNavigate();

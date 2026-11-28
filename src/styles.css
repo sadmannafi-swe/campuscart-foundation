@@ -1677,3 +1677,69 @@ html[data-theme-switch] header {
     scale: 1;
   }
 }
+
+/* ---- Animated logo ---------------------------------------------------------------- */
+/* The daffodil is the logo image itself, clipped to the flower (x < 125 of 640 px) and
+   turned about its exact centre (63.5, 71.5 px). Six identical petals: a 60° turn ends
+   on precisely the original mark. Only `transform` animates (GPU, no layout). */
+.cc-logo-flower {
+  clip-path: inset(0 80.47% 0 0);
+  transform-origin: 9.92% 49.65%;
+  opacity: 0;
+}
+.cc-logo[data-anim="on"] .cc-logo-flower {
+  opacity: 1;
+  animation: cc-flower-turn 9s 3s infinite;
+}
+.cc-logo[data-anim="on"] .cc-logo-base {
+  clip-path: inset(0 0 0 19.53%);
+}
+.cc-logo-intro[data-anim="on"] .cc-logo-flower {
+  animation:
+    cc-flower-bloom 1000ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    cc-flower-turn 9s 3s infinite;
+}
+.cc-logo-intro[data-anim="on"] .cc-logo-base {
+  animation: cc-logo-word 800ms 150ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (hover: hover) {
+  .cc-logo:hover .cc-logo-flower,
+  a:hover > .cc-logo .cc-logo-flower,
+  a:focus-visible > .cc-logo .cc-logo-flower {
+    animation: cc-flower-hover 800ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+}
+/* rest, then one slow, eased 60° turn */
+@keyframes cc-flower-turn {
+  0%,
+  86% {
+    transform: rotate(0deg);
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  100% {
+    transform: rotate(60deg);
+  }
+}
+@keyframes cc-flower-hover {
+  to {
+    transform: rotate(60deg);
+  }
+}
+@keyframes cc-flower-bloom {
+  from {
+    opacity: 0;
+    transform: rotate(-120deg) scale(0.4);
+  }
+}
+@keyframes cc-logo-word {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cc-logo .cc-logo-flower,
+  .cc-logo .cc-logo-base {
+    animation: none !important;
+  }
+}

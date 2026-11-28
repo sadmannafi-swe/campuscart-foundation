@@ -36,7 +36,7 @@ function SellerChatPage() {
     refetch,
   } = useConversation(conversationId, user?.id);
   const { data: conversations = [] } = useSellerConversations(user?.id);
-  const { data: unread = {} } = useUnreadChatCounts(user?.id);
+  const { data: unread = {} } = useUnreadChatCounts(user?.id, "seller");
 
   const place = user && conversation ? conversationPlace(conversation, user.id) : "none";
 
