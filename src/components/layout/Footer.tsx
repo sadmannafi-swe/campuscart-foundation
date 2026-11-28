@@ -12,6 +12,7 @@ const columns = [
       { label: "Categories", to: "/categories" as const },
       { label: "Offers", to: "/offers" as const },
       { label: "New arrivals", to: "/new-arrivals" as const },
+      { label: "About Us", to: "/about" as const },
     ],
   },
   {
