@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Facebook } from "lucide-react";
 import { SiteLayout } from "@/components/layout/SiteLayout";
 import { TeamCard } from "@/components/about/Team";
-import { TEAM, TESTING_CONTRIBUTORS } from "@/data/team";
+import { TEAM } from "@/data/team";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -10,14 +9,12 @@ export const Route = createFileRoute("/about")({
       { title: "About Us — DIU CampusCart" },
       {
         name: "description",
-        content:
-          "Meet the team behind DIU CampusCart, and the people who help keep it safe and reliable.",
+        content: "Meet the team behind DIU CampusCart.",
       },
       { property: "og:title", content: "About Us — DIU CampusCart" },
       {
         property: "og:description",
-        content:
-          "Meet the team behind DIU CampusCart, and the people who help keep it safe and reliable.",
+        content: "Meet the team behind DIU CampusCart.",
       },
     ],
   }),
@@ -28,7 +25,7 @@ function AboutPage() {
   const [founder, ...members] = TEAM;
   return (
     <SiteLayout>
-      <div className="container-page space-y-14 py-10 sm:space-y-16 sm:py-14">
+      <div className="container-page py-10 sm:py-14">
         {/* ---- Our Team ---- */}
         <section aria-labelledby="team-h" className="mx-auto max-w-6xl">
           <div className="max-w-3xl">
@@ -59,42 +56,6 @@ function AboutPage() {
               ))}
             </ul>
           </div>
-        </section>
-
-        {/* ---- Testing & Security Contributors (compact acknowledgement) ---- */}
-        <section
-          aria-labelledby="contributors-h"
-          className="mx-auto max-w-6xl border-t border-border pt-10 sm:pt-12"
-        >
-          <div className="max-w-3xl">
-            <h2
-              id="contributors-h"
-              className="font-display text-lg font-semibold tracking-[-0.015em] sm:text-xl"
-            >
-              Testing &amp; Security Contributors
-            </h2>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              CampusCart is grateful to the people who help us improve the platform through
-              continuous testing, bug reporting, and security checks. Their valuable contributions
-              help us deliver a safer, smoother, and more reliable experience for everyone.
-            </p>
-          </div>
-          <ul className="mt-4 flex flex-wrap gap-2.5">
-            {TESTING_CONTRIBUTORS.map((c) => (
-              <li key={c.name}>
-                <a
-                  href={c.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${c.name} on Facebook (opens in a new tab)`}
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3.5 py-2 text-sm font-medium transition-colors duration-200 hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <Facebook className="size-4 text-primary" aria-hidden="true" />
-                  {c.name}
-                </a>
-              </li>
-            ))}
-          </ul>
         </section>
       </div>
     </SiteLayout>

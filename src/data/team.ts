@@ -91,15 +91,3 @@ export const TEAM: TeamMember[] = [
     ],
   },
 ];
-
-/** Testing & Security Contributors acknowledgement (names link to Facebook). */
-export const TESTING_CONTRIBUTORS: { name: string; facebook: string }[] = [
-  {
-    name: "Ajmain Hasan Mahim",
-    facebook: "https://www.facebook.com/share/1JHTdULLGg/?mibextid=wwXIfr",
-  },
-  {
-    name: "Jowyreya Hossain",
-    facebook: "https://www.facebook.com/share/1MD9CE4oi3/?mibextid=wwXIfr",
-  },
-];
