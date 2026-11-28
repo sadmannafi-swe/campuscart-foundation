@@ -1,7 +1,10 @@
 /**
  * The people behind CampusCart, as provided by the founder. Edit here only —
- * the About Us page renders from this list. No photos: none have been provided,
- * so members are shown with initials avatars.
+ * the About Us page renders from this list.
+ *
+ * Photos: none have been provided yet, so every profile shows an empty image
+ * placeholder. To add one, put the file in /public/team/ and set `photo`, e.g.
+ *   photo: "/team/sadman.jpg"
  */
 
 export type SocialKind = "website" | "facebook" | "linkedin";
@@ -18,13 +21,20 @@ export interface TeamMember {
   links: SocialLink[];
   /** Shown first and highlighted. */
   founder?: boolean;
+  /** Card colour (profile ring, role badge, profile button). */
+  accent: TeamAccent;
+  /** Profile photo path under /public (optional; a placeholder shows until set). */
+  photo?: string;
 }
+
+export type TeamAccent = "blue" | "green" | "purple" | "orange";
 
 export const TEAM: TeamMember[] = [
   {
     name: "Sadman Nahial Nafi",
     title: "Founder & Technology Lead",
     founder: true,
+    accent: "blue",
     responsibilities: [
       "Founder & Product Manager",
       "Frontend Development",
@@ -41,6 +51,7 @@ export const TEAM: TeamMember[] = [
   {
     name: "Jowyreya Hossain",
     title: "UI/UX & Quality Assurance Contributor",
+    accent: "blue",
     responsibilities: [
       "UI/UX Design",
       "Interface & Usability Testing",
@@ -54,6 +65,7 @@ export const TEAM: TeamMember[] = [
   {
     name: "Ajmain Hasan Mahim",
     title: "QA & Security Testing Contributor",
+    accent: "green",
     responsibilities: [
       "Manual Quality Assurance",
       "Bug Identification & Reporting",
@@ -67,6 +79,7 @@ export const TEAM: TeamMember[] = [
   {
     name: "Farhan Adib",
     title: "Operations & Seller Support Contributor",
+    accent: "purple",
     responsibilities: [
       "Seller Support",
       "Seller Onboarding",
@@ -80,6 +93,7 @@ export const TEAM: TeamMember[] = [
   {
     name: "Fatin Istiak Shammo",
     title: "Operations & Seller Support Contributor",
+    accent: "orange",
     responsibilities: [
       "Seller Support",
       "Marketplace Operations",

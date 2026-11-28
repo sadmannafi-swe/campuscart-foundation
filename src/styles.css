@@ -1743,3 +1743,327 @@ html[data-theme-switch] header {
     animation: none !important;
   }
 }
+
+/* ---- About Us: Meet the Team ------------------------------------------------------- */
+/* Section-scoped tokens (light + dark), per-card accents via [data-accent]. Animations
+   use transform / opacity / background-position only — no layout shift — and are off
+   with prefers-reduced-motion (see the end of this block). */
+.team-section {
+  --team-blue: oklch(0.56 0.2 262);
+  --team-line: oklch(0.9 0.02 255);
+  --team-faint: oklch(0.78 0.08 255 / 0.5);
+  --team-shadow: 0 1px 2px oklch(0.3 0.05 260 / 6%), 0 18px 40px -20px oklch(0.45 0.12 260 / 30%);
+  --team-shadow-hover:
+    0 2px 4px oklch(0.3 0.05 260 / 8%), 0 28px 56px -22px oklch(0.45 0.14 260 / 42%);
+  background: linear-gradient(
+    180deg,
+    oklch(0.965 0.02 255),
+    oklch(0.985 0.01 250) 55%,
+    oklch(0.965 0.022 255)
+  );
+}
+.dark .team-section {
+  --team-blue: oklch(0.66 0.17 258);
+  --team-line: oklch(0.33 0.04 262);
+  --team-faint: oklch(0.6 0.09 258 / 0.28);
+  --team-shadow: 0 1px 2px oklch(0 0 0 / 30%), 0 18px 40px -20px oklch(0 0 0 / 60%);
+  --team-shadow-hover: 0 2px 4px oklch(0 0 0 / 35%), 0 28px 56px -22px oklch(0.4 0.14 260 / 50%);
+  background: linear-gradient(
+    180deg,
+    oklch(0.23 0.045 264),
+    oklch(0.2 0.035 264) 60%,
+    oklch(0.22 0.045 264)
+  );
+}
+.team-section [data-accent="blue"] {
+  --acc: oklch(0.55 0.2 262);
+  --acc-2: oklch(0.74 0.13 235);
+  --acc-soft: oklch(0.94 0.04 255);
+  --acc-line: oklch(0.83 0.08 258);
+}
+.team-section [data-accent="green"] {
+  --acc: oklch(0.5 0.14 152);
+  --acc-2: oklch(0.78 0.15 150);
+  --acc-soft: oklch(0.945 0.05 150);
+  --acc-line: oklch(0.83 0.09 150);
+}
+.team-section [data-accent="purple"] {
+  --acc: oklch(0.5 0.21 295);
+  --acc-2: oklch(0.74 0.14 300);
+  --acc-soft: oklch(0.945 0.04 300);
+  --acc-line: oklch(0.83 0.08 298);
+}
+.team-section [data-accent="orange"] {
+  --acc: oklch(0.55 0.15 48);
+  --acc-2: oklch(0.82 0.14 70);
+  --acc-soft: oklch(0.955 0.045 70);
+  --acc-line: oklch(0.86 0.08 65);
+}
+.dark .team-section [data-accent="blue"] {
+  --acc: oklch(0.76 0.13 255);
+  --acc-soft: oklch(0.32 0.07 262);
+  --acc-line: oklch(0.46 0.1 260);
+}
+.dark .team-section [data-accent="green"] {
+  --acc: oklch(0.78 0.14 150);
+  --acc-soft: oklch(0.3 0.06 152);
+  --acc-line: oklch(0.45 0.09 152);
+}
+.dark .team-section [data-accent="purple"] {
+  --acc: oklch(0.76 0.13 300);
+  --acc-soft: oklch(0.31 0.07 298);
+  --acc-line: oklch(0.46 0.1 298);
+}
+.dark .team-section [data-accent="orange"] {
+  --acc: oklch(0.8 0.13 65);
+  --acc-soft: oklch(0.32 0.06 60);
+  --acc-line: oklch(0.48 0.09 60);
+}
+
+/* heading */
+.team-gradient-text {
+  background: linear-gradient(90deg, var(--team-blue), oklch(0.66 0.17 240));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.team-rule {
+  background: linear-gradient(90deg, transparent, var(--team-blue));
+}
+.team-dash {
+  top: 38%;
+  width: 34px;
+  height: 7px;
+  border-radius: 9px;
+  background: var(--team-blue);
+  opacity: 0.85;
+  animation: team-float 10s ease-in-out infinite alternate;
+}
+.team-dash::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 7px;
+  border-radius: 9px;
+  background: inherit;
+  top: 16px;
+  left: 10px;
+}
+.team-dash-l {
+  left: -76px;
+  rotate: 22deg;
+}
+.team-dash-r {
+  right: -76px;
+  rotate: -22deg;
+}
+.team-dash-r::after {
+  left: 2px;
+}
+
+/* background decorations: slow float */
+.team-wave {
+  border-radius: 46% 54% 58% 42% / 52% 44% 56% 48%;
+  background: linear-gradient(135deg, oklch(0.72 0.14 252 / 0.5), oklch(0.86 0.07 245 / 0.18));
+  animation: team-float 16s ease-in-out infinite alternate;
+}
+.dark .team-wave {
+  background: linear-gradient(135deg, oklch(0.5 0.16 258 / 0.35), oklch(0.4 0.1 255 / 0.08));
+}
+.team-wave-tl {
+  left: -150px;
+  top: -140px;
+  width: 400px;
+  height: 300px;
+}
+.team-wave-br {
+  right: -170px;
+  bottom: -150px;
+  width: 540px;
+  height: 300px;
+  animation-delay: -6s;
+}
+.team-dots {
+  background-image: radial-gradient(var(--team-faint) 1.7px, transparent 2.2px);
+  background-size: 14px 14px;
+}
+.team-float {
+  animation: team-float 12s ease-in-out infinite alternate;
+  animation-delay: var(--d, 0s);
+}
+@keyframes team-float {
+  to {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+/* cards: lift + deeper shadow on hover */
+.team-card {
+  transition:
+    transform 450ms var(--ease-bloom),
+    box-shadow 450ms var(--ease-bloom);
+}
+.team-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--team-shadow-hover);
+}
+.team-founder:hover {
+  transform: translateY(-4px);
+}
+
+/* founder: moving blue gradient panel + soft swoosh */
+.team-founder-panel {
+  inset: 0 auto 0 0;
+  width: 19%;
+  clip-path: polygon(0 0, 100% 0, 62% 100%, 0 100%);
+  background: linear-gradient(
+    115deg,
+    oklch(0.38 0.17 266),
+    oklch(0.52 0.21 260) 30%,
+    oklch(0.66 0.17 246) 55%,
+    oklch(0.84 0.09 235) 78%,
+    oklch(0.52 0.21 260)
+  );
+  background-size: 260% 260%;
+  animation: team-pan 14s ease-in-out infinite alternate;
+}
+.team-founder-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 40%, oklch(1 0 0 / 0.35) 47%, transparent 54%);
+}
+.team-founder-swoosh {
+  right: -12%;
+  bottom: -55%;
+  width: 60%;
+  height: 150%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 60% 40%,
+    color-mix(in oklch, var(--team-blue) 18%, transparent),
+    transparent 62%
+  );
+  animation: team-float 15s ease-in-out infinite alternate;
+}
+@media (max-width: 1023.98px) {
+  .team-founder-panel {
+    width: 100%;
+    height: 112px;
+    inset: 0 0 auto 0;
+    clip-path: polygon(0 0, 100% 0, 100% 40%, 0 100%);
+  }
+}
+@keyframes team-pan {
+  from {
+    background-position: 0% 40%;
+  }
+  to {
+    background-position: 100% 60%;
+  }
+}
+
+/* profile ring: slow gradient shimmer + breathing glow */
+.team-ring {
+  background: linear-gradient(135deg, var(--acc), var(--acc-2), var(--acc-soft), var(--acc));
+  background-size: 300% 300%;
+  animation: team-pan 7s ease-in-out infinite alternate;
+}
+.team-ring::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: 0 0 24px 2px color-mix(in oklch, var(--acc) 45%, transparent);
+  opacity: 0.25;
+  animation: team-glow 4.5s ease-in-out infinite;
+}
+@keyframes team-glow {
+  50% {
+    opacity: 0.7;
+  }
+}
+.team-crown {
+  rotate: -24deg;
+  filter: drop-shadow(0 3px 4px oklch(0.4 0.1 70 / 35%));
+}
+
+/* soft diagonal brush behind a contributor's profile */
+.team-brush {
+  top: 34px;
+  left: 50%;
+  width: 280px;
+  height: 64px;
+  translate: -50% 0;
+  rotate: -18deg;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--acc-soft) 30%,
+    var(--acc-soft) 70%,
+    transparent
+  );
+  opacity: 0.9;
+}
+
+/* role badge: gentle entrance after its card reveals */
+[data-reveal][data-shown="true"] .team-role {
+  animation: team-badge-in 650ms var(--ease-bloom) both;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 320ms);
+}
+@keyframes team-badge-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px) scale(0.92);
+  }
+}
+
+/* social links + profile buttons */
+.team-social {
+  transition:
+    background-color 250ms ease,
+    color 250ms ease;
+}
+.team-social:hover,
+.team-social:focus-visible {
+  background: var(--acc-soft);
+}
+.team-profile-btn {
+  transition:
+    background-color 300ms var(--ease-bloom),
+    border-color 300ms var(--ease-bloom),
+    box-shadow 300ms var(--ease-bloom),
+    transform 300ms var(--ease-bloom);
+}
+.team-profile-btn:hover,
+.team-profile-btn:focus-visible {
+  background: var(--acc-soft);
+  border-color: var(--acc);
+  box-shadow: 0 8px 18px -10px var(--acc);
+  transform: translateY(-1px);
+}
+.team-profile-btn .team-arrow {
+  transition: transform 300ms var(--ease-bloom);
+}
+.team-profile-btn:hover .team-arrow,
+.team-profile-btn:focus-visible .team-arrow {
+  transform: translateX(3px);
+}
+.team-social:focus-visible,
+.team-profile-btn:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-section *,
+  .team-section *::before,
+  .team-section *::after {
+    animation: none !important;
+  }
+  .team-card:hover {
+    transform: none;
+  }
+}
