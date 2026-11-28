@@ -1899,16 +1899,53 @@ html[data-theme-switch] header {
 
 /* cards: lift + deeper shadow on hover */
 .team-card {
+  transform: perspective(1100px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg))
+    translateY(var(--lift, 0px));
   transition:
     transform 450ms var(--ease-bloom),
     box-shadow 450ms var(--ease-bloom);
 }
 .team-card:hover {
-  transform: translateY(-6px);
+  --lift: -6px;
   box-shadow: var(--team-shadow-hover);
 }
 .team-founder:hover {
-  transform: translateY(-4px);
+  --lift: -4px;
+}
+/* light that follows the pointer (useTilt sets --gx/--gy) */
+.team-sheen {
+  z-index: 1;
+  border-radius: inherit;
+  opacity: 0;
+  background: radial-gradient(
+    320px circle at var(--gx, 50%) var(--gy, 0%),
+    oklch(1 0 0 / 0.35),
+    transparent 60%
+  );
+  transition: opacity 400ms ease;
+}
+.dark .team-sheen {
+  background: radial-gradient(
+    320px circle at var(--gx, 50%) var(--gy, 0%),
+    oklch(1 0 0 / 0.07),
+    transparent 60%
+  );
+}
+@media (hover: hover) and (pointer: fine) {
+  .team-card:hover .team-sheen {
+    opacity: 1;
+  }
+}
+/* photo: zooms gently inside its circle on hover; the ring glows brighter */
+.team-photo {
+  transition: transform 700ms var(--ease-bloom);
+}
+.team-card:hover .team-photo {
+  transform: scale(1.07);
+}
+.team-card:hover .team-ring::after {
+  opacity: 0.95;
+  animation-play-state: paused;
 }
 
 /* founder: moving blue gradient panel + soft swoosh */
@@ -1931,7 +1968,18 @@ html[data-theme-switch] header {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg, transparent 40%, oklch(1 0 0 / 0.35) 47%, transparent 54%);
+  background: linear-gradient(115deg, transparent 40%, oklch(1 0 0 / 0.38) 47%, transparent 54%);
+  background-size: 300% 100%;
+  animation: team-streak 7s ease-in-out 1.5s infinite;
+}
+@keyframes team-streak {
+  0%,
+  45% {
+    background-position: 110% 0;
+  }
+  100% {
+    background-position: -10% 0;
+  }
 }
 .team-founder-swoosh {
   right: -12%;
@@ -1986,6 +2034,7 @@ html[data-theme-switch] header {
 }
 .team-crown {
   rotate: -24deg;
+  animation: team-bob 3.6s ease-in-out infinite;
   filter: drop-shadow(0 3px 4px oklch(0.4 0.1 70 / 35%));
 }
 
@@ -2064,6 +2113,76 @@ html[data-theme-switch] header {
     animation: none !important;
   }
   .team-card:hover {
+    transform: none;
+  }
+}
+
+/* ---- Meet the Team: extra motion (all off with reduced motion, below) ---- */
+.team-gradient-text {
+  background-image: linear-gradient(
+    90deg,
+    var(--team-blue),
+    oklch(0.66 0.17 240),
+    oklch(0.78 0.12 225),
+    oklch(0.66 0.17 240),
+    var(--team-blue)
+  );
+  background-size: 250% 100%;
+  animation: team-shimmer 6s ease-in-out infinite alternate;
+}
+@keyframes team-shimmer {
+  to {
+    background-position: 100% 0;
+  }
+}
+@keyframes team-bob {
+  50% {
+    transform: translateY(-3px);
+  }
+}
+/* when a card reveals: the ring pops in, the photo settles from a slight zoom,
+   then the responsibilities cascade in */
+[data-reveal][data-shown="true"] .team-ring {
+  animation:
+    team-ring-in 700ms var(--ease-bloom) both,
+    team-pan 7s ease-in-out 700ms infinite alternate;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 120ms), calc(var(--reveal-delay, 0ms) + 820ms);
+}
+[data-reveal][data-shown="true"] .team-photo {
+  animation: team-photo-in 900ms var(--ease-bloom) both;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 180ms);
+}
+[data-reveal][data-shown="true"] .team-resp > li {
+  animation: team-item-in 500ms var(--ease-bloom) both;
+  animation-delay: calc(var(--reveal-delay, 0ms) + 420ms + var(--i, 0) * 70ms);
+}
+@keyframes team-ring-in {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+}
+@keyframes team-photo-in {
+  from {
+    opacity: 0;
+    transform: scale(1.18);
+  }
+}
+@keyframes team-item-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .team-section *,
+  .team-section *::before,
+  .team-section *::after {
+    animation: none !important;
+  }
+  .team-card,
+  .team-card:hover,
+  .team-card:hover .team-photo {
     transform: none;
   }
 }

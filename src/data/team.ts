@@ -2,9 +2,8 @@
  * The people behind CampusCart, as provided by the founder. Edit here only —
  * the About Us page renders from this list.
  *
- * Photos: none have been provided yet, so every profile shows an empty image
- * placeholder. To add one, put the file in /public/team/ and set `photo`, e.g.
- *   photo: "/team/sadman.jpg"
+ * Photos live in /public/team/ (square, 512 px, face centred for the round frame).
+ * Without `photo` a profile shows an empty image placeholder.
  */
 
 export type SocialKind = "website" | "facebook" | "linkedin";
@@ -32,6 +31,7 @@ export type TeamAccent = "blue" | "green" | "purple" | "orange";
 export const TEAM: TeamMember[] = [
   {
     name: "Sadman Nahial Nafi",
+    photo: "/team/sadman.webp",
     title: "Founder & Technology Lead",
     founder: true,
     accent: "blue",
@@ -50,6 +50,7 @@ export const TEAM: TeamMember[] = [
   },
   {
     name: "Jowyreya Hossain",
+    photo: "/team/jowyreya.webp",
     title: "UI/UX & Quality Assurance Contributor",
     accent: "blue",
     responsibilities: [
@@ -64,6 +65,7 @@ export const TEAM: TeamMember[] = [
   },
   {
     name: "Ajmain Hasan Mahim",
+    photo: "/team/ajmain.webp",
     title: "QA & Security Testing Contributor",
     accent: "green",
     responsibilities: [
@@ -78,6 +80,7 @@ export const TEAM: TeamMember[] = [
   },
   {
     name: "Farhan Adib",
+    photo: "/team/farhan.webp",
     title: "Operations & Seller Support Contributor",
     accent: "purple",
     responsibilities: [
@@ -92,6 +95,7 @@ export const TEAM: TeamMember[] = [
   },
   {
     name: "Fatin Istiak Shammo",
+    photo: "/team/fatin.webp",
     title: "Operations & Seller Support Contributor",
     accent: "orange",
     responsibilities: [

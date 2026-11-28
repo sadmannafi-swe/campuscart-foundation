@@ -10,6 +10,7 @@ import {
   Users,
 } from "lucide-react";
 import { Reveal } from "@/components/motion/Reveal";
+import { useTilt } from "@/lib/motion";
 import type { SocialKind, SocialLink, TeamMember } from "@/data/team";
 import { cn } from "@/lib/utils";
 
@@ -95,8 +96,11 @@ export function ProfilePhoto({ member, size }: { member: TeamMember; size: "lg" 
             <img
               src={member.photo}
               alt={member.name}
-              className="size-full object-cover"
-              loading="lazy"
+              width={512}
+              height={512}
+              decoding="async"
+              loading={member.founder ? "eager" : "lazy"}
+              className="team-photo size-full object-cover"
             />
           ) : (
             <>
@@ -123,9 +127,13 @@ export function ProfilePhoto({ member, size }: { member: TeamMember; size: "lg" 
 
 function Responsibilities({ items, className }: { items: string[]; className?: string }) {
   return (
-    <ul className={cn("text-[15px] leading-snug", className)}>
-      {items.map((r) => (
-        <li key={r} className="flex items-start gap-3 text-foreground/85">
+    <ul className={cn("team-resp text-[15px] leading-snug", className)}>
+      {items.map((r, i) => (
+        <li
+          key={r}
+          style={{ "--i": i } as CSSProperties}
+          className="flex items-start gap-3 text-foreground/85"
+        >
           <Check
             className="mt-0.5 size-[18px] shrink-0 text-[oklch(0.58_0.15_150)]"
             strokeWidth={2.6}
@@ -140,9 +148,16 @@ function Responsibilities({ items, className }: { items: string[]; className?: s
 
 // ---- Founder -------------------------------------------------------------------------------
 
+/** Soft light that follows the pointer while a card tilts (mouse only). */
+const Sheen = () => (
+  <span aria-hidden="true" className="team-sheen pointer-events-none absolute inset-0" />
+);
+
 export function FounderCard({ member }: { member: TeamMember }) {
+  const tilt = useTilt<HTMLElement>(2);
   return (
     <article
+      ref={tilt}
       data-accent={member.accent}
       className="team-card team-founder relative overflow-hidden rounded-[26px] border border-[var(--team-line)] bg-surface shadow-[var(--team-shadow)]"
     >
@@ -150,6 +165,7 @@ export function FounderCard({ member }: { member: TeamMember }) {
       <span aria-hidden="true" className="team-founder-panel absolute" />
       {/* soft swoosh on the right, as in the reference */}
       <span aria-hidden="true" className="team-founder-swoosh absolute" />
+      <Sheen />
 
       <div className="relative flex flex-col gap-6 p-5 pt-8 sm:p-8 lg:flex-row lg:items-center lg:gap-0 lg:p-0">
         <div className="flex flex-col items-center gap-5 text-center sm:flex-row sm:gap-7 sm:text-left lg:w-[54%] lg:py-9 lg:pl-[4.5%] lg:pr-8">
@@ -207,13 +223,16 @@ export function FounderCard({ member }: { member: TeamMember }) {
 
 export function MemberCard({ member }: { member: TeamMember }) {
   const facebook = member.links.find((l) => l.kind === "facebook");
+  const tilt = useTilt<HTMLElement>(6);
   return (
     <article
+      ref={tilt}
       data-accent={member.accent}
       className="team-card relative flex h-full flex-col items-center overflow-hidden rounded-[24px] border border-[var(--team-line)] bg-surface px-5 pb-7 pt-7 text-center shadow-[var(--team-shadow)] sm:px-6 xl:px-5"
     >
       {/* the soft diagonal brush behind the profile, as in the reference */}
       <span aria-hidden="true" className="team-brush absolute" />
+      <Sheen />
       <ProfilePhoto member={member} size="md" />
       <h3 className="relative mt-4 font-display text-xl font-bold tracking-[-0.015em]">
         {member.name}
